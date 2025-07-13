@@ -68,3 +68,8 @@ class AddSpotView(View):
     def get(self, request, *args, **kwargs):
         data = {}
         return renderfile(request,'spots','add-spot',data)
+
+class ProfileView(View):
+    def get(self, request, *args, **kwargs):
+        data = {}
+        return renderfile(request,'profile','index',data)

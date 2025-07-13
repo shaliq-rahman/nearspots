@@ -1,0 +1,336 @@
+{% extends 'portal/layout/base.html' %}
+{% load static %}
+{% block 'content' %}
+
+<div class="profile-container">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" aria-label="Profile Navigation">
+      <button class="sidebar-toggle" aria-label="Open menu">
+        <span class="hamburger"></span>
+      </button>
+      <ul class="sidebar-menu">
+        <li id="tab-profile" class="active" onclick="showTab('profile')"><span class="sidebar-label">My Profile</span></li>
+        <li id="tab-spots" onclick="showTab('spots')"><span class="sidebar-label">My Spots</span></li>
+        <li><span class="sidebar-label">Reviews</span></li>
+        <li><span class="sidebar-label">Notifications</span></li>
+        <li> <span class="sidebar-label">Logout</span></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content: Tabbed Sections -->
+    <main class="profile-main">
+      <!-- Profile Info Tab -->
+      <section id="section-profile" class="profile-section" style="display:block;">
+        <h2>My Profile</h2>
+        <div class="profile-avatar-wrapper">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile Picture" class="profile-avatar" />
+          <label class="avatar-upload" for="avatarInput" tabindex="0">
+            <input type="file" id="avatarInput" accept="image/*" hidden />
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#0B4C4C"/><path d="M12 7a3 3 0 100 6 3 3 0 000-6zm-7 9.5V18a1 1 0 001 1h12a1 1 0 001-1v-1.5a4.5 4.5 0 00-9 0z" fill="#fff"/></svg>
+          </label>
+        </div>
+        <form class="profile-form" autocomplete="off">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="First Name" value="Khalid" />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Last Name" value="Mansoor" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" placeholder="Email Address" value="khalid@gmail.com" />
+            </div>
+            <div class="form-group">
+              <label for="mobile">Mobile Number</label>
+              <input type="tel" id="mobile" name="mobile" placeholder="+91 99550 12311" value="+91 99550 12311" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Save Changes</button>
+          </div>
+        </form>
+        <!-- Change Password -->
+        <h3>Change Password</h3>
+        <form class="profile-form" autocomplete="off">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <input type="password" id="currentPassword" name="currentPassword" placeholder="Current Password" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" name="newPassword" placeholder="New Password" />
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Re-enter New Password</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter New Password" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Update</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- My Spots Tab -->
+      <section id="section-spots" class="profile-section" style="display:none;">
+        <div class="results-header" style="align-items: flex-end;">
+          <div style="display:flex; align-items:center; width:100%; gap:24px;">
+            <div style="flex:1 1 auto;">
+              <h2 class="results-title" style="margin-bottom:0;">My Spots</h2>
+            </div>
+            <button class="btn-primary" style="min-width:120px;">Add Spot</button>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:8px; gap:16px;">
+            <div class="results-subtext">3 Active Spots</div>
+            <div class="results-sort">
+              <label for="sort-select">Sort by:</label>
+              <div class="custom-select-wrapper">
+                <select id="sort-select" class="sort-select">
+                  <option>Recently Added</option>
+                  <option>Top Rated</option>
+                  <option>Price: Low to High</option>
+                  <option>Price: High to Low</option>
+                </select>
+                <span class="custom-arrow">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 8l5 5 5-5" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="results-grid">
+          <!-- Spot Card 1 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 1">
+              <span class="attraction-badge">1,234 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Bourré, France</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.84
+                </span>
+              </div>
+              <div class="attraction-distance">8,015 km away</div>
+              <div class="attraction-price">$154 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 2 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 2">
+              <span class="attraction-badge">2,567 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Nice, France</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.92
+                </span>
+              </div>
+              <div class="attraction-distance">7,500 km away</div>
+              <div class="attraction-price">$210 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 3 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 3">
+              <span class="attraction-badge">987 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Paris, France</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.75
+                </span>
+              </div>
+              <div class="attraction-distance">7,800 km away</div>
+              <div class="attraction-price">$180 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 4 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 4">
+              <span class="attraction-badge">1,100 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Rome, Italy</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.67
+                </span>
+              </div>
+              <div class="attraction-distance">6,200 km away</div>
+              <div class="attraction-price">$195 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 5 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 5">
+              <span class="attraction-badge">2,000 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Berlin, Germany</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.90
+                </span>
+              </div>
+              <div class="attraction-distance">5,800 km away</div>
+              <div class="attraction-price">$220 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 6 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 6">
+              <span class="attraction-badge">1,800 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Madrid, Spain</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.80
+                </span>
+              </div>
+              <div class="attraction-distance">6,900 km away</div>
+              <div class="attraction-price">$175 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 7 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 7">
+              <span class="attraction-badge">1,500 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Vienna, Austria</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.88
+                </span>
+              </div>
+              <div class="attraction-distance">5,200 km away</div>
+              <div class="attraction-price">$200 CAD</div>
+            </div>
+          </div>
+          <!-- Spot Card 8 -->
+          <div class="attraction-card">
+            <div class="attraction-image-container">
+              <img src="https://images.unsplash.com/photo-1465101178521-c1a9136a3fd9?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Spot 8">
+              <span class="attraction-badge">1,300 views</span>
+              <span class="attraction-menu">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="11" fill="#fff"/>
+                  <circle cx="11" cy="7" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="11" r="1.2" fill="#222"/>
+                  <circle cx="11" cy="15" r="1.2" fill="#222"/>
+                </svg>
+              </span>
+            </div>
+            <div class="attraction-card-content">
+              <div class="attraction-card-row">
+                <span class="attraction-location">Zurich, Switzerland</span>
+                <span class="attraction-rating">
+                  <span class="star">&#9733;</span> 4.95
+                </span>
+              </div>
+              <div class="attraction-distance">5,600 km away</div>
+              <div class="attraction-price">$230 CAD</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="{% static 'portal/js/script.js' %}?v=1"></script>
+  <script>
+    function showTab(tab) {
+      // Sidebar active state
+      document.getElementById('tab-profile').classList.remove('active');
+      document.getElementById('tab-spots').classList.remove('active');
+      // Sections
+      document.getElementById('section-profile').style.display = 'none';
+      document.getElementById('section-spots').style.display = 'none';
+      if (tab === 'profile') {
+        document.getElementById('tab-profile').classList.add('active');
+        document.getElementById('section-profile').style.display = 'block';
+      } else if (tab === 'spots') {
+        document.getElementById('tab-spots').classList.add('active');
+        document.getElementById('section-spots').style.display = 'block';
+      }
+    }
+  </script>
+
+
+{% endblock %}
