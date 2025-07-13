@@ -260,5 +260,48 @@ document.addEventListener('DOMContentLoaded', function() {
       stars.forEach(s => s.classList.remove('hovered'));
     });
   }
+
+
+  // Modal open/close logic
+  function openAuthModal() {
+    const overlay = document.getElementById('auth-modal-overlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => overlay.classList.add('active'), 10);
+    setTimeout(() => {
+      const firstInput = overlay.querySelector('.modal-input');
+      if (firstInput) firstInput.focus();
+    }, 200);
+  }
+  function closeAuthModal() {
+    const overlay = document.getElementById('auth-modal-overlay');
+    overlay.classList.remove('active');
+    setTimeout(() => { overlay.style.display = 'none'; }, 300);
+  }
+
+  // Open modal on test button click
+  const testBtn = document.getElementById('test-login-modal-btn');
+  if (testBtn) {
+    testBtn.addEventListener('click', openAuthModal);
+  }
+
+  // Open modal on CTA button click (if present)
+  const ctaBtn = document.querySelector('.cta-btn');
+  if (ctaBtn) {
+    ctaBtn.addEventListener('click', openAuthModal);
+  }
+
+  // Close modal on close button or overlay click
+  const overlay = document.getElementById('auth-modal-overlay');
+  if (overlay) {
+    const closeBtn = overlay.querySelector('.modal-close');
+    if (closeBtn) closeBtn.onclick = closeAuthModal;
+    overlay.onclick = function(e) {
+      if (e.target === this) closeAuthModal();
+    };
+  }
+  // ESC key closes modal
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") closeAuthModal();
+  });
   
 }); 

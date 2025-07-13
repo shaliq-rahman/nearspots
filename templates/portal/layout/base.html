@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Luxury Travel Homepage</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <link rel="stylesheet" href="{% static 'portal/css/style.css' %}">
 </head>
 <body>
@@ -14,6 +15,7 @@
   {% endblock %}
 
   {% include 'portal/layout/footer.html' %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="{% static 'portal/js/location.js' %}?v=1"></script> 
   <script src="{% static 'portal/js/script.js' %}?v=1"></script> 
 </body>

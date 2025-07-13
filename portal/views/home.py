@@ -62,4 +62,9 @@ class SearchView(View):
 class SpotDetailView(View):
     def get(self, request, *args, **kwargs):
         data = {}
-        return renderfile(request,'spot-detail','index',data)
+        return renderfile(request,'spots','detail',data)
+    
+class AddSpotView(View):
+    def get(self, request, *args, **kwargs):
+        data = {}
+        return renderfile(request,'spots','add-spot',data)
