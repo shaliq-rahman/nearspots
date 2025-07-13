@@ -68,133 +68,33 @@
     <div class="top-rated-title">Latest Attraction Sights</div>
     <div class="hotel-cards">
       <!-- Card 1 -->
+       {% for latest_attraction in latest_attractions %}
       <div class="attraction-card">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1465156799763-2c087c332922?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Beach Resort">
-            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Mountain Resort">
-            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Historical Castle">
+            {% for spot_image in latest_attraction.spot_images.all %}
+            <img src="{{spot_image.image.url}}" class="carousel-img {% if forloop.first %}active{% endif %}" alt="{{latest_attraction.name}}">
+            {% endfor %}
           </div>
-          <span class="attraction-badge">Rated #1</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
+          {% comment %} <span class="attraction-badge">Rated #1</span> {% endcomment %}
           <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+            {% for spot_image in latest_attraction.spot_images.all %}
+            <span class="dot {% if forloop.first %}active{% endif %}"></span>
+            {% endfor %}
           </div>
         </div>
         <div class="attraction-card-content">
           <div class="attraction-card-row">
-            <span class="attraction-location">Maldives, Maldives</span>
+            <span class="attraction-location">{{latest_attraction.name}}</span>
             <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.92
+              <span class="star">&#9733;</span> {{latest_attraction.rating}}
             </span>
           </div>
           <div class="attraction-distance">12,450 km away</div>
           <div class="attraction-price">$2,450 CAD</div>
         </div>
       </div>
-      <!-- Card 2 -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Mountain View">
-            <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="National Park">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Museum">
-          </div>
-          <span class="attraction-badge">Rated #2</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Swiss Alps, Switzerland</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.88
-            </span>
-          </div>
-          <div class="attraction-distance">9,200 km away</div>
-          <div class="attraction-price">$1,850 CAD</div>
-        </div>
-      </div>
-      <!-- Card 3 -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Adventure Spot">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Luxury Hotel">
-            <img src="https://images.unsplash.com/photo-1465156799763-2c087c332922?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Tropical Beach">
-          </div>
-          <span class="attraction-badge">Rated #3</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bali, Indonesia</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.85
-            </span>
-          </div>
-          <div class="attraction-distance">15,800 km away</div>
-          <div class="attraction-price">$1,200 CAD</div>
-        </div>
-      </div>
-      <!-- Card 4 -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Museum">
-            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Historical Site">
-            <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Scenic View">
-          </div>
-          <span class="attraction-badge">Rated #4</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Rome, Italy</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.82
-            </span>
-          </div>
-          <div class="attraction-distance">7,500 km away</div>
-          <div class="attraction-price">$980 CAD</div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </section>
 
