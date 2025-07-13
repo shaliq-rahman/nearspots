@@ -19,11 +19,13 @@ $("#loginSubmit").on("click", function (event) {
     },
     mobile: {
       required: true,
-      minlength: 10
+      minlength: 10,
+      maxlength: 10,
+      digits: true
     },
     password: {
       required: true,
-      minlength: 6
+      minlength: 8
     },
     terms_and_conditions: {
       required: true
@@ -44,11 +46,13 @@ $("#loginSubmit").on("click", function (event) {
     },
     mobile: {
       required: "This field is required",
-      minlength: "Mobile number must be at least 10 digits"
+      minlength: "Mobile number must be exactly 10 digits",
+      maxlength: "Mobile number must be exactly 10 digits",
+      digits: "Mobile number must contain only digits"
     },
     password: {
       required: "This field is required",
-      minlength: "Password must be at least 6 characters"
+      minlength: "Password must be at least 8 characters"
     },
     terms_and_conditions: {
       required: "You must accept the terms and conditions"
@@ -82,25 +86,54 @@ $("#loginSubmit").on("click", function (event) {
     // Submit form via AJAX
     $.ajax({
       type: "POST",
-      url: "/register/", // Update this URL to match your Django URL
+      url: "/register/",
       data: formData,
       headers: {
         "X-CSRFToken": csrfToken,
       },
       dataType: "json",
       success: function(response) {
-        if (response.success) {
-          // Show success message or redirect
-          alert("Registration successful!");
-          // You can redirect here: window.location.href = response.redirect_url;
-        } else {
-          // Show error message
-          alert(response.message || "Registration failed. Please try again.");
+        if (response.status === 'success') {
+          // Show success message
+          alert(response.message);
+          // Close modal
+          $('#register-modal-overlay').hide();
+          // Redirect to home page
+          if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+          }
         }
       },
       error: function(xhr, status, error) {
-        console.error("Registration error:", error);
-        alert("Registration failed. Please try again.");
+        const response = xhr.responseJSON;
+        
+        if (response && response.errors) {
+          // Clear previous errors
+          $('.error').removeClass('error');
+          $('.error-message').remove();
+          
+          // Display field-specific errors
+          Object.keys(response.errors).forEach(function(field) {
+            const errorMessage = response.errors[field];
+            const fieldElement = $(`[name="${field}"]`);
+            
+            // Add error class to field
+            fieldElement.addClass('error');
+            
+            // Add error message
+            if (field === 'terms_and_conditions') {
+              fieldElement.next('label').after('<div class="error-message">' + errorMessage + '</div>');
+            } else {
+              fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
+            }
+          });
+        } else if (response && response.message) {
+          // Display general error message
+          alert(response.message);
+        } else {
+          // Generic error
+          alert('Registration failed. Please try again.');
+        }
       },
       complete: function() {
         // Re-enable submit button
