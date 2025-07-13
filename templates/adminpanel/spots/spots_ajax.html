@@ -33,6 +33,23 @@
             {% endif %}
         </td>
         <td>
+            {% if spot.is_approved %}
+                <span class="badge bg-success">Approved</span>
+            {% else %}
+                <span class="badge bg-danger">Pending</span>
+                <a class="btn btn-primary btn-sm mb-1 approve-btn" href="javascript:void(0)" data-url="{% url 'adminpanel:spots_approve' spot.id %}" data-item_id="{{spot.id}}">
+                    <i class="side-menu__icon fe fe-check"></i>
+                </a>
+            {% endif %}
+        </td>
+        <td>
+            {% if spot.user %}
+                <small class="text-muted">{{spot.user.name}}</small>
+            {% else %}
+                <small class="text-muted">Admin</small>
+            {% endif %}
+        </td>
+        <td>
             <div class="material-switch">
                 <input class="master-toggle" id="someSwitchOptionSuccess-{{spot.id}}" name="someSwitchOption001" type="checkbox" data-url="{% url 'adminpanel:spots_toggle' spot.id %}" data-item_id="{{spot.id}}" {% if spot.is_active %} checked {% endif %} />
                 <label for="someSwitchOptionSuccess-{{spot.id}}" class="label-success"></label>

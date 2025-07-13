@@ -253,7 +253,7 @@ class SpotsView(LoginRequiredMixin, View):
             if status and status != 'all':
                 status = True if status == 'active' else False
                 filter_conditions['is_active'] = status
-
+  
         spots = Spots.objects.filter(**filter_conditions).order_by('-id')
         try:
             page = int(request.GET.get("page", 1))
@@ -380,6 +380,7 @@ class SpotsCreateView(LoginRequiredMixin, View):
                 spot_data['city'] = city.strip()
             if description and description.strip():
                 spot_data['description'] = description.strip()
+            spot_data['is_approved'] = True
             
             # Create the spot
             spot = Spots.objects.create(**spot_data)
@@ -673,3 +674,24 @@ class SpotsImagesPreviewView(LoginRequiredMixin, View):
                 'success': False, 
                 'message': error_message
             })
+
+
+class SpotsApproveView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def post(self, request, id, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                data = {}
+                spot = get_object_or_404(Spots, id=id)
+                spot.is_approved = True
+                spot.save()
+                data['success'] = True
+                data['message'] = 'Spot approved successfully'
+                data['redirect_url'] = reverse('adminpanel:spots')
+        except Exception as error:
+            print('the error is ', error)
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)

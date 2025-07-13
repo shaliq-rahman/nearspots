@@ -98,6 +98,7 @@ class Categories(models.Model):
     
 class Spots(models.Model):
     name = models.CharField(max_length=250, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_spots')
     slug = AutoSlugField(populate_from='name', max_length=250, unique=True, null=True, blank=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True, blank=True)
     coordinates = models.CharField(max_length=250, null=True, blank=True)
@@ -110,6 +111,7 @@ class Spots(models.Model):
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     top_rated = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
     rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)

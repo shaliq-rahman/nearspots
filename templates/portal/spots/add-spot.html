@@ -48,7 +48,10 @@
   <section class="add-spot-section">
     <div class="add-spot-container">
       <a href="#" class="add-spot-back">Go Back</a>
-      <form class="add-spot-form" autocomplete="off">
+      <form class="add-spot-form" autocomplete="off" id="add-spot-form" action="{% url 'portal:add_spot' %}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="lat" value="{{ lat }}">
+        <input type="hidden" name="lon" value="{{ lon }}">
+        {% csrf_token %}
         <div class="form-group">
           <label for="spot-name">Spot Name</label>
           <input type="text" id="spot-name" name="spot-name" placeholder="Name" required />
@@ -86,7 +89,7 @@
           </div>
         </div>
         <div class="form-group photos-section">
-          <label>Photos</label>
+          <label>Photos<span class="required">*</span></label>
           <div class="photos-grid">
             <div class="photo-box cover-photo">
               <input type="file" id="cover-photo" name="cover-photo" accept="image/*" hidden />
@@ -102,7 +105,7 @@
                     </g>
                   </svg>
                 </span>
-                Add Cover Photo
+                Add Cover Photo<span class="required">*</span>
               </label>
             </div>
             <div class="photo-box">
@@ -174,10 +177,13 @@
               </label>
             </div>
           </div>
+          <div class="required-text">
+            <span class="required">*</span> Cover photo is required
+          </div>
         </div>
-        <button type="submit" class="add-spot-submit">Submit</button>
+        <button type="submit" class="add-spot-submit" id="add-spot-submit">Submit</button>
       </form>
-      <button type="button" id="test-modal-btn" style="margin-top:20px;">Test Success Modal</button>
+      {% comment %} <button type="button" id="test-modal-btn" style="margin-top:20px;">Test Success Modal</button> {% endcomment %}
     </div>
   </section>
 
@@ -200,6 +206,9 @@
     </div>
   </div>
 
-  <script src="{% static 'portal/js/add-spot.js' %}"></script>
 
+  <script src="{% static 'adminpanel/assets/js/jquery.min.js' %}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js" integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="{% static 'portal/js/add-spot.js' %}?v=1"></script>
+  <script src="{% static 'portal/js/home.js' %}?v=1"></script>
 {% endblock %}

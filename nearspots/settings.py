@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'portal.middleware.DatabaseConnectionMiddleware',  # Custom database connection middleware
 ]
 
 ROOT_URLCONF = 'nearspots.urls'
@@ -81,6 +82,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 30,  # 30 seconds timeout
+            'check_same_thread': False,
+        },
+        'ATOMIC_REQUESTS': False,  # Disable automatic transactions per request
+        'CONN_MAX_AGE': 0,  # Close connections after each request
     }
 }
 

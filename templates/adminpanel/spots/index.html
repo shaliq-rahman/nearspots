@@ -58,6 +58,8 @@
                                             <th>Spot Name</th>
                                             <th>Location</th>
                                             <th>Coordinates</th>
+                                            <th>Is Approved</th>
+                                            <th>Added By</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
@@ -211,6 +213,43 @@ $(document).ready(function() {
         $('#images-container').empty();
         $('#spot-name-display').text('Spot Images');
     });
+
+    // Handle approve button clicks
+    $(document).on('click', '.approve-btn', function() {
+        alert('approve-btn');
+        var $button = $(this);  // Save reference to the clicked button
+        var spotId = $button.data('item-id'); // fixed the attribute key
+        var url = $button.data('url');
+    
+        // Show loading state
+        $button.html('<i class="fe fe-loader fa-spin"></i> Approving...');
+    
+        var csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    
+        // Send AJAX request
+        $.ajax({
+            url: url,
+            method: 'POST',
+            headers: {
+                "X-CSRFToken": csrfToken,
+            },
+            success: function(response) {
+                if (response.success) { 
+                    $button.html('<i class="fe fe-check"></i> Approved');
+                    FilterMaster('');
+                } else {
+                    alert(response.message || 'Failed to approve spot');
+                    $button.html('<i class="side-menu__icon fe fe-check"></i> Approve');
+                }
+            },
+            error: function() {
+                alert('Failed to approve spot');
+                $button.html('<i class="side-menu__icon fe fe-check"></i> Approve');
+            }
+        });
+    });
 });
+
+
 </script>
 {% endblock page_script %}

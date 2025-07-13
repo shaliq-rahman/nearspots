@@ -20,7 +20,7 @@ from adminpanel.constantvariables import PAGINATION_PERPAGE
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import login, authenticate, logout
 from adminpanel.models import User, Categories, Spots, SpotImages
-from ..utils import add_distance_to_spots_from_request
+from ..utils import add_distance_to_spots_from_request, retry_database_operation
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -38,25 +38,25 @@ class HomeView(View):
         # Get food spots and add distance
         food_spots_queryset = Spots.objects.prefetch_related(
             Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-        ).filter(is_active=True, category_id=data['categories'][0].id)
+        ).filter(is_active=True,  category_id=data['categories'][0].id, is_approved=True)
         data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
         
         # Get attraction spots and add distance
         attraction_spots_queryset = Spots.objects.prefetch_related(
             Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-        ).filter(is_active=True, category_id=data['categories'][1].id)
+        ).filter(is_active=True, category_id=data['categories'][1].id, is_approved=True)
         data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
         
         # Latest attraction sites (limited to 4) with distance
         latest_attractions_queryset = Spots.objects.prefetch_related(
             'spot_images'
-        ).filter(is_active=True, category_id=data['categories'][1].id).order_by('-created_at')[:4]
+        ).filter(is_active=True, category_id=data['categories'][1].id, is_approved=True).order_by('-created_at')[:4]
         data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
         
         # Top rated spots (limited to 4) with distance
         top_rated_spots_queryset = Spots.objects.prefetch_related(
             'spot_images'
-        ).filter(is_active=True, top_rated=True).order_by('-created_at')[:4]
+        ).filter(is_active=True, top_rated=True, is_approved=True).order_by('-created_at')[:4]
         data['top_rated_spots'] = add_distance_to_spots_from_request(top_rated_spots_queryset, request)
         
         return renderfile(request,'home','index',data)
@@ -65,24 +65,224 @@ class SearchView(View):
     def get(self, request, *args, **kwargs):
         data = {}
         return renderfile(request,'search','index',data)
-    
-    
+      
 class SpotDetailView(View):
     def get(self, request, *args, **kwargs):
         data = {}
         return renderfile(request,'spots','detail',data)
     
-class AddSpotView(View):
+class AddSpotView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
+        lat = request.GET.get('lat')
         data = {}
+        data['categories'] = Categories.objects.filter(is_active=True)
         return renderfile(request,'spots','add-spot',data)
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            # Get form data
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
+            spot_name = request.POST.get('spot-name', '').strip()
+            spot_description = request.POST.get('spot-description', '').strip()
+            spot_address = request.POST.get('spot-address', '').strip()
+            spot_coords = request.POST.get('spot-coords', '').strip()
+            address = request.POST.get('address', '').strip()
+            building = request.POST.get('building', '').strip()
+            landmark = request.POST.get('landmark', '').strip()
+            city = request.POST.get('city', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            # Validate required fields
+            if not spot_name:
+                errors['spot-name'] = 'Spot name is required'
+            elif len(spot_name) < 3:
+                errors['spot-name'] = 'Spot name must be at least 3 characters long'
+                
+            if not spot_description:
+                errors['spot-description'] = 'Description is required'
+            elif len(spot_description) < 10:
+                errors['spot-description'] = 'Description must be at least 10 characters long'
+            
+            # Validate location information
+            if not spot_address and not spot_coords:
+                errors['location'] = 'Either address or coordinates are required'
+            
+            # Parse coordinates if provided
+            latitude = None
+            longitude = None
+            if spot_coords:
+                try:
+                    # Handle different coordinate formats
+                    coords_clean = spot_coords.replace('N', '').replace('S', '').replace('E', '').replace('W', '').strip()
+                    if ',' in coords_clean:
+                        lat_str, lon_str = coords_clean.split(',', 1)
+                        latitude = float(lat_str.strip())
+                        longitude = float(lon_str.strip())
+                        
+                        # Validate coordinate ranges
+                        if not (-90 <= latitude <= 90):
+                            errors['spot-coords'] = 'Latitude must be between -90 and 90'
+                        if not (-180 <= longitude <= 180):
+                            errors['spot-coords'] = 'Longitude must be between -180 and 180'
+                    else:
+                        errors['spot-coords'] = 'Invalid coordinate format. Use: latitude, longitude'
+                except ValueError:
+                    errors['spot-coords'] = 'Invalid coordinate format. Use numbers only'
+            
+            # Check if at least one image is uploaded
+            cover_photo = request.FILES.get('cover-photo')
+            photo1 = request.FILES.get('photo1')
+            photo2 = request.FILES.get('photo2')
+            photo3 = request.FILES.get('photo3')
+            photo4 = request.FILES.get('photo4')
+            
+            uploaded_images = [img for img in [cover_photo, photo1, photo2, photo3, photo4] if img]
+            
+            if not uploaded_images:
+                errors['images'] = 'At least one image is required'
+            
+            # Validate image files
+            for i, image in enumerate(uploaded_images):
+                if image:
+                    # Check file size (5MB limit)
+                    if image.size > 5 * 1024 * 1024:
+                        errors[f'image_{i}'] = f'Image {image.name} is too large. Maximum size is 5MB'
+                    
+                    # Check file type
+                    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+                    if image.content_type not in allowed_types:
+                        errors[f'image_{i}'] = f'Image {image.name} has unsupported format. Use JPEG, PNG, or WebP'
+            
+            # If there are validation errors, return them
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            # Get default category (first active category) - outside transaction
+            default_category = Categories.objects.filter(is_active=True).first()
+            
+            def create_spot_with_images():
+                """Function to create spot and images with retry mechanism"""
+                with transaction.atomic():
+                    # Create the spot
+                    spot = Spots.objects.create(
+                        user=request.user,
+                        name=spot_name,
+                        description=spot_description,
+                        address=spot_address or address,
+                        building_name=building,
+                        landmark=landmark,
+                        city=city,
+                        latitude=latitude,
+                        longitude=longitude,
+                        coordinates=spot_coords if spot_coords else f"{latitude}, {longitude}" if latitude and longitude else "",
+                        category=default_category,
+                        is_active=True,
+                        top_rated=False,
+                    )
+                    
+                    # Save images in a separate loop to avoid long transaction
+                    spot_images = []
+                    for i, image in enumerate(uploaded_images):
+                        if image:
+                            is_cover = (i == 0)  # First image is cover
+                            spot_images.append(SpotImages(
+                                spot=spot,
+                                image=image,
+                                is_cover=is_cover
+                            ))
+                    
+                    # Bulk create images to reduce database calls
+                    if spot_images:
+                        SpotImages.objects.bulk_create(spot_images)
+                    
+                    return spot
+            
+            # Try to create spot with retry mechanism
+            try:
+                spot = retry_database_operation(create_spot_with_images, max_retries=3, delay=0.5)
+                
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Spot added successfully! Admin will verify the details and let you know.',
+                    'redirect_url': reverse('portal:home')
+                })
+                
+            except Exception as e:
+                # If retry mechanism fails, try without transaction as last resort
+                try:
+                    # Create the spot without transaction
+                    spot = Spots.objects.create(
+                        user=request.user,
+                        name=spot_name,
+                        description=spot_description,
+                        address=spot_address or address,
+                        building_name=building,
+                        landmark=landmark,
+                        city=city,
+                        latitude=latitude,
+                        longitude=longitude,
+                        coordinates=spot_coords if spot_coords else f"{latitude}, {longitude}" if latitude and longitude else "",
+                        category=default_category,
+                        is_active=True,
+                        top_rated=False,
+                    )
+                    
+                    # Save images individually
+                    for i, image in enumerate(uploaded_images):
+                        if image:
+                            is_cover = (i == 0)  # First image is cover
+                            SpotImages.objects.create(
+                                spot=spot,
+                                image=image,
+                                is_cover=is_cover
+                            )
+                    
+                    return JsonResponse({
+                        'status': 'success',
+                        'message': 'Spot added successfully! Admin will verify the details and let you know.',
+                        'redirect_url': reverse('portal:home')
+                    })
+                    
+                except Exception as fallback_error:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': 'Database is busy. Please try again in a few moments.',
+                        'error_type': 'database_busy'
+                    }, status=503)
+                
+        except IntegrityError as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An error occurred while saving the spot. Please try again.',
+                'error_type': 'database_error'
+            }, status=500)
+            
+        except Exception as e:
+            # Check if it's a database lock error
+            if 'database is locked' in str(e).lower() or 'database is busy' in str(e).lower():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Database is temporarily busy. Please try again in a few moments.',
+                    'error_type': 'database_busy'
+                }, status=503)
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'An unexpected error occurred. Please try again.',
+                    'error_type': 'server_error'
+                }, status=500)
 
 class ProfileView(View):
     def get(self, request, *args, **kwargs):
         data = {}
         return renderfile(request,'profile','index',data)
-    
-    
     
 class LoginView(View):
     def get(self, request, *args, **kwargs):
@@ -153,7 +353,6 @@ class LogoutView(View):
         logout(request)
         return redirect('portal:home')
     
-
 class RegisterView(View):
     def post(self, request, *args, **kwargs):
         try:

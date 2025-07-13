@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from adminpanel.models import Spots
 from portal.utils import calculate_distance_haversine, add_distance_to_spots
+from django.db import connection
+import time
 
 
 class Command(BaseCommand):
@@ -21,6 +23,26 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        self.stdout.write('Testing distance calculation...')
+        
+        # Test database connection
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                self.stdout.write(self.style.SUCCESS('Database connection successful'))
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'Database connection failed: {e}'))
+            return
+        
+        # Test database lock status
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("PRAGMA busy_timeout = 5000")
+                cursor.execute("PRAGMA journal_mode = WAL")
+                self.stdout.write(self.style.SUCCESS('Database settings updated'))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'Could not update database settings: {e}'))
+        
         test_lat = options['lat']
         test_lon = options['lon']
         
@@ -54,6 +76,4 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'Spot: {spot.name} - No coordinates available')
         
-        self.stdout.write(
-            self.style.SUCCESS('\nDistance calculation test completed successfully!')
-        ) 
+        self.stdout.write(self.style.SUCCESS('Distance calculation test completed')) 

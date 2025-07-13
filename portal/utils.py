@@ -2,6 +2,9 @@ import math
 from decimal import Decimal
 from typing import Optional, Tuple
 from django.http import HttpRequest
+from django.db import connection
+from django.db.models import Q
+import time
 
 
 def calculate_distance_haversine(
@@ -148,4 +151,50 @@ def add_distance_to_spots_from_request(spots_queryset, request: HttpRequest):
         List of spots with distance field added
     """
     current_lat, current_lon = get_user_location_from_request(request)
-    return add_distance_to_spots(spots_queryset, current_lat, current_lon) 
+    return add_distance_to_spots(spots_queryset, current_lat, current_lon)
+
+
+def check_database_connection():
+    """
+    Check if database connection is available
+    """
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            return True
+    except Exception:
+        return False
+
+
+# Removed duplicate function - using the first add_distance_to_spots_from_request function above
+
+
+def retry_database_operation(operation, max_retries=3, delay=1):
+    """
+    Retry a database operation with exponential backoff to handle database locks
+    """
+    for attempt in range(max_retries):
+        try:
+            # Check database connection first
+            if not check_database_connection():
+                if attempt < max_retries - 1:
+                    time.sleep(delay * (2 ** attempt))
+                    continue
+                else:
+                    raise Exception("Database connection unavailable")
+            
+            return operation()
+        except Exception as e:
+            if 'database is locked' in str(e).lower() or 'database is busy' in str(e).lower():
+                if attempt < max_retries - 1:
+                    # Wait with exponential backoff
+                    wait_time = delay * (2 ** attempt)
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    # Last attempt failed
+                    raise e
+            else:
+                # Not a database lock error, re-raise immediately
+                raise e
+    return None 

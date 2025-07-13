@@ -2132,6 +2132,20 @@ body {
   box-shadow: 0 2px 8px rgba(0,96,115,0.08);
   background: #fff;
 }
+
+.add-spot-form input[type="text"].error,
+.add-spot-form textarea.error {
+  border-color: #e74c3c !important;
+  background-color: #fdf2f2 !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+}
+
+.add-spot-form input[type="text"].error:focus,
+.add-spot-form textarea.error:focus {
+  border-color: #e74c3c !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
 .add-spot-form input::placeholder,
 .add-spot-form textarea::placeholder {
   color: #b0b0b0;
@@ -2163,6 +2177,14 @@ body {
   font-weight: 500;
 }
 
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+  font-weight: 500;
+}
+
 /* Terms checkbox error styling */
 #terms-checkbox.error + label {
   color: #e74c3c;
@@ -2179,6 +2201,18 @@ body {
 }
 .map-autofill {
   margin-bottom: 0;
+}
+
+.map-autofill.error {
+  border-color: #e74c3c !important;
+  background-color: #fdf2f2 !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+}
+
+.map-autofill.error:focus {
+  border-color: #e74c3c !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
 }
 .map-embed {
   width: 100%;
@@ -2218,6 +2252,18 @@ body {
 .coords-input {
   margin-top: 0;
 }
+
+.coords-input.error {
+  border-color: #e74c3c !important;
+  background-color: #fdf2f2 !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+}
+
+.coords-input.error:focus {
+  border-color: #e74c3c !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
 .address-fields {
   gap: 10px;
 }
@@ -2228,10 +2274,29 @@ body {
 .address-row input {
   flex: 1 1 0;
 }
+
+.address-row input.error {
+  border-color: #e74c3c !important;
+  background-color: #fdf2f2 !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+}
+
+.address-row input.error:focus {
+  border-color: #e74c3c !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
 .photos-section label {
   font-weight: 500;
   margin-bottom: 8px;
   color: #222;
+}
+
+.required-text {
+  font-size: 0.875rem;
+  color: #e74c3c;
+  margin-top: 8px;
+  font-weight: 500;
 }
 .photos-grid {
   display: grid;
@@ -2281,6 +2346,24 @@ body {
 .photo-box:hover, .photo-box:focus-within {
   border-color: #006073;
   background: #eaf6fa;
+}
+
+.photo-box.error {
+  border-color: #e74c3c;
+  background: #fdf2f2;
+}
+
+.photo-box.has-file {
+  border-color: #006073;
+  background: #eaf6fa;
+}
+
+.photo-filename {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: #006073;
+  font-weight: 500;
 }
 .add-spot-submit {
   margin-top: 18px;

@@ -3,7 +3,7 @@ $("#loginSubmit").on("click", function (event) {
     $("#loginSubmit").submit();
   });
   
-  $("#register-form").validate({
+$("#register-form").validate({
   rules: {
     first_name: {
       required: true,
@@ -145,3 +145,139 @@ $("#loginSubmit").on("click", function (event) {
   }
 });
   
+
+
+// Add custom validation method for file inputs
+$.validator.addMethod("fileRequired", function(value, element) {
+  return element.files && element.files.length > 0;
+}, "This field is required.");
+
+$("#add-spot-form").validate({
+  rules: {
+    "spot-name": {
+      required: true,
+      minlength: 2,
+      maxlength: 100
+    },
+    "spot-description": {
+      required: true,
+      minlength: 10,
+      maxlength: 500
+    },
+    "spot-address": {
+      required: true,
+      minlength: 5
+    },
+    "spot-coords": {
+      required: true,
+    },
+    "cover-photo": {
+      fileRequired: true
+    }
+  },
+  messages: {
+    "spot-name": {
+      required: "Spot name is required",
+      minlength: "Spot name must be at least 2 characters",
+      maxlength: "Spot name cannot exceed 100 characters"
+    },
+    "spot-description": {
+      required: "Description is required",
+      minlength: "Description must be at least 10 characters",
+      maxlength: "Description cannot exceed 500 characters"
+    },
+    "spot-address": {
+      required: "Address is required",
+      minlength: "Please enter a valid address"
+    },
+    "spot-coords": {
+      pattern: "Please enter coordinates in format: latitude, longitude (e.g., 25.1972, 55.2744)"
+    },
+    "cover-photo": {
+      required: "Cover photo is required"
+    }
+  },
+  errorPlacement: function(error, element) {
+    // For file inputs, place error after the label
+    if (element.attr("type") === "file") {
+      error.insertAfter(element.next("label"));
+    } else {
+      // For other inputs, place error after the input
+      error.insertAfter(element);
+    }
+    // Add error-message class to the error element
+    error.addClass('error-message');
+  },
+  highlight: function(element) {
+    $(element).addClass("error");
+  },
+  unhighlight: function(element) {
+    $(element).removeClass("error");
+  },
+  submitHandler: function(form) {
+    // Get form data
+    const formData = new FormData(form);
+    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    
+    // Disable submit button and show loading
+    const submitBtn = $(form).find('button[type="submit"]');
+    const originalText = submitBtn.text();
+    submitBtn.prop('disabled', true).text('Submitting...');
+    
+    // Submit form via AJAX
+    $.ajax({
+      type: "POST",
+      url: $(form).attr('action'),
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: {
+        "X-CSRFToken": csrfToken,
+      },
+      dataType: "json",
+      success: function(response) {
+        if (response.status === 'success') {
+          // Show success modal
+          $('#success-modal').show();
+          // Reset form
+          form.reset();
+        } else {
+          alert(response.message || 'Failed to add spot. Please try again.');
+        }
+      },
+      error: function(xhr, status, error) {
+        const response = xhr.responseJSON;
+        
+        if (response && response.errors) {
+          // Clear previous errors
+          $('.error').removeClass('error');
+          $('.error-message').remove();
+          
+          // Display field-specific errors
+          Object.keys(response.errors).forEach(function(field) {
+            const errorMessage = response.errors[field];
+            const fieldElement = $(`[name="${field}"]`);
+            
+            // Add error class to field
+            fieldElement.addClass('error');
+            
+            // Add error message
+            fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
+          });
+        } else if (response && response.message) {
+          // Display general error message
+          alert(response.message);
+        } else {
+          // Generic error
+          alert('Failed to add spot. Please try again.');
+        }
+      },
+      complete: function() {
+        // Re-enable submit button
+        submitBtn.prop('disabled', false).text(originalText);
+      }
+    });
+    
+    return false; // Prevent the form from submitting via the usual way
+  }
+});

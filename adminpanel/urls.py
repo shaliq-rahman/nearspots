@@ -30,5 +30,6 @@ urlpatterns = [
     path('spots/<str:id>/delete/', master.SpotsDeleteView.as_view(), name='spots_delete'),
     path('spots/<str:id>/set-cover/', master.SpotSetCoverView.as_view(), name='spots_set_cover'),
     path('spots/images-preview/', master.SpotsImagesPreviewView.as_view(), name='spots_images_preview'),
+    path('spots/<str:id>/approve/', master.SpotsApproveView.as_view(), name='spots_approve'),
     
 ]

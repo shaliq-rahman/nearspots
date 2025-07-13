@@ -102,75 +102,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Modal functionality
 (function() {
-  const modal = document.getElementById('success-modal');
-  const closeBtn = modal.querySelector('.modal-close');
-  const homeBtn = modal.querySelector('.modal-home-btn');
-  let lastFocused;
-
-  function openModal() {
-    lastFocused = document.activeElement;
-    modal.style.display = 'flex';
-    modal.setAttribute('aria-hidden', 'false');
-    setTimeout(() => modal.querySelector('.modal-box').focus(), 10);
-    document.body.style.overflow = 'hidden';
-    trapFocus();
-  }
-
-  function closeModal() {
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-    if (lastFocused) lastFocused.focus();
-  }
-
-  function trapFocus() {
-    const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    modal.addEventListener('keydown', function(e) {
-      if (e.key === 'Tab') {
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      } else if (e.key === 'Escape') {
-        closeModal();
-      }
-    });
-  }
-
-  closeBtn.addEventListener('click', closeModal);
-  homeBtn.addEventListener('click', function() {
-    window.location.href = '/';
-  });
-  modal.addEventListener('mousedown', function(e) {
-    if (e.target === modal) closeModal();
-  });
-
-  // Show modal after form submit
-  document.querySelector('.add-spot-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    openModal();
-  });
-  
-  // Test button to open modal
-  var testBtn = document.getElementById('test-modal-btn');
-  if (testBtn) {
-    testBtn.addEventListener('click', openModal);
-  }
-
   // Show file name on photo upload
   var photoInputs = document.querySelectorAll('.photos-section input[type="file"]');
   photoInputs.forEach(function(input) {
     input.addEventListener('change', function() {
       var label = input.nextElementSibling;
+      var photoBox = input.closest('.photo-box');
+      
       if (input.files && input.files.length > 0) {
         var fileName = input.files[0].name;
         var textSpan = label.querySelector('.photo-filename');
@@ -180,12 +118,60 @@ document.addEventListener('DOMContentLoaded', function() {
           label.appendChild(textSpan);
         }
         textSpan.textContent = fileName;
+        
+        // Add visual feedback for cover photo
+        if (input.id === 'cover-photo') {
+          photoBox.classList.add('has-file');
+          photoBox.classList.remove('error');
+          // Remove any error styling
+          label.classList.remove('error');
+          var errorMessage = photoBox.querySelector('.error-message');
+          if (errorMessage) {
+            errorMessage.remove();
+          }
+        }
+        
         // Optionally hide the default label text
         var defaultText = label.childNodes[2];
         if (defaultText && defaultText.nodeType === 3) {
           defaultText.textContent = '';
         }
+      } else {
+        // Remove visual feedback if no file selected
+        if (input.id === 'cover-photo') {
+          photoBox.classList.remove('has-file');
+        }
       }
     });
+  });
+
+  // Success Modal Close Functionality
+  var successModal = document.getElementById('success-modal');
+  var modalCloseBtn = successModal.querySelector('.modal-close');
+  var modalHomeBtn = successModal.querySelector('.modal-home-btn');
+
+  // Close modal when close button is clicked
+  modalCloseBtn.addEventListener('click', function() {
+    successModal.style.display = 'none';
+  });
+
+  // Close modal and redirect to home when "Back to home" button is clicked
+  modalHomeBtn.addEventListener('click', function() {
+    successModal.style.display = 'none';
+    window.location.href = '/'; // Redirect to home page
+  });
+
+  // Close modal when clicking outside the modal container
+  successModal.addEventListener('click', function(e) {
+    if (e.target === successModal) {
+      successModal.style.display = 'none';
+    }
+  });
+
+  // Close modal when pressing Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && successModal.style.display === 'block') {
+      successModal.style.display = 'none';
+    }
   });
 })();
