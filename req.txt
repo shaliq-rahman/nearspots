@@ -1,0 +1,10 @@
+asgiref==3.9.0
+cffi==1.17.1
+cryptography==45.0.5
+Django==5.2.4
+django-autoslug==1.9.9
+django-phonenumber-field==8.1.0
+phonenumbers==9.0.8
+pillow==11.3.0
+pycparser==2.22
+sqlparse==0.5.3
