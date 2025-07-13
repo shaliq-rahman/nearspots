@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     
     #NEWLY INSTALLED
     'adminpanel',
+    'portal',
 ]
 
 MIDDLEWARE = [

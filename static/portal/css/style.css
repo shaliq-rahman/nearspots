@@ -617,6 +617,16 @@
     margin-top: 12px;
     text-shadow: 0 1px 4px rgba(0,0,0,0.10);
   }
+  
+  .category-distance {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-align: center;
+    margin-top: 4px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    opacity: 0.9;
+  }
   @media (max-width: 900px) {
     .categories-section {
       padding: 32px 0 24px 0;
@@ -660,6 +670,10 @@
     .category-label {
       font-size: 0.92rem;
       margin-top: 6px;
+    }
+    .category-distance {
+      font-size: 0.8rem;
+      margin-top: 2px;
     }
     .top-rated-section {
       padding-left: 4vw;

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Debug Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1>Debug Page</h1>
+  <p>This page is for testing JavaScript functionality.</p>
+  
+  <button onclick="testFunction()">Test Function</button>
+  <button onclick="showLocationPopup()">Show Location Popup</button>
+  
+  <script>
+    console.log('Debug page loaded');
+    
+    function testFunction() {
+      alert('Test function works!');
+    }
+    
+    // Show mandatory location permission popup
+    function showLocationPopup() {
+      alert('showLocationPopup function called!');
+      console.log('showLocationPopup function called');
+      
+      // Create a simple test popup
+      const popup = document.createElement('div');
+      popup.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center;">
+          <h3>Location Access Required</h3>
+          <p>Please allow location access to continue.</p>
+          <button onclick="getUserLocation()" style="background: #006073; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Allow Location</button>
+        </div>
+      `;
+      
+      popup.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      `;
+      
+      document.body.appendChild(popup);
+      console.log('Popup added to page');
+    }
+    
+    function getUserLocation() {
+      alert('getUserLocation function called!');
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            alert('Location obtained: ' + position.coords.latitude + ', ' + position.coords.longitude);
+          },
+          function(error) {
+            alert('Location error: ' + error.message);
+          }
+        );
+      } else {
+        alert('Geolocation not supported');
+      }
+    }
+    
+    // Auto-show popup after 2 seconds
+    setTimeout(() => {
+      showLocationPopup();
+    }, 2000);
+  </script>
+</body>
+</html> 

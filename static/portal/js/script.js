@@ -1,225 +1,228 @@
-// Toggle favorite heart icon
-function toggleFavorite(el) {
-    el.classList.toggle('favorited');
+console.log('JavaScript file loaded successfully!');
+
+// Get user's current location and update page with coordinates
+function getUserLocation() {
+  console.log('getUserLocation called');
+  
+  // Show loading state on button
+  const allowBtn = document.querySelector('.location-allow-btn');
+  if (allowBtn) {
+    allowBtn.innerHTML = 'Getting Location...';
+    allowBtn.style.background = '#999';
+    allowBtn.disabled = true;
   }
   
-  // Autocomplete for destination search
-  const destinations = [
-    'Kozhikode',
-    'Kochi',
-    'Kolkata',
-    'Kodaikanal',
-    'Kovalam',
-    'Kollam',
-    'Kuala Lumpur',
-    'Kobe',
-    'Kostroma',
-    'Kostanay',
-    'Kozani',
-    'Kozhikode Beach',
-    'Kozienice',
-    'Kozmodemyansk',
-    'Kozova',
-    'Kozel',
-    'Kozani Airport',
-    'Kozloduy',
-    'Kozienice Power Station',
-    'Kozhikode Railway Station'
-  ];
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        
+        console.log('Location obtained:', lat, lon);
+        
+        // Update URL with coordinates
+        const url = new URL(window.location);
+        url.searchParams.set('lat', lat);
+        url.searchParams.set('lon', lon);
+        window.history.replaceState({}, '', url);
+        
+        // Hide the loading screen and show main content
+        hideLoadingScreen();
+        showMainContent();
+        
+        // Reload page to get updated distances
+        window.location.reload();
+      },
+      function(error) {
+        console.log('Geolocation error:', error.message);
+        showLocationError(error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes
+      }
+    );
+  } else {
+    console.log('Geolocation is not supported by this browser');
+    showLocationError('Geolocation is not supported by this browser');
+  }
+}
+
+// Show location error message
+function showLocationError(message) {
+  const errorPopup = document.createElement('div');
+  errorPopup.className = 'location-error-popup';
+  errorPopup.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+      <div style="font-size: 3rem; margin-bottom: 15px;">⚠️</div>
+      <h3 style="margin: 0 0 15px 0; color: #e74c3c; font-size: 1.3rem;">Location Access Failed</h3>
+      <p style="margin: 0 0 20px 0; color: #666; line-height: 1.5;">${message}</p>
+      <p style="margin: 0 0 20px 0; color: #e74c3c; font-weight: 600;">Location access is required to use this website.</p>
+      <button onclick="retryLocation()" style="background: #006073; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 1rem; font-weight: 500; cursor: pointer; margin-right: 10px;">Try Again</button>
+      <button onclick="showLocationHelp()" style="background: #f5f5f5; color: #666; border: none; padding: 12px 25px; border-radius: 25px; font-size: 1rem; font-weight: 500; cursor: pointer;">Need Help?</button>
+    </div>
+  `;
   
-  // Initialize everything when DOM is loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    // Autocomplete functionality
-    const input = document.getElementById('destination-input');
-    const list = document.getElementById('autocomplete-list');
-    let currentFocus = -1;
+  errorPopup.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+  `;
   
-    if (input && list) {
-      input.addEventListener('input', function() {
-        const val = this.value.trim().toLowerCase();
-        list.innerHTML = '';
-        if (!val) {
-          list.classList.remove('active');
-          return;
-        }
-        const matches = destinations.filter(d => d.toLowerCase().includes(val));
-        if (matches.length === 0) {
-          list.classList.remove('active');
-          return;
-        }
-        matches.forEach((dest, idx) => {
-          const item = document.createElement('div');
-          item.className = 'autocomplete-item';
-          item.textContent = dest;
-          item.addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            input.value = dest;
-            list.innerHTML = '';
-            list.classList.remove('active');
-          });
-          list.appendChild(item);
-        });
-        list.classList.add('active');
-        currentFocus = -1;
-      });
+  document.body.appendChild(errorPopup);
+}
+
+// Retry location access
+function retryLocation() {
+  const errorPopup = document.querySelector('.location-error-popup');
+  if (errorPopup) {
+    errorPopup.remove();
+  }
+  showLoadingScreen();
+}
+
+// Show location help
+function showLocationHelp() {
+  const helpPopup = document.createElement('div');
+  helpPopup.className = 'location-help-popup';
+  helpPopup.innerHTML = `
+    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+      <div style="font-size: 3rem; margin-bottom: 15px;">💡</div>
+      <h3 style="margin: 0 0 20px 0; color: #222; font-size: 1.3rem;">How to Enable Location Access</h3>
+      <div style="text-align: left; margin: 20px 0;">
+        <div style="display: flex; align-items: flex-start; margin-bottom: 15px; gap: 15px;">
+          <span style="background: #006073; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">1</span>
+          <p style="margin: 0; color: #666; line-height: 1.5;">Look for the location permission prompt in your browser</p>
+        </div>
+        <div style="display: flex; align-items: flex-start; margin-bottom: 15px; gap: 15px;">
+          <span style="background: #006073; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">2</span>
+          <p style="margin: 0; color: #666; line-height: 1.5;">Click "Allow" or "Yes" when prompted</p>
+        </div>
+        <div style="display: flex; align-items: flex-start; margin-bottom: 15px; gap: 15px;">
+          <span style="background: #006073; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">3</span>
+          <p style="margin: 0; color: #666; line-height: 1.5;">Make sure location services are enabled on your device</p>
+        </div>
+      </div>
+      <button onclick="hideLocationHelp()" style="background: #006073; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 1rem; font-weight: 500; cursor: pointer;">Got It</button>
+    </div>
+  `;
   
-      input.addEventListener('keydown', function(e) {
-        let items = list.querySelectorAll('.autocomplete-item');
-        if (!items.length) return;
-        if (e.key === 'ArrowDown') {
-          currentFocus++;
-          if (currentFocus >= items.length) currentFocus = 0;
-          setActive(items);
-          e.preventDefault();
-        } else if (e.key === 'ArrowUp') {
-          currentFocus--;
-          if (currentFocus < 0) currentFocus = items.length - 1;
-          setActive(items);
-          e.preventDefault();
-        } else if (e.key === 'Enter') {
-          if (currentFocus > -1) {
-            items[currentFocus].dispatchEvent(new Event('mousedown'));
-            e.preventDefault();
-          }
-        }
-      });
+  helpPopup.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10002;
+  `;
   
-      document.addEventListener('click', function(e) {
-        if (!input.contains(e.target) && !list.contains(e.target)) {
-          list.innerHTML = '';
-          list.classList.remove('active');
-        }
-      });
-    }
+  document.body.appendChild(helpPopup);
+}
+
+// Hide location help
+function hideLocationHelp() {
+  const helpPopup = document.querySelector('.location-help-popup');
+  if (helpPopup) {
+    helpPopup.remove();
+  }
+}
+
+// Show blocking loading screen
+function showLoadingScreen() {
+  // Hide all main content
+  hideMainContent();
   
-    function setActive(items) {
-      items.forEach((item, idx) => {
-        item.classList.toggle('active', idx === currentFocus);
-      });
-    }
+  // Create loading screen
+  const loadingScreen = document.createElement('div');
+  loadingScreen.className = 'location-loading-screen';
+  loadingScreen.innerHTML = `
+    <div style="text-align: center; color: white;">
+      <div style="font-size: 4rem; margin-bottom: 20px;">📍</div>
+      <h2 style="margin: 0 0 10px 0; font-size: 2rem; font-weight: 600;">Welcome to NearSpots</h2>
+      <p style="margin: 0 0 30px 0; font-size: 1.1rem; opacity: 0.9;">Location access is required to show you accurate distances to nearby spots.</p>
+      <button class="location-allow-btn" onclick="getUserLocation()" style="background: #006073; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0, 96, 115, 0.3);">Allow Location Access</button>
+      <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+        🔒 Your location data is only used to calculate distances
+      </div>
+    </div>
+  `;
   
-    // Carousel with dots and auto-advance
-    function startCarousels() {
-      const carousels = document.querySelectorAll('.carousel');
-      carousels.forEach(carousel => {
-        const imgs = carousel.querySelectorAll('.carousel-img');
-        const dotsContainer = carousel.querySelector('.carousel-dots');
-        let idx = 0;
-        let timer = null;
+  loadingScreen.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #006073 0%, #004d5c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  `;
   
-        // Create dots
-        dotsContainer.innerHTML = '';
-        imgs.forEach((img, i) => {
-          const dot = document.createElement('span');
-          dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-          dot.addEventListener('click', () => {
-            showImg(i);
-            resetTimer();
-          });
-          dotsContainer.appendChild(dot);
-        });
-        const dots = dotsContainer.querySelectorAll('.carousel-dot');
+  document.body.appendChild(loadingScreen);
   
-        function showImg(newIdx) {
-          imgs[idx].classList.remove('active');
-          dots[idx].classList.remove('active');
-          idx = newIdx;
-          imgs[idx].classList.add('active');
-          dots[idx].classList.add('active');
-        }
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
   
-        function nextImg() {
-          let next = (idx + 1) % imgs.length;
-          showImg(next);
-        }
+  console.log('Loading screen shown');
+}
+
+// Hide loading screen
+function hideLoadingScreen() {
+  const loadingScreen = document.querySelector('.location-loading-screen');
+  if (loadingScreen) {
+    loadingScreen.remove();
+    document.body.style.overflow = '';
+    console.log('Loading screen hidden');
+  }
+}
+
+// Hide main content until location is granted
+function hideMainContent() {
+  // Hide all main content sections
+  const mainContent = document.querySelectorAll('.hero, .top-rated-section, .categories-section, .latest-attractions-section, .cta-section');
+  mainContent.forEach(section => {
+    section.style.display = 'none';
+  });
+  console.log('Main content hidden');
+}
+
+// Show main content after location is granted
+function showMainContent() {
+  // Show all main content sections
+  const mainContent = document.querySelectorAll('.hero, .top-rated-section, .categories-section, .latest-attractions-section, .cta-section');
+  mainContent.forEach(section => {
+    section.style.display = '';
+  });
+  console.log('Main content shown');
+}
+
+// DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM ready');
   
-        function resetTimer() {
-          if (timer) clearInterval(timer);
-          timer = setInterval(nextImg, 2500);
-        }
-  
-        resetTimer();
-      });
-    }
-  
-    startCarousels();
-  
-    // Toggle for categories section (only if elements exist)
-    const foodToggle = document.getElementById('food-toggle');
-    const attractionToggle = document.getElementById('attraction-toggle');
-    const foodList = document.querySelector('.categories-list[data-type="food"]');
-    const attractionList = document.querySelector('.categories-list[data-type="attraction"]');
-  
-    if (foodToggle && attractionToggle && foodList && attractionList) {
-      foodToggle.addEventListener('click', function() {
-        foodToggle.classList.add('active');
-        attractionToggle.classList.remove('active');
-        foodList.style.display = '';
-        attractionList.style.display = 'none';
-      });
-  
-      attractionToggle.addEventListener('click', function() {
-        attractionToggle.classList.add('active');
-        foodToggle.classList.remove('active');
-        attractionList.style.display = '';
-        foodList.style.display = 'none';
-      });
-    }
-  
-    // Carousel logic for all sections with attraction cards
-    function startAllCarousels() {
-      const allSections = document.querySelectorAll('.hotel-cards');
-      allSections.forEach(section => {
-        const cards = section.querySelectorAll('.attraction-card');
-        cards.forEach(card => {
-          const carousel = card.querySelector('.attraction-carousel');
-          const imgs = carousel.querySelectorAll('.carousel-img');
-          const dots = card.querySelectorAll('.attraction-pagination .dot');
-          let idx = 0;
-          let timer = null;
-  
-          function showImg(newIdx) {
-            imgs[idx].classList.remove('active');
-            dots[idx].classList.remove('active');
-            idx = newIdx;
-            imgs[idx].classList.add('active');
-            dots[idx].classList.add('active');
-          }
-  
-          function nextImg() {
-            let next = (idx + 1) % imgs.length;
-            showImg(next);
-          }
-  
-          function resetTimer() {
-            if (timer) clearInterval(timer);
-            timer = setInterval(nextImg, 2500);
-          }
-  
-          dots.forEach((dot, i) => {
-            dot.addEventListener('click', () => {
-              showImg(i);
-              resetTimer();
-            });
-          });
-  
-          resetTimer();
-        });
-      });
-    }
-  
-    startAllCarousels();
-  
-    // Spot detail page: thumbnail click swaps main image
-    const mainSpotImage = document.getElementById('mainSpotImage');
-    const spotThumbs = document.querySelectorAll('.spot-thumb');
-    if (mainSpotImage && spotThumbs.length) {
-      spotThumbs.forEach(thumb => {
-        thumb.addEventListener('click', function() {
-          spotThumbs.forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-          mainSpotImage.src = this.getAttribute('data-img');
-        });
-      });
-    }
-  }); 
+  // Check if we already have location coordinates
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.has('lat') || !urlParams.has('lon')) {
+    console.log('No location found - showing loading screen');
+    // Show blocking loading screen
+    showLoadingScreen();
+  } else {
+    console.log('Location already provided - showing main content');
+    // Location already provided, show main content
+    showMainContent();
+  }
+}); 
