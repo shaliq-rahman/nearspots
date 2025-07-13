@@ -52,3 +52,14 @@ class HomeView(View):
         data['top_rated_spots'] = add_distance_to_spots_from_request(top_rated_spots_queryset, request)
         
         return renderfile(request,'home','index',data)
+    
+class SearchView(View):
+    def get(self, request, *args, **kwargs):
+        data = {}
+        return renderfile(request,'search','index',data)
+    
+    
+class SpotDetailView(View):
+    def get(self, request, *args, **kwargs):
+        data = {}
+        return renderfile(request,'spot-detail','index',data)

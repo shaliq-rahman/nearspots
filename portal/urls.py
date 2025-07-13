@@ -9,6 +9,8 @@ def debug_view(request):
     return render(request, 'portal/debug.html')
 
 urlpatterns = [
-    path('', home.HomeView.as_view(), name='home'),
     path('debug/', debug_view, name='debug'),
+    path('', home.HomeView.as_view(), name='home'),
+    path('search/', home.SearchView.as_view(), name='search'),
+    path('spot-detail/<slug:slug>/', home.SpotDetailView.as_view(), name='spot_detail'),
 ]

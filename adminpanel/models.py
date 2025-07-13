@@ -87,9 +87,10 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
         
         
-
+# 
 class Categories(models.Model):
     title = models.CharField(max_length=250, null=True, blank=True)
+    slug = AutoSlugField(populate_from='title', max_length=250, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -97,6 +98,7 @@ class Categories(models.Model):
     
 class Spots(models.Model):
     name = models.CharField(max_length=250, null=True, blank=True)
+    slug = AutoSlugField(populate_from='name', max_length=250, unique=True, null=True, blank=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True, blank=True)
     coordinates = models.CharField(max_length=250, null=True, blank=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)

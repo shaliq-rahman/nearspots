@@ -222,4 +222,43 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // Star rating interactivity for review section
+  const starRating = document.getElementById('starRating');
+  if (starRating) {
+    const stars = Array.from(starRating.querySelectorAll('.star'));
+    let selectedRating = 1;
+
+    function setStars(rating) {
+      stars.forEach((star, idx) => {
+        if (idx < rating) {
+          star.classList.add('selected');
+        } else {
+          star.classList.remove('selected');
+        }
+      });
+    }
+
+    setStars(selectedRating);
+
+    stars.forEach((star, idx) => {
+      star.addEventListener('mouseenter', () => {
+        stars.forEach((s, i) => {
+          if (i <= idx) s.classList.add('hovered');
+          else s.classList.remove('hovered');
+        });
+      });
+      star.addEventListener('mouseleave', () => {
+        stars.forEach(s => s.classList.remove('hovered'));
+      });
+      star.addEventListener('click', () => {
+        selectedRating = idx + 1;
+        setStars(selectedRating);
+      });
+    });
+    starRating.addEventListener('mouseleave', () => {
+      stars.forEach(s => s.classList.remove('hovered'));
+    });
+  }
+  
 }); 

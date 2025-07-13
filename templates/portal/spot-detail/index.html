@@ -1,0 +1,321 @@
+{% extends 'portal/layout/base.html' %}
+{% load static %}
+{% block 'content' %}
+
+
+
+  <!-- Search Bar (reused from homepage) -->
+  <section class="search-bar-section">
+    <form class="search-bar" onsubmit="event.preventDefault();">
+        <input type="text" id="destination-input" placeholder="Search destinations" autocomplete="off">
+        <div class="autocomplete-list" id="autocomplete-list"></div>
+        <select class="radius-select">
+          <option>5kms</option>
+          <option>10kms</option>
+          <option>30kms</option>
+          <option>50kms</option>
+          <option>Anywhere</option>
+        </select>
+        <button type="button" class="filters-btn">
+          <span class="filter-icon" aria-hidden="true">
+            <!-- Horizontal sliders SVG icon -->
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="5" width="16" height="2" rx="1" fill="#222"></rect>
+              <rect x="5" y="9" width="10" height="2" rx="1" fill="#222"></rect>
+              <rect x="8" y="13" width="4" height="2" rx="1" fill="#222"></rect>
+            </svg>
+          </span>
+          Filters
+        </button>
+        <button type="submit" class="search-btn" aria-label="Search">
+          <span class="search-icon" aria-hidden="true">
+            <!-- Magnifying glass SVG icon -->
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="9" r="7" stroke="#fff" stroke-width="2"></circle>
+              <line x1="14.4142" y1="14" x2="18" y2="17.5858" stroke="#fff" stroke-width="2" stroke-linecap="round"></line>
+            </svg>
+          </span>
+        </button>
+      </form>
+  </section>
+
+  <!-- Listing Details Section -->
+  <section class="spot-detail-section">
+    <div class="spot-detail-container">
+      <!-- Left: Main image and thumbnails -->
+      <div class="spot-detail-left">
+        <div class="spot-image-main-wrapper">
+          <img class="spot-main-image" id="mainSpotImage" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Treehouse on the Water">
+        </div>
+        <div class="spot-thumbnails">
+          <img class="spot-thumb active" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Thumb 1" data-img="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80">
+          <img class="spot-thumb" src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" alt="Thumb 2" data-img="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80">
+          <img class="spot-thumb" src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80" alt="Thumb 3" data-img="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80">
+          <img class="spot-thumb" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Thumb 4" data-img="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80">
+          <img class="spot-thumb" src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" alt="Thumb 5" data-img="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80">
+        </div>
+        <hr class="map-divider">
+        <div id="spotMap" style="width:100%;height:320px;border-radius:12px;margin:24px 0 10px 0;"></div>
+        <div class="spot-map-caption">We verified that this listing's location is accurate. <a href="#">Learn more</a></div>
+
+        <!-- Rating & Reviews Section -->
+        <section class="spot-reviews-section">
+          <h2 class="spot-reviews-title">Rating & Reviews</h2>
+          <div class="spot-reviews-summary-row">
+            <div class="spot-reviews-overall">
+              <div class="spot-reviews-overall-label">Overall rating</div>
+              <div class="spot-reviews-bars">
+                <div class="spot-reviews-bar-row"><span>5</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 80%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>4</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 60%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>3</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 40%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>2</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 20%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>1</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 10%"></div></div></div>
+              </div>
+            </div>
+            <div class="spot-reviews-main-rating">
+              <div class="spot-reviews-star">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 4l6.09 12.36L44 18.18l-9.09 8.85L36.18 44 24 36.36 11.82 44l1.27-16.97L4 18.18l13.91-1.82L24 4z" fill="#222"/></svg>
+              </div>
+              <div class="spot-reviews-main-value">4.0</div>
+              <div class="spot-reviews-main-count">336 Reviews</div>
+            </div>
+          </div>
+
+          <!-- Write a Review Section -->
+          <div class="write-review-section">
+            <h3 class="write-review-title">Write a review</h3>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-value="1">&#9733;</span>
+              <span class="star" data-value="2">&#9733;</span>
+              <span class="star" data-value="3">&#9733;</span>
+              <span class="star" data-value="4">&#9733;</span>
+              <span class="star" data-value="5">&#9733;</span>
+            </div>
+            <textarea class="review-textarea" placeholder="Write down your own experience"></textarea>
+            <div class="review-actions">
+              <button class="review-cancel-btn" type="button">Cancel</button>
+              <button class="review-submit-btn" type="button">Post review</button>
+            </div>
+          </div>
+          
+          <div class="spot-reviews-list">
+            <div class="spot-review">
+              <img class="user-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Alexie">
+              <div class="spot-review-content">
+                <div class="spot-review-header"><span class="spot-review-user">Alexie</span> <span class="spot-review-date">2 years on Airbnb</span></div>
+                <div class="spot-review-meta"><span class="spot-review-stars">★★★★★</span> · <span>4 days ago</span> · <span>Group trip</span></div>
+                <div class="spot-review-text">Such a great experience! Would recommend and definitely will be going back at some point! So peaceful, such a pretty view. Had the best time for sure. Thank you Beverly!</div>
+              </div>
+            </div>
+
+            
+            <div class="spot-review">
+              <img class="user-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michele">
+              <div class="spot-review-content">
+                <div class="spot-review-header"><span class="spot-review-user">Michele</span> <span class="spot-review-date">2 years on Airbnb</span></div>
+                <div class="spot-review-meta"><span class="spot-review-stars">★★★★★</span> · <span>2 weeks ago</span> · <span>Stayed with kids</span></div>
+                <div class="spot-review-text">The site was absolutely perfect for the purpose intended. It was quiet and peaceful with spectacular views.</div>
+              </div>
+            </div>
+          </div>
+          <button class="show-all-reviews-btn">Show all 366 reviews</button>
+        </section>
+      </div>
+      <!-- Right: Details, share/save, etc. -->
+      <div class="spot-detail-right">
+        <div class="spot-detail-actions">
+          <button class="icon-btn" title="Share"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" stroke="#222" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Share</button>
+          <button class="icon-btn" title="Save"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/></svg> Save</button>
+        </div>
+        <h1 class="spot-title">Treehouse on the Water -Eagles Nest-20 ft high</h1>
+        <div class="spot-meta-row">
+          <span class="spot-distance">8,015 km away</span>
+          <span class="spot-rating"><span class="star">&#9733;</span> 4.84</span>
+          <a href="#" class="spot-reviews-link">366 Reviews</a>
+        </div>
+        <div class="spot-description">
+          Soar 20 ft in the trees as you overlook the Strait. Relax in many areas of this unique craftsman treehouse. You can be mesmerized as you sit or sleep in the large window seat watching the ships sail by, eagles fly across your window, deer eat in the meadow below- or spend time in the hammock hanging from the tree inside or the loft hammock. Every part of the treehouse is unique–you will find yourself wanting to unplug and enjoy every aspect of the house.
+        </div>
+        <hr class="host-divider">
+        <div class="spot-host-row">
+          <div class="host-avatar-card">
+            <img class="user-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Beverly">
+          </div>
+          <div class="spot-host-info">
+            <div class="spot-host-name">Hosted by Beverly</div>
+            <div class="spot-host-spots">33 Spots</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Spots Section -->
+  <section class="related-spots-section">
+    <h2 class="related-spots-title">Related Spots</h2>
+    <div class="related-spots-grid">
+      <!-- 4 cards, same as homepage -->
+      <div class="attraction-card">
+        <div class="attraction-image-container">
+          <div class="attraction-carousel">
+            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+          </div>
+          <span class="attraction-badge">Rated #1</span>
+          <span class="attraction-heart">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="11" fill="#fff"/>
+              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
+            </svg>
+          </span>
+          <div class="attraction-pagination">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="attraction-card-content">
+          <div class="attraction-card-row">
+            <span class="attraction-location">Bourré, France</span>
+            <span class="attraction-rating">
+              <span class="star">&#9733;</span> 4.84
+            </span>
+          </div>
+          <div class="attraction-distance">8,015 km away</div>
+          <div class="attraction-price">$154 CAD</div>
+        </div>
+      </div>
+      <!-- Repeat for 4 cards -->
+      <div class="attraction-card">
+        <div class="attraction-image-container">
+          <div class="attraction-carousel">
+            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+          </div>
+          <span class="attraction-badge">Rated #2</span>
+          <span class="attraction-heart">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="11" fill="#fff"/>
+              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
+            </svg>
+          </span>
+          <div class="attraction-pagination">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="attraction-card-content">
+          <div class="attraction-card-row">
+            <span class="attraction-location">Bourré, France</span>
+            <span class="attraction-rating">
+              <span class="star">&#9733;</span> 4.84
+            </span>
+          </div>
+          <div class="attraction-distance">8,015 km away</div>
+          <div class="attraction-price">$154 CAD</div>
+        </div>
+      </div>
+      <div class="attraction-card">
+        <div class="attraction-image-container">
+          <div class="attraction-carousel">
+            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+          </div>
+          <span class="attraction-badge">Rated #3</span>
+          <span class="attraction-heart">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="11" fill="#fff"/>
+              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
+            </svg>
+          </span>
+          <div class="attraction-pagination">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="attraction-card-content">
+          <div class="attraction-card-row">
+            <span class="attraction-location">Bourré, France</span>
+            <span class="attraction-rating">
+              <span class="star">&#9733;</span> 4.84
+            </span>
+          </div>
+          <div class="attraction-distance">8,015 km away</div>
+          <div class="attraction-price">$154 CAD</div>
+        </div>
+      </div>
+      <div class="attraction-card">
+        <div class="attraction-image-container">
+          <div class="attraction-carousel">
+            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+          </div>
+          <span class="attraction-badge">Rated #4</span>
+          <span class="attraction-heart">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="11" fill="#fff"/>
+              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
+            </svg>
+          </span>
+          <div class="attraction-pagination">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+        <div class="attraction-card-content">
+          <div class="attraction-card-row">
+            <span class="attraction-location">Bourré, France</span>
+            <span class="attraction-rating">
+              <span class="star">&#9733;</span> 4.84
+            </span>
+          </div>
+          <div class="attraction-distance">8,015 km away</div>
+          <div class="attraction-price">$154 CAD</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Leaflet JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <script>
+    function initSpotMap() {
+      // Initialize the map
+      var map = L.map('spotMap').setView([11.2587531, 75.78041], 14);
+      
+      // Add OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+      }).addTo(map);
+      
+      // Add a marker for the spot location
+      var marker = L.marker([11.2587531, 75.78041]).addTo(map);
+      marker.bindPopup('Verified listing').openPopup();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof L !== 'undefined') {
+        initSpotMap();
+      } else {
+        var check = setInterval(function() {
+          if (typeof L !== 'undefined') {
+            clearInterval(check);
+            initSpotMap();
+          }
+        }, 100);
+      }
+    });
+  </script>
+{% endblock %}
