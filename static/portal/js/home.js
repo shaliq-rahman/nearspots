@@ -281,3 +281,50 @@ $("#add-spot-form").validate({
     return false; // Prevent the form from submitting via the usual way
   }
 });
+
+// Search button functionality for home page
+$(document).ready(function() {
+  console.log('Setting up search button functionality...');
+  const searchBtn = document.getElementById('search-btn-home');
+  console.log('Search button found:', searchBtn);
+  
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function(e) {
+      e.preventDefault(); // Prevent any default form behavior
+      e.stopPropagation(); // Stop event bubbling
+      console.log('Search button clicked!');
+      const searchText = document.getElementById('destination-input').value.trim();
+      const distance = document.querySelector('.radius-select').value;
+      const urlParams = new URLSearchParams();
+      
+      console.log('Search text:', searchText);
+      console.log('Distance:', distance);
+      
+      if (searchText) {
+        urlParams.append('q', searchText);
+      }
+      if (distance) {
+        urlParams.append('distance', distance);
+      }
+      
+      // Get current location from URL if available
+      const currentUrl = new URL(window.location.href);
+      const lat = currentUrl.searchParams.get('lat');
+      const lon = currentUrl.searchParams.get('lon');
+      
+      if (lat) {
+        urlParams.append('lat', lat);
+      }
+      if (lon) {
+        urlParams.append('lon', lon);
+      }
+      
+      // Redirect to search page with parameters
+      const searchUrl = '/search/' + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      console.log('Redirecting to:', searchUrl);
+      window.location.href = searchUrl;
+    });
+  } else {
+    console.error('Search button not found!');
+  }
+});

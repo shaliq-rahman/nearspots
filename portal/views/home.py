@@ -6,7 +6,7 @@ from django.urls import reverse
 from .. helper import renderfile
 from django.db import transaction
 from django.core.paginator import *
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import render
 from django.shortcuts import redirect
 from adminpanel.helper import is_ajax
@@ -64,6 +64,54 @@ class HomeView(View):
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         data = {}
+        
+        # Get search parameters
+        search_text = request.GET.get('q', '').strip()
+        distance = request.GET.get('distance', '5').strip()
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
+        
+        # Get all active and approved spots
+        spots_queryset = Spots.objects.prefetch_related(
+            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+        ).filter(is_active=True, is_approved=True)
+        
+        # Apply text search if provided
+        if search_text:
+            spots_queryset = spots_queryset.filter(
+                Q(name__icontains=search_text) |
+                Q(description__icontains=search_text) |
+                Q(address__icontains=search_text) |
+                Q(city__icontains=search_text) |
+                Q(landmark__icontains=search_text)
+            )
+        
+        # Add distance calculation if coordinates are provided
+        if lat and lon:
+            spots_queryset = add_distance_to_spots_from_request(spots_queryset, request)
+            
+            # Filter by distance if specified and not "Anywhere"
+            if distance and distance != '0':
+                try:
+                    max_distance = float(distance)
+                    # Filter spots within the specified distance
+                    spots_queryset = [spot for spot in spots_queryset if spot.distance and spot.distance <= max_distance]
+                except ValueError:
+                    pass
+            
+            # Order by distance
+            spots_queryset = sorted(spots_queryset, key=lambda x: x.distance if x.distance else float('inf'))
+        else:
+            # Order by creation date if no coordinates
+            spots_queryset = spots_queryset.order_by('-created_at')
+        
+        data['spots'] = spots_queryset
+        data['search_text'] = search_text
+        data['distance'] = distance
+        data['lat'] = lat
+        data['lon'] = lon
+        data['categories'] = Categories.objects.filter(is_active=True)
+        
         return renderfile(request,'search','index',data)
       
 class SpotDetailView(View):

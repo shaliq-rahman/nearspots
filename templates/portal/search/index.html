@@ -3,15 +3,15 @@
 {% block 'content' %}
  <!-- Search Bar (reused from homepage) -->
  <section class="search-bar-section">
-  <form class="search-bar" onsubmit="event.preventDefault();">
-      <input type="text" id="destination-input" placeholder="Search destinations" autocomplete="off">
+  <form class="search-bar" onsubmit="event.preventDefault();" id="search-form">
+      <input type="text" id="destination-input" name="q" placeholder="Search destinations" autocomplete="off" value="{{ search_text }}">
       <div class="autocomplete-list" id="autocomplete-list"></div>
-      <select class="radius-select">
-        <option>5kms</option>
-        <option>10kms</option>
-        <option>30kms</option>
-        <option>50kms</option>
-        <option>Anywhere</option>
+      <select class="radius-select" name="distance">
+        <option value="5" {% if distance == '5' %}selected{% endif %}>5kms</option>
+        <option value="10" {% if distance == '10' %}selected{% endif %}>10kms</option>
+        <option value="30" {% if distance == '30' %}selected{% endif %}>30kms</option>
+        <option value="50" {% if distance == '50' %}selected{% endif %}>50kms</option>
+        <option value="0" {% if distance == '0' %}selected{% endif %}>Anywhere</option>
       </select>
       <button type="button" class="filters-btn">
         <span class="filter-icon" aria-hidden="true">
@@ -24,7 +24,7 @@
         </span>
         Filters
       </button>
-      <button type="submit" class="search-btn" aria-label="Search">
+      <button type="button" class="search-btn" aria-label="Search" id="search-btn">
         <span class="search-icon" aria-hidden="true">
           <!-- Magnifying glass SVG icon -->
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,7 +39,16 @@
 <!-- Results Grid Section (with header inside) -->
 <section class="results-grid-section" style="padding-left:40px; padding-right:40px;">
   <div class="results-header">
-    <h1 class="results-title">All Spots</h1>
+    <h1 class="results-title">
+      {% if search_text %}
+        Search Results for "{{ search_text }}"
+      {% else %}
+        All Spots
+      {% endif %}
+      {% if spots %}
+        ({{ spots|length }} found)
+      {% endif %}
+    </h1>
     <div class="results-sort">
       <label for="sort-select">Sort:</label>
       <div class="custom-select-wrapper">
@@ -58,385 +67,59 @@
     </div>
   </div>
   <div class="results-grid">
-    <!-- 12 cards, 3 rows of 4 columns on desktop -->
-    <!-- Card 1 -->
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+    {% if spots %}
+      {% for spot in spots %}
+        <div class="attraction-card">
+          <div class="attraction-image-container">
+            <div class="attraction-carousel">
+              {% for spot_image in spot.spot_images.all %}
+                <img src="{{ spot_image.image.url }}" class="carousel-img {% if forloop.first %}active{% endif %}" alt="{{ spot.name }}">
+              {% empty %}
+                <img src="{% static 'portal/images/placeholder.jpg' %}" class="carousel-img active" alt="{{ spot.name }}">
+              {% endfor %}
+            </div>
+            {% if spot.top_rated %}
+              <span class="attraction-badge">Top Rated</span>
+            {% endif %}
+            <span class="attraction-heart">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="11" fill="#fff"/>
+                <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
+              </svg>
+            </span>
+            <div class="attraction-pagination">
+              {% for spot_image in spot.spot_images.all %}
+                <span class="dot {% if forloop.first %}active{% endif %}"></span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="attraction-card-content">
+            <div class="attraction-card-row">
+              <span class="attraction-location">{{ spot.name }}</span>
+              <span class="attraction-rating">
+                <span class="star">&#9733;</span> {{ spot.rating|default:"N/A" }}
+              </span>
+            </div>
+            <div class="attraction-distance">
+              {% if spot.distance %}
+                {{ spot.distance|floatformat:1 }} km away
+              {% else %}
+                Distance unavailable
+              {% endif %}
+            </div>
+            <div class="attraction-category">{{ spot.category.title }}</div>
+          </div>
         </div>
-        <span class="attraction-badge">Rated #1</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-results" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+        <h3>No spots found</h3>
+        <p>Try adjusting your search criteria or distance.</p>
       </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <!-- Card 2-12 (identical for demo) -->
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #2</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <!-- Card 3 -->
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #3</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <!-- Card 4 -->
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #4</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <!-- Card 5-12 (identical for demo) -->
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #5</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #6</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #7</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #8</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #9</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #10</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #11</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
-    <div class="attraction-card">
-      <div class="attraction-image-container">
-        <div class="attraction-carousel">
-          <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-        </div>
-        <span class="attraction-badge">Rated #12</span>
-        <span class="attraction-heart">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <circle cx="11" cy="11" r="11" fill="#fff"/>
-            <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-          </svg>
-        </span>
-        <div class="attraction-pagination">
-          <span class="dot active"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </div>
-      </div>
-      <div class="attraction-card-content">
-        <div class="attraction-card-row">
-          <span class="attraction-location">Bourré, France</span>
-          <span class="attraction-rating">
-            <span class="star">&#9733;</span> 4.84
-          </span>
-        </div>
-        <div class="attraction-distance">8,015 km away</div>
-        <div class="attraction-price">$154 CAD</div>
-      </div>
-    </div>
+    {% endif %}
   </div>
 </section>
+
+<script src="{% static 'portal/js/search.js' %}"></script>
 
 {% endblock %}
