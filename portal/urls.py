@@ -15,4 +15,5 @@ urlpatterns = [
     path('spot-detail/<slug:slug>/', home.SpotDetailView.as_view(), name='spot_detail'),
     path('add-spot/', home.AddSpotView.as_view(), name='add_spot'),
     path('profile/', home.ProfileView.as_view(), name='profile'),
+    path('logout/', home.LogoutView.as_view(), name='logout'),
 ]

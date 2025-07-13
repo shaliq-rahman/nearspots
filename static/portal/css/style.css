@@ -2141,6 +2141,37 @@ body {
   color: #e74c3c;
   margin-left: 2px;
 }
+
+/* jQuery Validate Error Styles */
+.modal-input.error {
+  border-color: #e74c3c !important;
+  background-color: #fdf2f2 !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+}
+
+.modal-input.error:focus {
+  border-color: #e74c3c !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
+
+.error {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+  font-weight: 500;
+}
+
+/* Terms checkbox error styling */
+#terms-checkbox.error + label {
+  color: #e74c3c;
+}
+
+#terms-checkbox.error + label + .error {
+  margin-top: 8px;
+  margin-left: 24px;
+}
 .location-group .map-autofill-wrapper {
   display: flex;
   flex-direction: column;

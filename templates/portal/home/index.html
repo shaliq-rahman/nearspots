@@ -153,7 +153,7 @@
     </div>
   </section>
 
-
+ <!-- Auth Modal -->
   <div id="auth-modal-overlay" class="modal-overlay" style="display:none;">
     <div class="modal-container" role="dialog" aria-modal="true">
       <button class="modal-close" aria-label="Close">&times;</button>
@@ -167,48 +167,70 @@
         </div>
         <button type="submit" class="modal-signin-btn">Sign In</button>
         <div class="modal-divider"><span>OR</span></div>
-        <button type="button" class="modal-google-btn">
+        {% comment %} <button type="button" class="modal-google-btn">
           <span class="google-logo"></span>
           Continue with Google
-        </button>
+        </button> {% endcomment %}
       </form>
       <div class="modal-register-prompt">
-        Don't have an account? <a href="#" class="register-link">Register</a>
+        Don't have an account? <a href="#" class="register-link" id="test-register-modal-btn">Register</a>
       </div>
     </div>
   </div>
+<!-- Auth Modal -->
+
+
+
+
   <!-- Registration Modal Popup -->
   <div id="register-modal-overlay" class="modal-overlay" style="display:none;">
     <div class="modal-container" role="dialog" aria-modal="true">
       <button class="modal-close" aria-label="Close">&times;</button>
       <h2 class="modal-heading">Register</h2>
       <p class="modal-subtext">Fill the details below to create a new account</p>
-      <form class="modal-form" autocomplete="off">
+      <form class="modal-form" autocomplete="off" id="register-form" action="{% url 'portal:register' %}" method="post">
+        {% csrf_token %}
         <div style="display:flex; gap:10px;">
-          <input type="text" class="modal-input" placeholder="First name" style="flex:1;">
-          <input type="text" class="modal-input" placeholder="Last name" style="flex:1;">
+          <div style="flex:1;">
+            <input type="text" class="modal-input" placeholder="First name" name="first_name" required>
+          </div>
+          <div style="flex:1;">
+            <input type="text" class="modal-input" placeholder="Last name" name="last_name" required>
+          </div>
         </div>
         <div style="display:flex; gap:10px; margin-top:10px;">
-          <input type="email" class="modal-input" placeholder="Email Address" style="flex:1;">
-          <input type="tel" class="modal-input" placeholder="+91  Mobile No" style="flex:1;">
+          <div style="flex:1;">
+            <input type="email" class="modal-input" placeholder="Email Address" name="email" required>
+          </div>
+          <div style="flex:1;">
+            <input type="tel" class="modal-input" placeholder="+91  Mobile No" name="mobile" required>
+          </div>
         </div>
-        <input type="password" class="modal-input" placeholder="Password" style="margin-top:10px;">
-        <div style="display:flex; align-items:center; margin:10px 0 0 0;">
-          <input type="checkbox" id="terms-checkbox" style="margin-right:8px;">
+        <div style="margin-top:10px;">
+          <input type="password" class="modal-input" placeholder="Password" name="password" required>
+        </div>
+        <div style="margin:10px 0 0 0;">
+          <input type="checkbox" id="terms-checkbox" style="margin-right:8px;" name="terms_and_conditions" required>
           <label for="terms-checkbox" style="font-size:0.95em;">I Accept the <a href="#" style="text-decoration:underline;">Terms and conditions</a></label>
         </div>
         <button type="submit" class="modal-signin-btn" style="margin-top:18px;">Register</button>
         <div class="modal-divider"><span>Or</span></div>
-        <button type="button" class="modal-google-btn">
+        {% comment %} <button type="button" class="modal-google-btn">
           <span class="google-logo"></span>
           Continue with Google
-        </button>
+        </button> {% endcomment %}
       </form>
       <div class="modal-register-prompt">
         Already have an account? <a href="#" class="signin-link">Sign In</a>
       </div>
     </div>
   </div>
+  <!-- Registration Modal Popup -->
+
+
+
+
+
   <!-- OTP Verification Modal Popup -->
   <div id="otp-modal-overlay" class="modal-overlay" style="display:none;">
     <div class="modal-container" role="dialog" aria-modal="true">

@@ -73,3 +73,10 @@ class ProfileView(View):
     def get(self, request, *args, **kwargs):
         data = {}
         return renderfile(request,'profile','index',data)
+    
+    
+    
+class LogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('portal:home')
