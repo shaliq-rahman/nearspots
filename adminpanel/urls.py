@@ -15,12 +15,20 @@ urlpatterns = [
     path('users/<str:id>/toggle/', account.UserToggleView.as_view(), name='user_toggle'),
     path('users/<str:id>/delete/', account.UsersDeleteView.as_view(), name='user_delete'),
     
-    
     #CATEGORIES
     path('categories/', master.CategoriesView.as_view(), name='categories'),
     path('categories/add/', master.CreateCategories.as_view(), name='create_categories'),
     path('categories/<str:id>/edit/', master.CategoriesUpdateView.as_view(), name='categories_update'),
     path('categories/<str:id>/toggle/', master.CategoriesToggleView.as_view(), name='categories_toggle'),
     path('categories/<str:id>/delete/', master.CategoriesDeleteView.as_view(), name='categories_delete'),
+    
+    #SPOTS
+    path('spots/', master.SpotsView.as_view(), name='spots'),
+    path('spots/add/', master.SpotsCreateView.as_view(), name='create_spots'),
+    path('spots/<str:id>/edit/', master.SpotsUpdateView.as_view(), name='spots_update'),
+    path('spots/<str:id>/toggle/', master.SpotsToggleView.as_view(), name='spots_toggle'),
+    path('spots/<str:id>/delete/', master.SpotsDeleteView.as_view(), name='spots_delete'),
+    path('spots/<str:id>/set-cover/', master.SpotSetCoverView.as_view(), name='spots_set_cover'),
+    path('spots/images-preview/', master.SpotsImagesPreviewView.as_view(), name='spots_images_preview'),
     
 ]

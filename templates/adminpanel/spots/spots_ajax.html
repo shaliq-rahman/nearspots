@@ -1,0 +1,62 @@
+{% load static %}
+{% for spot in spots %}
+    <tr>
+        <td>{{forloop.counter}}</td>
+        <td>
+            <div class="d-flex align-items-center">
+                {% if spot.spotimages_set.first %}
+                    <img src="{{spot.spotimages_set.first.image.url}}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                        <i class="fe fe-image text-muted"></i>
+                    </div>
+                {% endif %}
+                <div>
+                    <div class="fw-bold">{{spot.name}}</div>
+                    {% if spot.category %}
+                        <small class="text-muted">{{spot.category.title}}</small>
+                    {% endif %}
+                </div>
+            </div>
+        </td>
+        <td>
+            {% if spot.city %}
+                <span class="badge bg-info">{{spot.city}}</span>
+            {% endif %}
+            {% if spot.landmark %}
+                <br><small class="text-muted">{{spot.landmark}}</small>
+            {% endif %}
+        </td>
+        <td>
+            {% if spot.coordinates %}
+                <small class="text-muted">{{spot.coordinates}}</small>
+            {% endif %}
+        </td>
+        <td>
+            <div class="material-switch">
+                <input class="master-toggle" id="someSwitchOptionSuccess-{{spot.id}}" name="someSwitchOption001" type="checkbox" data-url="{% url 'adminpanel:spots_toggle' spot.id %}" data-item_id="{{spot.id}}" {% if spot.is_active %} checked {% endif %} />
+                <label for="someSwitchOptionSuccess-{{spot.id}}" class="label-success"></label>
+            </div>
+        </td>
+        <td>
+            {% if spot.spotimages_set.all %}
+                <a class="btn btn-primary btn-sm mb-1 preview-images-btn" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#images-preview-modal" data-spot-id="{{spot.id}}" data-spot-name="{{spot.name}}">
+                    <i class="side-menu__icon fe fe-image"></i>
+                </a>
+            {% endif %}
+            <a class="btn btn-info btn-sm mb-1" href="{% url 'adminpanel:spots_update' spot.id %}">
+                <i class="side-menu__icon fe fe-edit"></i>
+            </a>
+            <a class="btn btn-danger btn-sm mb-1 delete-item" href="javascript:void(0)" data-item-id="{{spot.id}}" data-url="{% url 'adminpanel:spots_delete' spot.id %}">
+                <i class="side-menu__icon fe fe-trash" data-bs-toggle="modal" data-bs-target="#delete-modal"></i>
+            </a>
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="6" class="text-center">No spots found</td>
+    </tr>
+{% endfor %}
+{% block page_script %}
+{% comment %} <script src="{% static 'adminpanel/js/master.js' %}"></script> {% endcomment %}
+{% endblock page_script %}

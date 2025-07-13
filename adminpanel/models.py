@@ -1,5 +1,4 @@
 from django.db import models
-from django.db import models
 from django.contrib.auth.models import AbstractUser, Group 
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext as _
@@ -94,3 +93,31 @@ class Categories(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    
+    
+class Spots(models.Model):
+    name = models.CharField(max_length=250, null=True, blank=True)
+    category = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True, blank=True)
+    coordinates = models.CharField(max_length=250, null=True, blank=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    building_name = models.CharField(max_length=250, null=True, blank=True)
+    landmark = models.CharField(max_length=250, null=True, blank=True)
+    city = models.CharField(max_length=250, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    
+    
+class SpotImages(models.Model):
+    spot = models.ForeignKey(Spots, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='spots/', null=True, blank=True)
+    is_cover = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    
+    
+    
+    

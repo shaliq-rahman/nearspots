@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from adminpanel.helper import is_ajax
 from django.shortcuts import redirect
 from urllib.parse import urlparse, parse_qs
-from adminpanel.models import User, Categories
+from adminpanel.models import User, Categories, Spots, SpotImages
 from django.urls.exceptions import Resolver404
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -90,8 +90,6 @@ class CategoriesView(LoginRequiredMixin, View):
             message = 'Incorrect username or password'
             return JsonResponse({'success': False, 'message': message})
 
-
-
 class CreateCategories(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
     
@@ -139,9 +137,6 @@ class CreateCategories(LoginRequiredMixin, View):
                 'message': error_message
             })
 
-
-
-
 class CategoriesToggleView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -170,7 +165,6 @@ class CategoriesToggleView(LoginRequiredMixin, View):
             response["message"] = "Something went wrong"
         return JsonResponse(data)
 
-
 class CategoriesDeleteView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -189,7 +183,6 @@ class CategoriesDeleteView(LoginRequiredMixin, View):
             response["status"] = False
             response["message"] = "Something went wrong"
         return JsonResponse(data)
-
 
 class CategoriesUpdateView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
@@ -238,6 +231,444 @@ class CategoriesUpdateView(LoginRequiredMixin, View):
             })
         except Exception as error:
             error_message = f"Error updating category: {str(error)}"
+            return JsonResponse({
+                'success': False, 
+                'message': error_message
+            })            
+            
+    
+# ----------------------------- SPOTS --------------------------------
+
+class SpotsView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    
+    def get(self, request, *args, **kwargs):
+        data, filter_conditions = {}, {}
+        if is_ajax(request=request):
+            keyword = request.GET.get('keyword', None)
+            status = request.GET.get('status', None)
+            if keyword:
+                filter_conditions['name__icontains'] = keyword
+            if status and status != 'all':
+                status = True if status == 'active' else False
+                filter_conditions['is_active'] = status
+
+        spots = Spots.objects.filter(**filter_conditions).order_by('-id')
+        try:
+            page = int(request.GET.get("page", 1))
+        except ValueError:
+            page = 1
+
+        paginator = Paginator(spots, PAGINATION_PERPAGE)
+        try:
+            spots = paginator.page(page)
+        except PageNotAnInteger:
+            spots = paginator.page(1)  
+        except EmptyPage:
+            spots = paginator.page(paginator.num_pages)
+
+        if is_ajax(request=request):
+            context = {}
+            context['spots']= spots
+            response = {"success": True,
+                        "template": render_to_string("adminpanel/spots/spots_ajax.html", context, request=request),
+                        "pagination": render_to_string("adminpanel/spots/spots_pagination.html", context=context, request=request),
+                        }
+            return JsonResponse(response)
+        
+        data['spots'], data['current_page'] = spots, page
+        return renderfile(request,'spots','index',data)
+    
+    def post(self, request, *args, **kwargs):
+        context = {}
+        username = request.POST.get('email')
+        password = request.POST.get('password')
+        current_url = request.POST.get('current_url')
+        user = authenticate(username=username, password=password)
+        
+        if current_url:
+            try:
+                parsed_url = urlparse(current_url)
+                query_params = parse_qs(parsed_url.query)
+                next_url = query_params.get('next', [None])[0]
+                if next_url:
+                    resolve_result = resolve(next_url)
+                    redirect_url = next_url
+                else:
+                    redirect_url = reverse('adminpanel:dashboard')
+            except Resolver404:
+                redirect_url = reverse('adminpanel:dashboard')  
+        if user is not None and user.is_active:
+            login(request, user)
+            return JsonResponse({'success': True, 'redirect_url': redirect_url})
+        else:
+            message = 'Incorrect username or password'
+            return JsonResponse({'success': False, 'message': message})
+
+class SpotsCreateView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    
+    def get(self, request, *args, **kwargs):
+        data = {}
+        data['categories'] = Categories.objects.filter(is_active=True)
+        return renderfile(request,'spots','form',data)
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            # Get spot data
+            name = request.POST.get('name', None)
+            category_id = request.POST.get('category', None)
+            coordinates = request.POST.get('coordinates', None)
+            latitude = request.POST.get('latitude', None)
+            longitude = request.POST.get('longitude', None)
+            address = request.POST.get('address', None)
+            building_name = request.POST.get('building_name', None)
+            landmark = request.POST.get('landmark', None)
+            city = request.POST.get('city', None)
+            description = request.POST.get('description', None)
+            
+            # Validate required field
+            if not name:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Spot name is required'
+                })
+            
+            # Check if spot with same name already exists
+            if Spots.objects.filter(name=name).exists():
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'A spot with this name already exists'
+                })
+            
+            # Create the spot
+            spot_data = {
+                'name': name,
+                'is_active': True
+            }
+            
+            # Add optional fields if provided
+            if category_id and category_id != '':
+                spot_data['category_id'] = category_id
+            if coordinates and coordinates.strip():
+                spot_data['coordinates'] = coordinates.strip()
+            if latitude and latitude.strip():
+                try:
+                    spot_data['latitude'] = float(latitude)
+                except ValueError:
+                    return JsonResponse({
+                        'success': False, 
+                        'message': 'Invalid latitude value'
+                    })
+            if longitude and longitude.strip():
+                try:
+                    spot_data['longitude'] = float(longitude)
+                except ValueError:
+                    return JsonResponse({
+                        'success': False, 
+                        'message': 'Invalid longitude value'
+                    })
+            if address and address.strip():
+                spot_data['address'] = address.strip()
+            if building_name and building_name.strip():
+                spot_data['building_name'] = building_name.strip()
+            if landmark and landmark.strip():
+                spot_data['landmark'] = landmark.strip()
+            if city and city.strip():
+                spot_data['city'] = city.strip()
+            if description and description.strip():
+                spot_data['description'] = description.strip()
+            
+            # Create the spot
+            spot = Spots.objects.create(**spot_data)
+            
+            # Handle spot images if uploaded
+            images = request.FILES.getlist('spot_images')
+            new_cover_image = request.POST.get('new_cover_image', None)
+            
+            if images:
+                # Limit to 5 images
+                images = images[:5]
+                
+                for i, image in enumerate(images):
+                    SpotImages.objects.create(
+                        spot=spot,
+                        image=image,
+                        is_cover=(str(i) == str(new_cover_image))
+                    )
+            
+            success_message = f'Spot "{name}" created successfully'
+            return JsonResponse({
+                'success': True, 
+                'message': success_message, 
+                'redirect_url': reverse('adminpanel:spots')
+            })
+            
+        except Exception as error:
+            error_message = f"Error creating spot: {str(error)}"
+            return JsonResponse({
+                'success': False, 
+                'message': error_message
+            })
+
+class SpotsToggleView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+
+    def post(self, request, id, *args, **kwargs):
+        id  = request.POST.get('id', None)
+        status  = request.POST.get('status', None)
+        
+        try:
+            with transaction.atomic():
+                data = {}
+                spot = get_object_or_404(Spots, id=id)
+                if status == 'unchecked':
+                    spot.is_active = False
+                    message = 'Spot deactivated successfully'
+                else:
+                    spot.is_active = True
+                    message = 'Spot activated successfully'
+                spot.save()
+                data['success'] = True
+                data['message'] = message
+                data['redirect_url'] = reverse('adminpanel:spots')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+
+class SpotsDeleteView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def post(self, request, id, *args, **kwargs):
+        id  = request.POST.get('id', None)
+        try:
+            with transaction.atomic():
+                data = {}
+                spot = get_object_or_404(Spots, id=id)
+                spot.delete()
+                data['success'] = True
+                data['message'] = 'Spot deleted successfully'
+                data['redirect_url'] = reverse('adminpanel:spots')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+
+class SpotsUpdateView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def get(self, request, id, *args, **kwargs):
+        spot = get_object_or_404(Spots, id=id)
+        context = {'spot': spot, 'id':id, 'categories': Categories.objects.filter(is_active=True)}
+        return renderfile(request,'spots','form', context)
+
+
+    def post(self, request, id, *args, **kwargs):
+        try:
+            # Get spot data
+            name = request.POST.get('name', None)
+            category_id = request.POST.get('category', None)
+            coordinates = request.POST.get('coordinates', None)
+            latitude = request.POST.get('latitude', None)
+            longitude = request.POST.get('longitude', None)
+            address = request.POST.get('address', None)
+            building_name = request.POST.get('building_name', None)
+            landmark = request.POST.get('landmark', None)
+            city = request.POST.get('city', None)
+            description = request.POST.get('description', None)
+            
+            # Validate required field
+            if not name:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Spot name is required'
+                })
+            
+            # Check if spot with same name already exists (excluding current spot)
+            if Spots.objects.exclude(id=id).filter(name=name).exists():
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'A spot with this name already exists'
+                })
+            
+            # Update the spot
+            spot = Spots.objects.get(id=id)
+            spot.name = name
+            
+            # Update optional fields if provided
+            if category_id and category_id != '':
+                spot.category_id = category_id
+            elif category_id == '':
+                spot.category = None
+            if coordinates and coordinates.strip():
+                spot.coordinates = coordinates.strip()
+            elif coordinates == '':
+                spot.coordinates = None
+            if latitude and latitude.strip():
+                try:
+                    spot.latitude = float(latitude)
+                except ValueError:
+                    return JsonResponse({
+                        'success': False, 
+                        'message': 'Invalid latitude value'
+                    })
+            elif latitude == '':
+                spot.latitude = None
+            if longitude and longitude.strip():
+                try:
+                    spot.longitude = float(longitude)
+                except ValueError:
+                    return JsonResponse({
+                        'success': False, 
+                        'message': 'Invalid longitude value'
+                    })
+            elif longitude == '':
+                spot.longitude = None
+            if address and address.strip():
+                spot.address = address.strip()
+            elif address == '':
+                spot.address = None
+            if building_name and building_name.strip():
+                spot.building_name = building_name.strip()
+            elif building_name == '':
+                spot.building_name = None
+            if landmark and landmark.strip():
+                spot.landmark = landmark.strip()
+            elif landmark == '':
+                spot.landmark = None
+            if city and city.strip():
+                spot.city = city.strip()
+            elif city == '':
+                spot.city = None
+            if description and description.strip():
+                spot.description = description.strip()
+            elif description == '':
+                spot.description = None
+            
+            spot.save()
+            
+            # Handle spot images if uploaded
+            images = request.FILES.getlist('spot_images')
+            new_cover_image = request.POST.get('new_cover_image', None)
+            
+            if images:
+                # Limit to 5 images
+                images = images[:5]
+                
+                # Check if there's already a cover image from existing images
+                existing_cover = SpotImages.objects.filter(spot=spot, is_cover=True).exists()
+                
+                for i, image in enumerate(images):
+                    # Set as cover only if no existing cover and this is the selected new cover
+                    is_cover = (not existing_cover and str(i) == str(new_cover_image))
+                    SpotImages.objects.create(
+                        spot=spot,
+                        image=image,
+                        is_cover=is_cover
+                    )
+            
+            success_message = f'Spot "{name}" updated successfully'
+            return JsonResponse({
+                'success': True, 
+                'message': success_message, 
+                'redirect_url': reverse('adminpanel:spots')
+            })
+            
+        except Spots.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Spot not found'
+            })
+        except Exception as error:
+            error_message = f"Error updating spot: {str(error)}"
+            return JsonResponse({
+                'success': False, 
+                'message': error_message
+            })
+
+
+class SpotSetCoverView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def post(self, request, id, *args, **kwargs):
+        try:
+            image_id = request.POST.get('image_id')
+            
+            if not image_id:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Image ID is required'
+                })
+            
+            # Get the spot and image
+            spot = get_object_or_404(Spots, id=id)
+            image = get_object_or_404(SpotImages, id=image_id, spot=spot)
+            
+            # Remove cover from all other images of this spot
+            SpotImages.objects.filter(spot=spot, is_cover=True).update(is_cover=False)
+            
+            # Set this image as cover
+            image.is_cover = True
+            image.save()
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'Cover image updated successfully'
+            })
+            
+        except Exception as error:
+            error_message = f"Error updating cover image: {str(error)}"
+            return JsonResponse({
+                'success': False, 
+                'message': error_message
+            })
+
+class SpotsImagesPreviewView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            spot_id = request.GET.get('spot_id')
+            
+            if not spot_id:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Spot ID is required'
+                })
+            
+            # Get the spot and its images
+            spot = get_object_or_404(Spots, id=spot_id)
+            images = SpotImages.objects.filter(spot=spot).order_by('-is_cover', 'id')
+            
+            # Prepare image data
+            images_data = []
+            for image in images:
+                images_data.append({
+                    'id': image.id,
+                    'image_url': image.image.url,
+                    'is_cover': image.is_cover,
+                    'filename': image.image.name.split('/')[-1] if image.image.name else ''
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'images': images_data,
+                'total_images': len(images_data)
+            })
+            
+        except Spots.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Spot not found'
+            })
+        except Exception as error:
+            error_message = f"Error loading images: {str(error)}"
             return JsonResponse({
                 'success': False, 
                 'message': error_message

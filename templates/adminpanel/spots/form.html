@@ -1,0 +1,367 @@
+{% extends 'adminpanel/layout/base.html' %}
+{% load static %}
+{% block 'content' %}
+
+
+<!--app-content open-->
+<div class="main-content app-content mt-0">
+    <div class="side-app">
+
+        <!-- CONTAINER -->
+        <div class="main-container container-fluid">
+
+            <!-- PAGE-HEADER -->
+            <div class="page-header">
+                <h1 class="page-title">{% if spot %}Update {% else %}Create {% endif %} Spot</h1>
+                <div>
+                    <a class="btn btn-primary" href="{% url 'adminpanel:spots' %}"><i
+                            class="side-menu__icon fe fe-eye mx-1"></i>View All</a>
+                </div>
+            </div>
+            <!-- PAGE-HEADER END -->
+            
+            <form id='spotsForm' action="{% if spot %}{% url 'adminpanel:spots_update' spot.id %}{% else %}{% url 'adminpanel:create_spots' %}{% endif %}" name="spotsForm" method="POST" enctype='multipart/form-data'>
+                {% csrf_token %}
+                <!-- ROW OPEN -->
+                <div class="row">
+                    <div class="col-md-4 col-xl-4 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Spot Images</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <label class="form-label">Spot Images <span style="color:red;">(Maximum 5 images, Supported : .jpeg, .jpg, .png, .webp)</span></label>
+                                    
+                                    <!-- Image Upload Area -->
+                                    <div class="col-lg-12 col-sm-12 mb-4 mb-lg-0">
+                                        <div class="image-upload-container">
+                                            <!-- Plus Button for Adding Images -->
+                                            <div class="add-image-btn-container mb-3">
+                                                <button type="button" class="btn btn-outline-primary btn-lg add-image-btn" id="addImageBtn">
+                                                    <i class="fe fe-plus"></i> Add Image
+                                                </button>
+                                                <input type="file" id="imageInput" accept=".jpeg,.jpg,.png,.webp" multiple style="display: none;" />
+                                            </div>
+                                            
+                                            <!-- Selected Images Preview -->
+                                            <div class="row" id="selectedImagesContainer">
+                                                <!-- Selected images will be displayed here -->
+                                            </div>
+                                            
+                                            <!-- Hidden input for form submission -->
+                                            <input type="file" name="spot_images" id="spotImagesInput" multiple style="display: none;" />
+                                        </div>
+                                    </div>
+
+                                    {% if spot.spotimages_set.all %}
+                                    <div class="col-lg-12 col-sm-12 mb-4 mb-lg-0">
+                                        <label>Current Images</label>
+                                        <div class="row">
+                                            {% for image in spot.spotimages_set.all %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="position-relative">
+                                                    <img src="{{image.image.url}}" class="img-fluid" style="max-height: 100px;" />
+                                                    <div class="form-check position-absolute top-0 start-0 m-1">
+                                                        <input class="form-check-input cover-checkbox" type="checkbox" 
+                                                               data-image-id="{{image.id}}" 
+                                                               {% if image.is_cover %}checked{% endif %}>
+                                                        <label class="form-check-label text-white fw-bold">Cover</label>
+                                                    </div>
+                                                    {% if image.is_cover %}
+                                                    <small class="text-success d-block">Cover Image</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-8 col-xl-8 col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Spot Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Basic Information -->
+                                    <div class="form-group col-lg-6">
+                                        <label for="name" class="form-label">Spot Name <span class="text-danger">*</span></label>
+                                        <input {% if spot %}value="{{spot.name}}"{% endif %} name="name" type="text" class="form-control" id="name" placeholder="Enter spot name" required>
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-6">
+                                        <label for="category" class="form-label">Category</label>
+                                        <select name="category" class="form-control form-select" id="category">
+                                            <option value="">Select Category</option>
+                                            {% for category in categories %}
+                                            <option value="{{category.id}}" {% if spot and spot.category.id == category.id %}selected{% endif %}>
+                                                {{category.title}}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Location Information -->
+                                    <div class="form-group col-lg-6">
+                                        <label for="latitude" class="form-label">Latitude</label>
+                                        <input {% if spot %}value="{{spot.latitude}}"{% endif %} name="latitude" type="number" step="any" class="form-control" id="latitude" placeholder="e.g., 40.7128">
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-6">
+                                        <label for="longitude" class="form-label">Longitude</label>
+                                        <input {% if spot %}value="{{spot.longitude}}"{% endif %} name="longitude" type="number" step="any" class="form-control" id="longitude" placeholder="e.g., -74.0060">
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-12">
+                                        <label for="coordinates" class="form-label">Coordinates</label>
+                                        <input {% if spot %}value="{{spot.coordinates}}"{% endif %} name="coordinates" type="text" class="form-control" id="coordinates" placeholder="e.g., 40.7128, -74.0060">
+                                    </div>
+                                    
+                                    <!-- Address Information -->
+                                    <div class="form-group col-lg-12">
+                                        <label for="address" class="form-label">Full Address</label>
+                                        <textarea name="address" class="form-control" id="address" rows="3" placeholder="Enter complete address">{% if spot %}{{spot.address}}{% endif %}</textarea>
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-6">
+                                        <label for="building_name" class="form-label">Building Name</label>
+                                        <input {% if spot %}value="{{spot.building_name}}"{% endif %} name="building_name" type="text" class="form-control" id="building_name" placeholder="Building or establishment name">
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-6">
+                                        <label for="landmark" class="form-label">Landmark</label>
+                                        <input {% if spot %}value="{{spot.landmark}}"{% endif %} name="landmark" type="text" class="form-control" id="landmark" placeholder="Nearby landmark">
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-6">
+                                        <label for="city" class="form-label">City</label>
+                                        <input {% if spot %}value="{{spot.city}}"{% endif %} name="city" type="text" class="form-control" id="city" placeholder="City name">
+                                    </div>
+                                    
+                                    <!-- Description -->
+                                    <div class="form-group col-lg-12">
+                                        <label for="description" class="form-label">Description</label>
+                                        <textarea name="description" class="form-control" id="description" rows="4" placeholder="Enter spot description">{% if spot %}{{spot.description}}{% endif %}</textarea>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <div class="form-group col-lg-12">
+                                        <button id="spotsbtn" type="submit" class="btn btn-primary mt-4 mb-0">
+                                            {% if spot %}Update Spot{% else %}Create Spot{% endif %}
+                                        </button>
+                                        <a href="{% url 'adminpanel:spots' %}" class="btn btn-secondary mt-4 mb-0 ms-2">Cancel</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- CONTAINER END -->
+    </div>
+</div>
+<!--app-content close-->
+
+{% endblock %}
+
+{% block page_script %}
+<script>
+    $(document).ready(function() {
+        window.selectedFiles = [];
+        var maxImages = 5;
+        
+        // Handle plus button click
+        $('#addImageBtn').on('click', function() {
+            $('#imageInput').click();
+        });
+        
+        // Handle file selection
+        $('#imageInput').on('change', function() {
+            var files = Array.from(this.files);
+            
+            // Check if adding these files would exceed the limit
+            if (window.selectedFiles.length + files.length > maxImages) {
+                showAlert('Maximum ' + maxImages + ' images allowed. You can add ' + (maxImages - window.selectedFiles.length) + ' more image(s).', 'error');
+                return;
+            }
+            
+            // Add new files to selected files
+            files.forEach(function(file) {
+                if (file.type.startsWith('image/')) {
+                    window.selectedFiles.push(file);
+                }
+            });
+            
+            // Update display
+            updateImageDisplay();
+            
+            // Clear the input
+            $(this).val('');
+        });
+        
+        // Function to update image display
+        function updateImageDisplay() {
+            var $container = $('#selectedImagesContainer');
+            $container.empty();
+            
+            window.selectedFiles.forEach(function(file, index) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var $imageDiv = $('<div class="col-md-4 mb-2">' +
+                        '<div class="position-relative">' +
+                        '<img src="' + e.target.result + '" class="img-fluid" style="max-height: 100px; width: 100%; object-fit: cover;" />' +
+                        '<div class="form-check position-absolute top-0 start-0 m-1">' +
+                        '<input class="form-check-input new-cover-checkbox" type="checkbox" name="new_cover_image" value="' + index + '">' +
+                        '<label class="form-check-label text-white fw-bold">Cover</label>' +
+                        '</div>' +
+                        '<button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 remove-image-btn" data-index="' + index + '">' +
+                        '<i class="fe fe-x"></i>' +
+                        '</button>' +
+                        '</div>' +
+                        '</div>');
+                    $container.append($imageDiv);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Update hidden input for form submission
+            updateHiddenInput();
+            
+            // Update plus button state
+            if (window.selectedFiles.length >= maxImages) {
+                $('#addImageBtn').prop('disabled', true).text('Max Images Reached');
+            } else {
+                $('#addImageBtn').prop('disabled', false).html('<i class="fe fe-plus"></i> Add Image');
+            }
+        }
+        
+        // Handle remove image button
+        $(document).on('click', '.remove-image-btn', function() {
+            var index = $(this).data('index');
+            window.selectedFiles.splice(index, 1);
+            updateImageDisplay();
+        });
+        
+        // Handle cover checkbox for new images (only one can be selected)
+        $(document).on('change', '.new-cover-checkbox', function() {
+            if ($(this).is(':checked')) {
+                $('.new-cover-checkbox').not(this).prop('checked', false);
+            }
+        });
+        
+        {% if spot %}
+        // Handle cover checkbox for existing images
+        $(document).on('change', '.cover-checkbox', function() {
+            var imageId = $(this).data('image-id');
+            var isChecked = $(this).is(':checked');
+            
+            if (isChecked) {
+                // Uncheck other existing image checkboxes
+                $('.cover-checkbox').not(this).prop('checked', false);
+                
+                // Update cover image via AJAX
+                $.ajax({
+                    url: '{% url "adminpanel:spots_set_cover" spot.id %}',
+                    method: 'POST',
+                    data: {
+                        'image_id': imageId,
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update UI
+                            $('.text-success').hide();
+                            $('.cover-checkbox[data-image-id="' + imageId + '"]').closest('.position-relative').find('.text-success').show();
+                            showAlert('Cover image updated successfully', 'success');
+                        } else {
+                            showAlert(response.message || 'Error updating cover image', 'error');
+                        }
+                    },
+                    error: function() {
+                        showAlert('Error updating cover image', 'error');
+                    }
+                });
+            }
+        });
+        {% endif %}
+        // Function to update hidden input for form submission
+        function updateHiddenInput() {
+            var $hiddenInput = $('#spotImagesInput');
+            var dt = new DataTransfer();
+            
+            window.selectedFiles.forEach(function(file) {
+                dt.items.add(file);
+            });
+            
+            $hiddenInput[0].files = dt.files;
+        }
+        
+        // Function to update cover image selection before form submission
+        function updateCoverImageSelection() {
+            // Remove any existing hidden inputs for cover image
+            $('input[name="new_cover_image"]').remove();
+            
+            // Get the selected new cover image
+            var selectedNewCover = $('.new-cover-checkbox:checked').val();
+            if (selectedNewCover !== undefined) {
+                // Add hidden input for the selected cover image
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'new_cover_image',
+                    value: selectedNewCover
+                }).appendTo('#spotsForm');
+            }
+        }
+        
+        // Auto-fill coordinates when latitude and longitude are entered
+        $('#latitude, #longitude').on('change', function() {
+            var lat = $('#latitude').val();
+            var lng = $('#longitude').val();
+            if (lat && lng) {
+                $('#coordinates').val(lat + ', ' + lng);
+            }
+        });
+        
+        // Auto-fill latitude and longitude when coordinates are entered
+        $('#coordinates').on('change', function() {
+            var coords = $(this).val();
+            if (coords && coords.includes(',')) {
+                var parts = coords.split(',').map(function(item) { return item.trim(); });
+                if (parts.length === 2) {
+                    $('#latitude').val(parts[0]);
+                    $('#longitude').val(parts[1]);
+                }
+            }
+        });
+        
+        // Function to show alerts
+        function showAlert(message, type) {
+            // Remove existing alerts
+            $('.alert').remove();
+            
+            var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            var alertHtml = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
+                message +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                '</div>';
+            
+            $('.page-header').after(alertHtml);
+            
+            // Auto-hide after 3 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut(300, function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+    });
+</script>
+<script src="{% static 'adminpanel/js/forms.js' %}"></script>
+{% endblock page_script %}
