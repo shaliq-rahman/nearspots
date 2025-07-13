@@ -2,206 +2,64 @@
 {% load static %}
 {% block 'content' %}
 <!-- Top Rated Section -->
+ {% if top_rated_spots %}
 <section class="top-rated-section">
     <div class="top-rated-title">Top Rated</div>
     <div class="hotel-cards">
       <!-- Card 1 -->
+       {% for top_rated_spot in  top_rated_spots %}
       <div class="attraction-card">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+            {% for spot_image in top_rated_spot.spot_images.all %}
+            <img src="{{spot_image.image.url}}" class="carousel-img {% if forloop.first %}active{% endif %}" alt="{{top_rated_spot.name}}">
+            {% endfor %}
           </div>
-          <span class="attraction-badge">Rated #1</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
+          <span class="attraction-badge">Rated #{{forloop.counter}}</span>
+    
           <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+            {% for spot_image in top_rated_spot.spot_images.all %}
+            <span class="dot {% if forloop.first %}active{% endif %}"></span>
+            {% endfor %}
           </div>
         </div>
         <div class="attraction-card-content">
           <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
+            <span class="attraction-location">{{top_rated_spot.name}}</span>
             <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
+              <span class="star">&#9733;</span> {{top_rated_spot.rating}}
             </span>
           </div>
           <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
+          {% comment %} <div class="attraction-price">$154 CAD</div> {% endcomment %}
         </div>
       </div>
-      <!-- Card 2 -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          </div>
-          <span class="attraction-badge">Rated #2</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
-            </span>
-          </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
-        </div>
-      </div>
-      <!-- Card 3 -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          </div>
-          <span class="attraction-badge">Rated #3</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
-            </span>
-          </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
-        </div>
-      </div>
-      <!-- Card 4 -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          </div>
-          <span class="attraction-badge">Rated #4</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
-            </span>
-          </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </section>
-
+  {% endif %}
   <!-- Categories Section -->
   <section class="categories-section">
     <div class="categories-title">Categories</div>
     <div class="categories-toggles">
-      <button class="toggle-btn active" id="food-toggle">Food Spots</button>
-      <button class="toggle-btn" id="attraction-toggle">Attraction Sights</button>
+      <button class="toggle-btn active" data-id="{{categories.1.id}}" id="food-toggle">{{categories.0.title}}</button>
+      <button class="toggle-btn" data-id="{{categories.1.id}}" id="attraction-toggle">{{categories.1.title}}</button>
     </div>
     <div class="categories-list" data-type="food">
+    {% for food_spot in  food_spots %}
       <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80" alt="Tea & Snacks">
-        <div class="category-label">Tea & Snacks</div>
+        <img src="{{food_spot.spot_images.first.image.url}}" alt="Tea & Snacks">
+        <div class="category-label">{{food_spot.name}}</div>
       </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1504674900247-ec6b0b1b6b47?auto=format&fit=crop&w=400&q=80" alt="Meals">
-        <div class="category-label">Meals</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1506368083636-6defb67639d0?auto=format&fit=crop&w=400&q=80" alt="Biryani Spot">
-        <div class="category-label">Biryani Spot</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?auto=format&fit=crop&w=400&q=80" alt="Juices & Shakes">
-        <div class="category-label">Juices & Shakes</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80" alt="Fried Chickens">
-        <div class="category-label">Fried Chickens</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=400&q=80" alt="Mandi">
-        <div class="category-label">Mandi</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80" alt="Shawarma & Shawaya">
-        <div class="category-label">Shawarma & Shawaya</div>
-      </div>
+      {% endfor %}
     </div>
     <div class="categories-list" data-type="attraction" style="display:none;">
+        {% for attraction_spot in attraction_spots %}
       <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1465156799763-2c087c332922?auto=format&fit=crop&w=400&q=80" alt="Beaches">
-        <div class="category-label">Beaches</div>
+        <img src="{{attraction_spot.spot_images.first.image.url}}" alt="Beaches">
+        <div class="category-label">{{attraction_spot.name}}</div>
       </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" alt="Resorts">
-        <div class="category-label">Resorts</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Historical Sites">
-        <div class="category-label">Historical Sites</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=400&q=80" alt="Parks">
-        <div class="category-label">Parks</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" alt="Museums">
-        <div class="category-label">Museums</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" alt="Adventure Spots">
-        <div class="category-label">Adventure Spots</div>
-      </div>
-      <div class="category-card">
-        <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=400&q=80" alt="Viewpoints">
-        <div class="category-label">Viewpoints</div>
-      </div>
+      {% endfor %}
     </div>
   </section>
 

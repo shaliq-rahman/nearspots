@@ -107,12 +107,14 @@ class Spots(models.Model):
     city = models.CharField(max_length=250, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    top_rated = models.BooleanField(default=False)
+    rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     
     
 class SpotImages(models.Model):
-    spot = models.ForeignKey(Spots, on_delete=models.CASCADE, null=True, blank=True)
+    spot = models.ForeignKey(Spots, on_delete=models.CASCADE, null=True, blank=True, related_name='spot_images')
     image = models.ImageField(upload_to='spots/', null=True, blank=True)
     is_cover = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
