@@ -28,7 +28,11 @@ from django.db import IntegrityError
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
         data = {}
+        data['lat'] = lat
+        data['lon'] = lon
         data['categories'] = Categories.objects.filter(is_active=True)
         
         # Get food spots and add distance
