@@ -1,0 +1,24 @@
+{% load static %}
+{% for highlight in categories %}
+    <tr>
+        <td>{{forloop.counter}}</td>
+        <td>{{highlight.title}}</td>
+        <td>
+            <div class="material-switch">
+                <input class="master-toggle" id="someSwitchOptionSuccess-{{highlight.id}}" name="someSwitchOption001" type="checkbox" data-url="{% url 'adminpanel:categories_toggle' highlight.id %}" data-item_id="{{highlight.id}}" {% if highlight.is_active %} checked {% endif %} />
+                <label for="someSwitchOptionSuccess-{{highlight.id}}" class="label-success"></label>
+            </div>
+        </td>
+        <td>
+        <a class="btn btn-info btn-sm mb-1 edit-category-btn" href="javascript:void(0)" data-category-id="{{highlight.id}}" data-category-name="{{highlight.title}}" data-bs-toggle="modal" data-bs-target="#category-popup-modal"><i class="side-menu__icon fe fe-edit"></i></a>
+        <a class="btn btn-danger btn-sm mb-1 delete-item" href="javascript:void(0)" data-item-id="{{highlight.id}}" data-url="{% url 'adminpanel:categories_delete' highlight.id %}"><i class="side-menu__icon fe fe-trash" data-bs-toggle="modal" data-bs-target="#delete-modal"></i></a>
+        </td>
+    </tr>
+{% empty %}
+    <tr>
+        <td colspan="100%" class="text-center">No data found</td>
+    </tr>
+{% endfor %}
+{% block page_script %}
+{% comment %} <script src="{% static 'adminpanel/js/master.js' %}"></script> {% endcomment %}
+{% endblock page_script %}

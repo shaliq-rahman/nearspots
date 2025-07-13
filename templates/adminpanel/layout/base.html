@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+{% load static %}
+
+<head>
+  <!-- META DATA -->
+  <meta charset="UTF-8">
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- FAVICON -->
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'adminpanel/assets/images_ex/icon.png' %}" />
+  <!-- TITLE -->
+  <title>Layan Admin | Dashboard</title>
+  <!-- BOOTSTRAP CSS -->
+  <link id="style" href="{% static 'adminpanel/assets/plugins/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
+  <!-- STYLE CSS -->
+  <link href="{% static 'adminpanel/assets/css/style.css' %}" rel="stylesheet" />
+  <link href="{% static 'adminpanel/assets/css/dark-style.css' %}" rel="stylesheet" />
+  <link href="{% static 'adminpanel/assets/css/transparent-style.css' %}" rel="stylesheet">
+  <link href="{% static 'adminpanel/assets/css/skin-modes.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha512-H9jrZiiopUdsLpg94A333EfumgUBpO9MdbxStdeITo+KEIMaNfHNvwyjjDJb+ERPaRS6DpyRlKbvPUasNItRyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="{% static 'adminpanel/assets/css/style-custom.css' %}" rel="stylesheet" />
+  <!--- FONT-ICONS CSS -->
+  <link href="{% static 'adminpanel/assets/css/icons.css' %}" rel="stylesheet" />
+  <!-- COLOR SKIN CSS -->
+  <link id="theme" rel="stylesheet" type="text/css" media="all" href="{% static 'adminpanel/assets/colors/color1.css' %}" />
+</head>
+
+<body class="app sidebar-mini ltr light-mode">
+  <!-- PAGE -->
+  <div class="page">
+    <div class="page-main">
+      <!-- app-Header -->
+      {% include "adminpanel/layout/header.html" %}
+      <!-- /app-Header -->
+      <!--APP-SIDEBAR-->
+      <div class="sticky">
+        <div class="app-sidebar__overlay" data-bs-toggle="sidebar"></div>
+        {% include "adminpanel/layout/sidebar.html" %}
+        <!--/APP-SIDEBAR-->
+      </div>
+    </div>
+
+    {% include "adminpanel/status_message/status_message.html" %}
+    {% csrf_token %}
+    {% block 'content' %}
+    {% endblock 'content' %}
+
+    <!-- FOOTER -->
+
+    {% include "adminpanel/layout/footer.html" %}
+
+    <!-- FOOTER END -->
+
+
+
+</div>
+
+
+
+<!-- BACK-TO-TOP -->
+
+<a href="#top" id="back-to-top"><i class="fa fa-angle-up"></i></a>
+
+
+
+<!-- JQUERY JS -->
+
+<script src="{% static 'adminpanel/assets/js/jquery.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js" integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+<!-- BOOTSTRAP JS -->
+
+<script src="{% static 'adminpanel/assets/plugins/bootstrap/js/popper.min.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+
+
+
+<!-- SPARKLINE JS-->
+
+<script src="{% static 'adminpanel/assets/js/jquery.sparkline.min.js' %}"></script>
+
+
+
+<!-- Sticky js -->
+
+<script src="{% static 'adminpanel/assets/js/sticky.js' %}"></script>
+
+
+
+<!-- CHART-CIRCLE JS-->
+
+
+
+
+
+
+
+
+
+<!-- SIDEBAR JS -->
+
+<script src="{% static 'adminpanel/assets/plugins/sidebar/sidebar.js' %}"></script>
+
+
+
+
+
+
+
+<!-- INTERNAL Flot JS -->
+
+<script src="{% static 'adminpanel/assets/plugins/flot/jquery.flot.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/flot/jquery.flot.fillbetween.js' %}"></script>
+
+{% comment %} <script src="{% static 'adminpanel/assets/plugins/p-scroll/perfect-scrollbar.js' %}"></script> {% endcomment %}
+
+{% comment %} <script src="{% static 'adminpanel/assets/plugins/p-scroll/pscroll.js' %}"></script> {% endcomment %}
+
+{% comment %} <script src="{% static 'adminpanel/assets/plugins/p-scroll/pscroll-1.js' %}"></script> {% endcomment %}
+
+<script src="{% static 'adminpanel/assets/plugins/flot/dashboard.sampledata.js' %}"></script>
+
+
+
+
+
+
+
+<!-- SIDE-MENU JS-->
+
+<script src="{% static 'adminpanel/assets/plugins/sidemenu/sidemenu.js' %}"></script>
+
+
+
+<script src="{% static 'adminpanel/assets/plugins/date-picker/date-picker.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/date-picker/jquery-ui.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/input-mask/jquery.maskedinput.js' %}"></script>
+
+
+
+<script src="{% static 'adminpanel/assets/plugins/fileuploads/js/fileupload.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/fileuploads/js/file-upload.js' %}"></script>
+
+
+
+<script src="{% static 'adminpanel/assets/plugins/select2/select2.full.min.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/js/select2.js' %}"></script>
+
+ <script src="{% static 'adminpanel/assets/plugins/multipleselect/multiple-select.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/multipleselect/multi-select.js' %}"></script>
+
+<!-- Color Theme js -->
+
+<script src="{% static 'adminpanel/assets/js/themeColors.js' %}"></script>
+
+
+
+<!-- CUSTOM JS -->
+
+<script src="{% static 'adminpanel/assets/js/custom.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/summernote/summernote1.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/js/summernote.js' %}"></script>
+
+  
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/picturefill.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lightgallery.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lightgallery-1.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lg-pager.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lg-autoplay.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lg-fullscreen.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lg-zoom.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lg-hash.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/gallery/lg-share.js' %}"></script>
+
+{% comment %} <script src="{% static 'adminpanel/assets/js/formelementadvnced.js' %}"></script> {% endcomment %}
+
+{% comment %} <script src="{% static 'adminpanel/assets/js/form-elements.js' %}"></script> {% endcomment %}
+
+
+
+<script src="{% static 'adminpanel/assets/js/custom-js-new.js' %}"></script>
+
+ 
+
+<script src="{% static 'adminpanel/assets/plugins/time-picker/jquery.timepicker.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/plugins/time-picker/toggles.min.js' %}"></script>
+
+<script src="{% static 'adminpanel/assets/js/show-password.min.js' %}"></script>
+<script src="{% static 'adminpanel/assets/plugins/bootstrap-daterangepicker/moment.min.js' %}"></script>
+<script src="{% static 'adminpanel/assets/plugins/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+{% comment %} <script src="{% static 'adminpanel/assets/js/formelementadvnced.js' %}"></script> {% endcomment %}
+{% comment %} <script src="{% static 'adminpanel/assets/js/form-elements.js' %}"></script> {% endcomment %}
+  
+<script src="{% static 'adminpanel/assets/plugins/notify/js/rainbow.js' %}"></script>
+<script src="{% static 'adminpanel/assets/plugins/notify/js/sample.js' %}"></script>
+<script src="{% static 'adminpanel/assets/plugins/notify/js/notifIt.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha512-uURl+ZXMBrF4AwGaWmEetzrd+J5/8NRkWAvJx5sbPSSuOb0bZLqf+tOzniObO00BjHa/dD7gub9oCGMLPQHtQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'adminpanel/js/master.js' %}"></script>
+
+
+
+
+<script>
+
+function not1() {
+notif({
+    msg: "<b>Success:</b> Content Updated Successfully",
+    type: "success"
+});
+}
+
+function not2() {
+notif({
+    msg: "<b>Oops!</b> An Error Occurred",
+    type: "error",
+    position: "center"
+});
+}
+
+$('.fc-datepicker').datepicker({
+    showOtherMonths: false,
+    selectOtherMonths: false
+});
+
+</script>
+<script>
+
+</script>
+{% block page_script %}
+
+{% endblock page_script %}
+
+
+</body>
+
+
+
+</html>

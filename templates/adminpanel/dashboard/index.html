@@ -1,0 +1,194 @@
+{% extends 'adminpanel/layout/base.html' %}
+{% load static %}
+{% block 'content' %}
+<div class="main-content app-content mt-0">
+
+    <div class="side-app">
+
+
+
+        <!-- CONTAINER -->
+
+        <div class="main-container container-fluid">
+
+
+
+            <!-- PAGE-HEADER -->
+
+            <div class="page-header">
+
+                <h1 class="page-title">Dashboard</h1>
+
+               
+
+            </div>
+
+            <!-- PAGE-HEADER END -->
+            
+             <!-- ROW OPEN -->
+            <div class="row row-cards">
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Users</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm btn-primary" href="{% url 'adminpanel:users' %}"><i class="fe fe-users mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">{{users}}</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-primary" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+                <!-- COL END -->
+                {% comment %} <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Transactions</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm bg-grey" href="{%  url  'adminpanel:transactions' %}"><i class="fe fe-box mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">{{transactions}}</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-grey" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Vouchers</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm btn-success" href="{%  url  'adminpanel:vouchers' %}"><i class="fe fe-box mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">{{vouchers}}</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-success" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- COL END -->
+                
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Offers</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm btn-info" href="{%  url  'adminpanel:offers' %}"><i class="fe fe-layers mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">{{offers}}</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-info" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- COL END -->
+                
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Highlights</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm btn-yellow" href="{%  url  'adminpanel:highlights' %}"><i class="fe fe-tv mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">{{highlights}}</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-yellow" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- COL END -->
+
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Cms</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm bg-violet" href="{%  url  'adminpanel:cms' %}"><i class="fe fe-tv mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">4</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-violet" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COL END -->
+
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Promocodes</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm bg-light-red" href="{%  url  'adminpanel:promocode' %}"><i class="fe fe-tv mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">{{promocodes}}</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-light-red" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- COL END -->
+
+                <div class="col-sm-6 col-md-6 col-lg-6 col-xl-3">
+                    <div class="card">
+                        <div class="card-header pb-0 border-bottom-0">
+                            <h3 class="card-title">Voucher Settings</h3>
+                            <div class="card-options">
+                                <a class="btn btn-sm bg-pink" href="{%  url  'adminpanel:points' %}"><i class="fe fe-tv mb-0"></i></a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <h3 class="d-inline-block mb-2">4</h3>
+                            <div class="progress h-2 mt-2 mb-2">
+                                <div class="progress-bar bg-pink" style="width: 100%;" role="progressbar"></div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div> {% endcomment %}
+                
+            </div>
+            <!-- ROW CLOSED -->
+
+
+        </div>
+
+        <!-- CONTAINER END -->
+
+    </div>
+
+</div>
+
+{% endblock 'content' %}

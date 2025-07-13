@@ -1,0 +1,104 @@
+{% extends 'adminpanel/layout/base.html' %}
+{% load static %}
+{% block 'content' %}
+<!--app-content open-->
+<div class="main-content app-content mt-0">
+    <div class="side-app">
+
+        <!-- CONTAINER -->
+        <div class="main-container container-fluid">
+
+            <!-- PAGE-HEADER -->
+            <div class="page-header">
+                <h1 class="page-title">User</h1>
+                <!-- <div>
+                    <a class="btn btn-primary" href="vendor-create.php"><i class="side-menu__icon fe fe-plus mx-1"></i>Add New</a>
+                </div> -->
+            </div>
+            <!-- PAGE-HEADER END -->
+
+             <!-- ROW OPEN -->
+            <div class="row">
+                 <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">List Of All User</h3>
+                        </div>
+                        <div class="card-body">
+                            <form name='searchForm' id="searchForm" action="{% url 'adminpanel:users' %}">
+                            <div class="row">
+                                    
+                                    <div class="form-group col-lg-2 col-12">
+                                        <input name="keyword_search" id="keyword_search" type="text" class="form-control" placeholder="Keyword Search">
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-2 col-12">
+                                        <select name="filter_status" id="filter_status" class="form-control form-select select2" data-bs-placeholder="Select Status"  id="filter_status">
+                                           <option selected value="all">All</option>
+                                           <option value="active">Active</option>
+                                           <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group col-lg-3 col-12">
+                                        <a class="btn btn-primary mr-1" href="javascript:void(0)" onclick="FilterMaster('')">Search</a>
+                                        <a class="btn btn-default" href="javascript:void(0)" onclick="ResetFilter()">Reset</a>
+                                    </div>
+                                    
+                            </div>
+                            </form>	
+                            <div class="table-responsive">
+                                
+                                <table class="table border-top table-bordered mb-0 table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl No</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Mobile number</th>
+                                            <th>No.of Posts </th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="master-tbody">
+                                        {% include "adminpanel/users/users_ajax.html" %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-body" id="master-pagination">
+                                {% include 'adminpanel/users/users_pagination.html' %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ROW CLOSED -->
+        </div>
+        <!-- CONTAINER END -->
+    </div>
+</div>
+<!--app-content close-->
+
+<div class="modal  fade" id="delete-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md modal-dialog-centered text-center" role="document">
+        <div class="modal-content ">
+            
+            <div class="modal-body">
+                <button aria-label="Close" class="btn-close position-absolute" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                <i class="icon icon-close fs-70 text-danger lh-1 my-5 d-inline-block"></i>
+                <h4 class="text-danger">Are You Sure Do You Want To Delete ?</h4>
+                <p class="mg-b-20 mg-x-20">Item Will be Deleted Permanently</p>
+                <button class="btn btn-success delete-btn-confirm" id="delete-btn-confirm" data-url="" data-item-id="">Yes</button>
+                <button aria-label="Close" id="modal-close-btn" class="btn btn-danger pd-x-25" data-bs-dismiss="modal">Cancel</button>
+            </div>
+            <div class="modal-footer">
+                
+               
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock 'content' %}

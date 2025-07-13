@@ -1,0 +1,105 @@
+{% load static %}
+<div class="app-sidebar">
+    <div class="side-header">
+      <a class="header-brand1" href="{% url 'adminpanel:dashboard' %}">
+        <img style="width:150px;" src="{% static 'adminpanel/assets/images_ex/logo.png' %}" class="header-brand-img desktop-logo" alt="logo">
+        <img style="width:150px;" src="{% static 'adminpanel/assets/images_ex/icon.png' %}" class="header-brand-img toggle-logo" alt="logo">
+        <img style="width:150px;" src="{% static 'adminpanel/assets/images_ex/icon.png' %}" class="header-brand-img light-logo" alt="logo">
+        <img style="width:150px;" src="{% static 'adminpanel/assets/images_ex/logo.png' %}" class="header-brand-img light-logo1" alt="logo">
+      </a>
+      <!-- LOGO -->
+    </div>
+    <div class="main-sidemenu">
+      <div class="slide-left disabled" id="slide-left">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z" />
+        </svg>
+      </div>
+      <ul class="side-menu">
+        <li class="sub-category">
+          <h3>Main</h3>
+        </li>
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:dashboard' %}">
+            <i class="side-menu__icon fe fe-home"></i>
+            <span class="side-menu__label">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:users' %}">
+            <i class="side-menu__icon fe fe-image"></i>
+            <span class="side-menu__label">User</span>
+          </a>
+        </li>
+
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:categories' %}">
+            <i class="side-menu__icon fe fe-image"></i>
+            <span class="side-menu__label">Categories</span>
+          </a>
+        </li>
+
+        {% comment %} <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:transactions' %}">
+            <i class="side-menu__icon fe fe-image"></i>
+            <span class="side-menu__label">Transaction</span>
+          </a>
+        </li>
+        
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:vouchers' %}">
+            <i class="side-menu__icon fe fe-image"></i>
+            <span class="side-menu__label">Vouchers</span>
+          </a>
+        </li>
+        
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:offers' %}">
+            <i class="side-menu__icon fe fe-grid"></i>
+            <span class="side-menu__label">Latest offer</span>
+          </a>
+        </li>
+
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:highlights' %}">
+            <i class="side-menu__icon fe fe-image"></i>
+            <span class="side-menu__label">Highlights</span>
+          </a>
+        </li>
+       
+        {% comment %} <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="transaction-history-view.php">
+            <i class="side-menu__icon fe fe-box"></i>
+            <span class="side-menu__label">Transaction History</span>
+          </a>
+        </li> {% endcomment %}
+        {% comment %} <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:cms' %}">
+            <i class="side-menu__icon fe fe-layers"></i>
+            <span class="side-menu__label">Cms</span>
+          </a>
+        </li>
+
+        <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:promocode' %}">
+            <i class="side-menu__icon fe fe-layers"></i>
+            <span class="side-menu__label">Promocodes</span>
+          </a>
+        </li> {% endcomment %}
+
+        {% comment %} <li class="slide">
+          <a class="side-menu__item has-link" data-bs-toggle="slide" href="{% url 'adminpanel:points' %}">
+            <i class="side-menu__icon fe fe-layers"></i>
+            <span class="side-menu__label">Voucher Settings</span>
+          </a>
+        </li>  {% endcomment %}
+      
+      </ul>
+      <div class="slide-right" id="slide-right">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z" />
+        </svg>
+      </div>
+    </div>
+  </div>
