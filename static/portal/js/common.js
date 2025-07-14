@@ -56,7 +56,7 @@
       }
       
       // Redirect to search page with parameters
-      const searchUrl = '{% url "portal:search" %}' + (urlParams.toString() ? '?' + urlParams.toString() : '');
+      const searchUrl = '/search/' + (urlParams.toString() ? '?' + urlParams.toString() : '');
       console.log('Redirecting to:', searchUrl);
       window.location.href = searchUrl;
     });

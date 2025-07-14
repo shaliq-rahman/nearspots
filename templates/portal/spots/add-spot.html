@@ -5,14 +5,14 @@
 <!-- Search Bar (reused from homepage) -->
 <section class="search-bar-section">
     <form class="search-bar" onsubmit="event.preventDefault();">
-        <input type="text" id="destination-input" placeholder="Search destinations" autocomplete="off">
+        <input type="text" id="destination-input" name="q" placeholder="Search destinations" autocomplete="off">
         <div class="autocomplete-list" id="autocomplete-list"></div>
-        <select class="radius-select">
-          <option>5kms</option>
-          <option>10kms</option>
-          <option>30kms</option>
-          <option>50kms</option>
-          <option>Anywhere</option>
+        <select class="radius-select" name="distance">
+          <option value="5">5kms</option>
+          <option value="10">10kms</option>
+          <option value="30">30kms</option>
+          <option value="50">50kms</option>
+          <option value="0">Anywhere</option>
         </select>
         <button type="button" class="filters-btn">
           <span class="filter-icon" aria-hidden="true">
@@ -25,7 +25,7 @@
           </span>
           Filters
         </button>
-        <button type="submit" class="search-btn" aria-label="Search">
+        <button type="button" class="search-btn" aria-label="Search" id="search-btn-home">
           <span class="search-icon" aria-hidden="true">
             <!-- Magnifying glass SVG icon -->
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
