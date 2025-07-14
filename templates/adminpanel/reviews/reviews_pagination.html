@@ -3,10 +3,10 @@
 <input type="hidden" id="current_page" value="{{current_page}}" />
 <input type="hidden" id="start_count" value="1" />
 
-{% if users.has_other_pages %}
+{% if reviews.has_other_pages %}
   <ul class="pagination">
-    {% if users.has_previous %}
-      <li class="page-item page-prev"><a class="page-link" onclick="FilterMaster('{{ users.previous_page_number }}')" href="javascript:void(0)">Previous</a></li>
+    {% if reviews.has_previous %}
+      <li class="page-item page-prev"><a class="page-link" onclick="FilterMaster('{{ reviews.previous_page_number }}')" href="javascript:void(0)">Previous</a></li>
     {% else %}
       <li class="page-item disabled">
         <a class="page-link" href="#" tabindex="-1">Previous</a>
@@ -14,8 +14,8 @@
   
     {% endif %}
 
-    {% for i in users.paginator.page_range %}
-      {% if users.number == i %}
+    {% for i in reviews.paginator.page_range %}
+      {% if reviews.number == i %}
         <li class="page-item active" >
           <a class="page-link" href="javascript:void(0)">{{i}}</a>
         </li>
@@ -24,8 +24,8 @@
       {% endif %}
     {% endfor %}
     
-    {% if users.has_next %}
-      <li class="page-item page-next"><a class="page-link"  onclick="FilterMaster('{{users.next_page_number}}')" href="javascript:void(0)">Next</a></li>
+    {% if reviews.has_next %}
+      <li class="page-item page-next"><a class="page-link"  onclick="FilterMaster('{{reviews.next_page_number}}')" href="javascript:void(0)">Next</a></li>
     {% else %}
     <li class="page-item disabled">
         <a class="page-link" href="#" tabindex="-1">Next</a>

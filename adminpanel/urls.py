@@ -34,5 +34,9 @@ urlpatterns = [
     
     #REVIEWS
     path('reviews/', master.ReviewsView.as_view(), name='reviews'),
+    path('reviews/<str:id>/edit/', master.ReviewsUpdateView.as_view(), name='review_edit'),
+    path('reviews/<str:id>/toggle/', master.ReviewsToggleView.as_view(), name='review_toggle'),
+    path('reviews/<str:id>/approve/', master.ReviewsApproveView.as_view(), name='reviews_approve'),
+    path('reviews/<str:id>/delete/', master.ReviewsDeleteView.as_view(), name='reviews_delete'),
     
 ]

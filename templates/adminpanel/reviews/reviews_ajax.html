@@ -1,0 +1,45 @@
+{% load static %}
+{% for review in reviews %}
+<tr>
+    <td>{{forloop.counter}}</td>
+    <td>{{review.user.name}}</td>
+    <td>{{review.user.email}}</td>
+    <td>{{review.user.mobile}}</td>
+    <td>{{review.review_text|truncatechars:50}}</td>
+    <td>
+        {% if review.rating %}
+            <div class="rating-stars">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                        <i class="fa fa-star text-warning"></i>
+                    {% else %}
+                        <i class="fa fa-star-o text-muted"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <span class="text-muted">No rating</span>
+        {% endif %}
+    </td>
+    <td>{{review.spot.name|default:"N/A"}}</td>
+    <td>
+        <div class="material-switch">
+            <input class="master-toggle" id="someSwitchOptionSuccess-{{review.id}}" name="someSwitchOption001" type="checkbox" data-url="{% url 'adminpanel:review_toggle' review.id %}" data-item_id="{{review.id}}" {% if review.is_approved %} checked {% endif %} />
+            <label for="someSwitchOptionSuccess-{{review.id}}" class="label-success"></label>
+        </div>
+    </td>
+    <td>
+        {% comment %} <a class="btn btn-info btn-sm mb-1" href="{% url 'adminpanel:review_edit' review.id %}"><i class="side-menu__icon fe fe-edit"></i></a> {% endcomment %}
+        <a class="btn btn-danger btn-sm mb-1 delete-item" href="javascript:void(0)" data-item-id="{{review.id}}" data-url="{% url 'adminpanel:reviews_delete' review.id %}"><i class="side-menu__icon fe fe-trash" data-bs-toggle="modal" data-bs-target="#delete-modal"></i></a>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="9" class="text-center">No data found</td>
+</tr>
+{% endfor %}
+
+{% block page_script %}
+<script src="{% static 'adminpanel/js/master.js' %}"></script>
+
+{% endblock page_script %}

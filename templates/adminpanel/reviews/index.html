@@ -10,7 +10,7 @@
 
             <!-- PAGE-HEADER -->
             <div class="page-header">
-                <h1 class="page-title">User</h1>
+                <h1 class="page-title">Reviews</h1>
                 <!-- <div>
                     <a class="btn btn-primary" href="vendor-create.php"><i class="side-menu__icon fe fe-plus mx-1"></i>Add New</a>
                 </div> -->
@@ -22,14 +22,16 @@
                  <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">List Of All User</h3>
+                            <h3 class="card-title">List Of All Reviews</h3>
                         </div>
                         <div class="card-body">
-                            <form name='searchForm' id="searchForm" action="{% url 'adminpanel:users' %}">
+                            {% csrf_token %}
+                            <input type="hidden" id="current_page" value="1">
+                            <form name='searchForm' id="searchForm" action="{% url 'adminpanel:reviews' %}">
                             <div class="row">
                                     
                                     <div class="form-group col-lg-2 col-12">
-                                        <input name="keyword_search" id="keyword_search" type="text" class="form-control" placeholder="Keyword Search">
+                                        <input name="keyword_search" id="keyword_search" type="text" class="form-control" placeholder="Keyword Search" data-url="{% url 'adminpanel:reviews' %}">
                                     </div>
                                     
                                     <div class="form-group col-lg-2 col-12">
@@ -56,18 +58,20 @@
                                             <th>Name</th>
                                             <th>Email</th>
                                             <th>Mobile number</th>
-                                            <th>No.of Posts </th>
+                                            <th>Review</th>
+                                            <th>Rating</th>
+                                            <th>Spot</th>
                                             <th>Status</th>
-                                            {% comment %} <th>Action</th> {% endcomment %}
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="master-tbody">
-                                        {% include "adminpanel/users/users_ajax.html" %}
+                                        {% include "adminpanel/reviews/reviews_ajax.html" %}
                                     </tbody>
                                 </table>
                             </div>
                             <div class="card-body" id="master-pagination">
-                                {% include 'adminpanel/users/users_pagination.html' %}
+                                {% include 'adminpanel/reviews/reviews_pagination.html' %}
                             </div>
 
                         </div>
@@ -102,3 +106,7 @@
 </div>
 
 {% endblock 'content' %}
+
+{% block 'page_script' %}
+<script src="{% static 'adminpanel/js/master.js' %}"></script>
+{% endblock 'page_script' %}
