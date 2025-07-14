@@ -152,6 +152,41 @@ class SpotDetailView(View):
             if lat and lon:
                 related_spots = add_distance_to_spots_from_request(related_spots, request)
             
+            # Calculate ratings for related spots
+            for related_spot in related_spots:
+                approved_reviews = related_spot.spot_reviews.filter(is_approved=True)
+                if approved_reviews.exists():
+                    total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                    review_count = approved_reviews.count()
+                    related_spot.average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                    related_spot.review_count = review_count
+                else:
+                    related_spot.average_rating = 0
+                    related_spot.review_count = 0
+            
+            # Get approved reviews for this spot
+            approved_reviews = spot.spot_reviews.filter(is_approved=True).order_by('-created_at')
+            
+            # Calculate average rating
+            if approved_reviews.exists():
+                total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                review_count = approved_reviews.count()
+                average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+            else:
+                average_rating = 0
+                review_count = 0
+            
+            # Calculate rating distribution (for the bars)
+            rating_distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            for review in approved_reviews:
+                if review.rating and 1 <= review.rating <= 5:
+                    rating_distribution[review.rating] += 1
+            
+            # Calculate percentages for the bars
+            rating_percentages = {}
+            for rating, count in rating_distribution.items():
+                rating_percentages[rating] = (count / review_count * 100) if review_count > 0 else 0
+            
             data = {
                 'spot': spot,
                 'spot_images': spot_images,
@@ -159,6 +194,11 @@ class SpotDetailView(View):
                 'related_spots': related_spots,
                 'lat': lat,
                 'lon': lon,
+                'reviews': approved_reviews,
+                'average_rating': average_rating,
+                'review_count': review_count,
+                'rating_distribution': rating_distribution,
+                'rating_percentages': rating_percentages,
             }
             
             return renderfile(request, 'spots', 'detail', data)
@@ -612,13 +652,23 @@ class WriteReviewView(View):
             
             spot = Spots.objects.get(slug=slug)
             
-            # Create review
+            # Create review (auto-approve for now)
             review = Reviews.objects.create(
                 spot=spot,
                 review_text=review_text,
                 rating=rating,
-                user=request.user if request.user.is_authenticated else None
+                user=request.user if request.user.is_authenticated else None,
+                is_approved=True  # Auto-approve reviews
             )
+            
+            # Update spot's average rating
+            approved_reviews = spot.spot_reviews.filter(is_approved=True)
+            if approved_reviews.exists():
+                total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                review_count = approved_reviews.count()
+                average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                spot.rating = average_rating
+                spot.save()
             
             return JsonResponse({
                 'status': 'success',

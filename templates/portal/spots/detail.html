@@ -81,19 +81,19 @@
             <div class="spot-reviews-overall">
               <div class="spot-reviews-overall-label">Overall rating</div>
               <div class="spot-reviews-bars">
-                <div class="spot-reviews-bar-row"><span>5</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 80%"></div></div></div>
-                <div class="spot-reviews-bar-row"><span>4</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 60%"></div></div></div>
-                <div class="spot-reviews-bar-row"><span>3</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 40%"></div></div></div>
-                <div class="spot-reviews-bar-row"><span>2</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 20%"></div></div></div>
-                <div class="spot-reviews-bar-row"><span>1</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: 10%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>5</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: {{ rating_percentages.5|floatformat:0 }}%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>4</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: {{ rating_percentages.4|floatformat:0 }}%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>3</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: {{ rating_percentages.3|floatformat:0 }}%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>2</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: {{ rating_percentages.2|floatformat:0 }}%"></div></div></div>
+                <div class="spot-reviews-bar-row"><span>1</span><div class="spot-reviews-bar"><div class="spot-reviews-bar-fill" style="width: {{ rating_percentages.1|floatformat:0 }}%"></div></div></div>
               </div>
             </div>
             <div class="spot-reviews-main-rating">
               <div class="spot-reviews-star">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><path d="M24 4l6.09 12.36L44 18.18l-9.09 8.85L36.18 44 24 36.36 11.82 44l1.27-16.97L4 18.18l13.91-1.82L24 4z" fill="#222"/></svg>
               </div>
-              <div class="spot-reviews-main-value">4.0</div>
-              <div class="spot-reviews-main-count">336 Reviews</div>
+              <div class="spot-reviews-main-value">{{ average_rating|floatformat:1 }}</div>
+              <div class="spot-reviews-main-count">{{ review_count }} Review{{ review_count|pluralize }}</div>
             </div>
           </div>
 
@@ -122,26 +122,38 @@
       
           
           <div class="spot-reviews-list">
+            {% for review in reviews %}
             <div class="spot-review">
-              <img class="user-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Alexie">
+              <img class="user-avatar" src="{% static 'portal/images/default-avatar.svg' %}" alt="{{ review.user.name|default:'Anonymous' }}">
               <div class="spot-review-content">
-                <div class="spot-review-header"><span class="spot-review-user">Alexie</span> <span class="spot-review-date">2 years on Airbnb</span></div>
-                <div class="spot-review-meta"><span class="spot-review-stars">★★★★★</span> · <span>4 days ago</span> · <span>Group trip</span></div>
-                <div class="spot-review-text">Such a great experience! Would recommend and definitely will be going back at some point! So peaceful, such a pretty view. Had the best time for sure. Thank you Beverly!</div>
+                <div class="spot-review-header">
+                  <span class="spot-review-user">{{ review.user.name|default:review.user.username|default:'Anonymous' }}</span>
+                  <span class="spot-review-date">{{ review.created_at|timesince }} ago</span>
+                </div>
+                <div class="spot-review-meta">
+                  <span class="spot-review-stars">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= review.rating %}
+                        ★
+                      {% else %}
+                        ☆
+                      {% endif %}
+                    {% endfor %}
+                  </span>
+                  · <span>{{ review.created_at|date:"M j, Y" }}</span>
+                </div>
+                <div class="spot-review-text">{{ review.review_text }}</div>
               </div>
             </div>
-
-            
-            <div class="spot-review">
-              <img class="user-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michele">
-              <div class="spot-review-content">
-                <div class="spot-review-header"><span class="spot-review-user">Michele</span> <span class="spot-review-date">2 years on Airbnb</span></div>
-                <div class="spot-review-meta"><span class="spot-review-stars">★★★★★</span> · <span>2 weeks ago</span> · <span>Stayed with kids</span></div>
-                <div class="spot-review-text">The site was absolutely perfect for the purpose intended. It was quiet and peaceful with spectacular views.</div>
-              </div>
+            {% empty %}
+            <div class="no-reviews">
+              <p>No reviews yet. Be the first to review this spot!</p>
             </div>
+            {% endfor %}
           </div>
-          <button class="show-all-reviews-btn">Show all 366 reviews</button>
+          {% if review_count > 3 %}
+          <button class="show-all-reviews-btn">Show all {{ review_count }} reviews</button>
+          {% endif %}
         </section>
       </div>
       <!-- Right: Details, share/save, etc. -->
@@ -156,8 +168,8 @@
           {% if spot.distance %}
             <span class="spot-distance">{{ spot.distance|floatformat:1 }} km away</span>
           {% endif %}
-          {% if spot.rating %}
-            <span class="spot-rating"><span class="star">&#9733;</span> {{ spot.rating }}</span>
+          {% if average_rating > 0 %}
+            <span class="spot-rating"><span class="star">&#9733;</span> {{ average_rating|floatformat:1 }}</span>
           {% endif %}
           {% if spot.category %}
             <span class="spot-category">{{ spot.category.title }}</span>
@@ -235,9 +247,9 @@
         <div class="attraction-card-content">
           <div class="attraction-card-row">
             <span class="attraction-location">{{ related_spot.city|default:"Location" }}</span>
-            {% if related_spot.rating %}
+            {% if related_spot.average_rating > 0 %}
             <span class="attraction-rating">
-              <span class="star">&#9733;</span> {{ related_spot.rating }}
+              <span class="star">&#9733;</span> {{ related_spot.average_rating|floatformat:1 }}
             </span>
             {% endif %}
           </div>
@@ -418,6 +430,11 @@
           if (rating) rating.value = '';
           selectedRating = 0;
           highlightStars(0);
+          
+          // Refresh the page after a short delay to show the new rating
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
         })
         .catch(error => {
           console.error('Error:', error);
@@ -647,7 +664,17 @@
     
     .popup-icon {
       font-size: 18px;
-      font-weight: bold;
+    }
+    
+    .no-reviews {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+    
+    .no-reviews p {
+      font-size: 16px;
+      margin: 0;
     }
     
     .popup-text {
