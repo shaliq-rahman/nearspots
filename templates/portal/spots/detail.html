@@ -98,21 +98,26 @@
           </div>
 
           <!-- Write a Review Section -->
-          <div class="write-review-section">
-            <h3 class="write-review-title">Write a review</h3>
-            <div class="star-rating" id="starRating">
-              <span class="star" data-value="1">&#9733;</span>
-              <span class="star" data-value="2">&#9733;</span>
-              <span class="star" data-value="3">&#9733;</span>
-              <span class="star" data-value="4">&#9733;</span>
-              <span class="star" data-value="5">&#9733;</span>
+          {% if user.is_authenticated %}
+          <form action="{% url 'portal:write_review' slug=spot.slug %}" method="post">
+            {% csrf_token %}
+            <div class="write-review-section">
+              <h3 class="write-review-title">Write a review</h3>
+              <div class="star-rating" id="starRating">
+                <span class="star" data-value="1">&#9733;</span>
+                <span class="star" data-value="2">&#9733;</span>
+                <span class="star" data-value="3">&#9733;</span>
+                <span class="star" data-value="4">&#9733;</span>
+                <span class="star" data-value="5">&#9733;</span>
+              </div>
+              <textarea class="review-textarea" name="review" placeholder="Write down your own experience"></textarea>
+              <div class="review-actions">
+                <button class="review-cancel-btn" type="button">Cancel</button>
+                <button class="review-submit-btn" type="button">Post review</button>
+              </div>
             </div>
-            <textarea class="review-textarea" placeholder="Write down your own experience"></textarea>
-            <div class="review-actions">
-              <button class="review-cancel-btn" type="button">Cancel</button>
-              <button class="review-submit-btn" type="button">Post review</button>
-            </div>
-          </div>
+          </form>
+          {% endif %}
           
           <div class="spot-reviews-list">
             <div class="spot-review">
