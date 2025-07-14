@@ -10,11 +10,11 @@
         <input type="text" id="destination-input" placeholder="Search destinations" autocomplete="off">
         <div class="autocomplete-list" id="autocomplete-list"></div>
         <select class="radius-select">
-          <option>5kms</option>
-          <option>10kms</option>
-          <option>30kms</option>
-          <option>50kms</option>
-          <option>Anywhere</option>
+          <option value="5">5kms</option>
+          <option value="10">10kms</option>
+          <option value="30">30kms</option>
+          <option value="50">50kms</option>
+          <option value="0">Anywhere</option>
         </select>
         <button type="button" class="filters-btn">
           <span class="filter-icon" aria-hidden="true">
@@ -27,7 +27,7 @@
           </span>
           Filters
         </button>
-        <button type="submit" class="search-btn" aria-label="Search">
+        <button type="button" class="search-btn" id="search-btn-home" aria-label="Search">
           <span class="search-icon" aria-hidden="true">
             <!-- Magnifying glass SVG icon -->
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -596,6 +596,67 @@
           closeAllReviews();
         }
       });
+    });
+
+    // Search functionality for spot detail page
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Setting up search button functionality for spot detail page...');
+      const searchBtn = document.getElementById('search-btn-home');
+      console.log('Search button found:', searchBtn);
+      
+      if (searchBtn) {
+        searchBtn.addEventListener('click', function(e) {
+          e.preventDefault(); // Prevent any default form behavior
+          e.stopPropagation(); // Stop event bubbling
+          console.log('Search button clicked!');
+          const searchText = document.getElementById('destination-input').value.trim();
+          const distance = document.querySelector('.radius-select').value;
+          const urlParams = new URLSearchParams();
+          
+          console.log('Search text:', searchText);
+          console.log('Distance:', distance);
+          
+          if (searchText) {
+            urlParams.append('q', searchText);
+          }
+          if (distance) {
+            urlParams.append('distance', distance);
+          }
+          
+          // Get current location from URL if available
+          const currentUrl = new URL(window.location.href);
+          const lat = currentUrl.searchParams.get('lat');
+          const lon = currentUrl.searchParams.get('lon');
+          
+          if (lat) {
+            urlParams.append('lat', lat);
+          }
+          if (lon) {
+            urlParams.append('lon', lon);
+          }
+          
+          // Redirect to search page with parameters
+          const searchUrl = '/search/' + (urlParams.toString() ? '?' + urlParams.toString() : '');
+          console.log('Redirecting to:', searchUrl);
+          window.location.href = searchUrl;
+        });
+      } else {
+        console.error('Search button not found!');
+      }
+
+      // Handle Enter key press on search input
+      const searchInput = document.getElementById('destination-input');
+      if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const searchBtn = document.getElementById('search-btn-home');
+            if (searchBtn) {
+              searchBtn.click();
+            }
+          }
+        });
+      }
     });
   </script>
 
