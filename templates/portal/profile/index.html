@@ -13,7 +13,7 @@
         <li id="tab-spots" onclick="showTab('spots')"><span class="sidebar-label">My Spots</span></li>
         {% comment %} <li><span class="sidebar-label">Reviews</span></li> {% endcomment %}
         {% comment %} <li><span class="sidebar-label">Notifications</span></li> {% endcomment %}
-        <li> <a href="{% url 'portal:logout' %}"><span class="sidebar-label">Logout</span></a></li>
+        <li onclick="logout()"> <span class="sidebar-label">Logout</span></li>
       </ul>
     </nav>
 
@@ -90,7 +90,7 @@
             <div style="flex:1 1 auto;">
               <h2 class="results-title" style="margin-bottom:0;">My Spots</h2>
             </div>
-            <a href="{% url 'portal:add_spot' %}" class="btn-primary" style="min-width:120px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Add Spot</a>
+            <a href="{% url 'portal:add_spot' %}?lat={{lat}}&lon={{lon}}" class="btn-primary" style="min-width:120px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Add Spot</a>
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:8px; gap:16px;">
             <div class="results-subtext">{{ spots_count }} Active Spot{{ spots_count|pluralize }}</div>
@@ -156,7 +156,7 @@
           {% else %}
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">
               <p>You haven't added any spots yet.</p>
-              <a href="{% url 'portal:add_spot' %}" class="btn-primary" style="margin-top: 16px; display: inline-block;">Add Your First Spot</a>
+              {% comment %} <a href="{% url 'portal:add_spot' %}" class="btn-primary" style="margin-top: 16px; display: inline-block;">Add Your First Spot</a> {% endcomment %}
             </div>
           {% endif %}
         </div>
@@ -165,6 +165,10 @@
   </div>
   <script src="{% static 'portal/js/script.js' %}?v=1"></script>
   <script>
+    function logout() {
+      window.location.href = "{% url 'portal:logout' %}?lat={{lat}}&lon={{lon}}";
+    }
+
     function showTab(tab) {
       // Sidebar active state
       document.getElementById('tab-profile').classList.remove('active');

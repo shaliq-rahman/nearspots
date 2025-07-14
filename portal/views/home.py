@@ -215,10 +215,13 @@ class SpotDetailView(View):
             return renderfile(request, 'portal', '404', {}, status=404)
     
 class AddSpotView(LoginRequiredMixin, View):
+    login_url = '/'
+    
     def get(self, request, *args, **kwargs):
-        lat = request.GET.get('lat')
         data = {}
         data['categories'] = Categories.objects.filter(is_active=True)
+        data['lat'] = request.GET.get('lat')
+        data['lon'] = request.GET.get('lon')
         return renderfile(request,'spots','add-spot',data)
     
     def post(self, request, *args, **kwargs):
@@ -532,13 +535,17 @@ class LoginView(View):
 
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
         logout(request)
-        return redirect('portal:home')
+        return redirect(f'{reverse("portal:home")}?lat={lat}&lon={lon}')
     
 class RegisterView(View):
     def post(self, request, *args, **kwargs):
         try:
             # Get form data
+            lat = request.GET.get('lat')
+            lon = request.GET.get('lon')
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             email = request.POST.get('email', '').strip()
@@ -652,7 +659,7 @@ class RegisterView(View):
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Registration successful! Welcome to NearSpots.',
-                    'redirect_url': reverse('portal:home')
+                    'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
                 })
                 
         except IntegrityError as e:

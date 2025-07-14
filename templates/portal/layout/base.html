@@ -55,6 +55,8 @@
       <p class="modal-subtext">Fill the details below to create a new account</p>
       <form class="modal-form" autocomplete="off" id="register-form" action="{% url 'portal:register' %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="lat" value="{{ lat|default:"" }}">
+        <input type="hidden" name="lon" value="{{ lon|default:"" }}">
         <div style="display:flex; gap:10px;">
           <div style="flex:1;">
             <input type="text" class="modal-input" placeholder="First name" name="first_name" required>
