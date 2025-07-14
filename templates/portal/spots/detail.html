@@ -247,9 +247,14 @@
         <div class="attraction-card-content">
           <div class="attraction-card-row">
             <span class="attraction-location">{{ related_spot.city|default:"Location" }}</span>
-            {% if related_spot.average_rating > 0 %}
+            {% if related_spot.average_rating > 0 or related_spot.rating %}
             <span class="attraction-rating">
-              <span class="star">&#9733;</span> {{ related_spot.average_rating|floatformat:1 }}
+              <span class="star">&#9733;</span> 
+              {% if related_spot.average_rating > 0 %}
+                {{ related_spot.average_rating|floatformat:1 }}
+              {% else %}
+                {{ related_spot.rating|floatformat:1 }}
+              {% endif %}
             </span>
             {% endif %}
           </div>

@@ -161,7 +161,8 @@ class SpotDetailView(View):
                     related_spot.average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
                     related_spot.review_count = review_count
                 else:
-                    related_spot.average_rating = 0
+                    # Use stored rating as fallback if no reviews exist
+                    related_spot.average_rating = related_spot.rating if related_spot.rating else 0
                     related_spot.review_count = 0
             
             # Get approved reviews for this spot
