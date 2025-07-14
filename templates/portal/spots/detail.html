@@ -152,7 +152,7 @@
             {% endfor %}
           </div>
           {% if review_count > 3 %}
-          <button class="show-all-reviews-btn">Show all {{ review_count }} reviews</button>
+          <button class="show-all-reviews-btn" onclick="showAllReviews()">Show all {{ review_count }} reviews</button>
           {% endif %}
         </section>
       </div>
@@ -263,6 +263,42 @@
     </div>
   </section>
   {% endif %}
+
+  <!-- All Reviews Popup -->
+  <div id="all-reviews-popup" class="reviews-popup">
+    <div class="reviews-popup-content">
+      <div class="reviews-popup-header">
+        <h2>All Reviews ({{ review_count }})</h2>
+        <button class="close-popup-btn" onclick="closeAllReviews()">&times;</button>
+      </div>
+      <div class="reviews-popup-body">
+        {% for review in all_reviews %}
+        <div class="spot-review">
+          <img class="user-avatar" src="{% static 'portal/images/default-avatar.svg' %}" alt="{{ review.user.name|default:'Anonymous' }}">
+          <div class="spot-review-content">
+            <div class="spot-review-header">
+              <span class="spot-review-user">{{ review.user.name|default:review.user.username|default:'Anonymous' }}</span>
+              <span class="spot-review-date">{{ review.created_at|timesince }} ago</span>
+            </div>
+            <div class="spot-review-meta">
+              <span class="spot-review-stars">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= review.rating %}
+                    ★
+                  {% else %}
+                    ☆
+                  {% endif %}
+                {% endfor %}
+              </span>
+              · <span>{{ review.created_at|date:"M j, Y" }}</span>
+            </div>
+            <div class="spot-review-text">{{ review.review_text }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -533,6 +569,29 @@
         }, 300);
       }, 3000);
     }
+
+    // All Reviews Popup functions
+    function showAllReviews() {
+      const popup = document.getElementById('all-reviews-popup');
+      popup.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeAllReviews() {
+      const popup = document.getElementById('all-reviews-popup');
+      popup.style.display = 'none';
+      document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+      const popup = document.getElementById('all-reviews-popup');
+      popup.addEventListener('click', function(e) {
+        if (e.target === popup) {
+          closeAllReviews();
+        }
+      });
+    });
   </script>
 
   <style>
@@ -679,6 +738,106 @@
     
     .popup-text {
       flex: 1;
+    }
+    
+    /* All Reviews Popup Styles */
+    .reviews-popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .reviews-popup-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .reviews-popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid #eee;
+      background: #f8f9fa;
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .reviews-popup-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: #222;
+    }
+    
+    .close-popup-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+    
+    .close-popup-btn:hover {
+      background-color: #eee;
+      color: #222;
+    }
+    
+    .reviews-popup-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      max-height: calc(80vh - 80px);
+    }
+    
+    .reviews-popup-body .spot-review {
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .reviews-popup-body .spot-review:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    
+    /* Scrollbar styling for popup */
+    .reviews-popup-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .reviews-popup-body::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    
+    .reviews-popup-body::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+    
+    .reviews-popup-body::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
     }
   </style>
 {% endblock %}

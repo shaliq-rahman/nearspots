@@ -166,6 +166,8 @@ class SpotDetailView(View):
             
             # Get approved reviews for this spot
             approved_reviews = spot.spot_reviews.filter(is_approved=True).order_by('-created_at')
+            # Get first 3 reviews for initial display
+            initial_reviews = approved_reviews[:3]
             
             # Calculate average rating
             if approved_reviews.exists():
@@ -194,7 +196,8 @@ class SpotDetailView(View):
                 'related_spots': related_spots,
                 'lat': lat,
                 'lon': lon,
-                'reviews': approved_reviews,
+                'reviews': initial_reviews,
+                'all_reviews': approved_reviews,
                 'average_rating': average_rating,
                 'review_count': review_count,
                 'rating_distribution': rating_distribution,
