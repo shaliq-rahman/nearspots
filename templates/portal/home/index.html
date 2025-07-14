@@ -48,7 +48,7 @@
     <div class="hotel-cards">
       <!-- Card 1 -->
        {% for top_rated_spot in  top_rated_spots %}
-      <div class="attraction-card">
+      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=top_rated_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
             {% for spot_image in top_rated_spot.spot_images.all %}
@@ -87,7 +87,7 @@
     </div>
     <div class="categories-list" data-type="food">
     {% for food_spot in  food_spots %}
-      <div class="category-card">
+      <div class="category-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=food_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <img src="{{food_spot.spot_images.first.image.url}}" alt="Tea & Snacks">
         <div class="category-label">{{food_spot.name}}</div>
         {% if food_spot.distance %}
@@ -115,7 +115,7 @@
     <div class="hotel-cards">
       <!-- Card 1 -->
        {% for latest_attraction in latest_attractions %}
-      <div class="attraction-card">
+      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=latest_attraction.slug %}?lat={{lat}}&lon={{lon}}'">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
             {% for spot_image in latest_attraction.spot_images.all %}
