@@ -4,43 +4,8 @@
     <td>{{forloop.counter}}</td>
     <td>{{user.name}}</td>
     <td>{{user.email}}</td>
-    <td>{{user.mobile_number}}</td>
-    <td>
-        <a class="btn btn-primary btn-sm mb-1" href="#"   data-bs-toggle="modal" data-bs-target="#feedback{{user.id}}"><i class="side-menu__icon fe fe-eye"></i></a>
-        
-        <!-- modaldetails modal -->
-
-        <div class="modal  fade" id="feedback{{user.id}}" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Feedback</h5>
-                        <button class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="">
-                        {% if user.account_deletion_status.all %}
-                            {% for feedback in user.account_deletion_status.all %}
-                                <p>{{feedback.reason}} </p>
-                            {% endfor %}
-                        {% endif %}
-                        
-                        </div>
-                                                
-                    </div>
-                
-                        <div class="modal-footer">
-                        <a class="btn btn-danger" href="#" data-bs-dismiss="modal">Close</a>
-                    
-                    </div>
-                </div>
-            </div>
-        </div>	
-
-        <!-- modaldetails modal end-->
-    </td>
+    <td>{{user.mobile}}</td>
+    <td>{{user.post_count}}</td>
     <td>
         <div class="material-switch">
             <input class="master-toggle" id="someSwitchOptionSuccess-{{user.id}}" name="someSwitchOption001" type="checkbox" data-url="{% url 'adminpanel:user_toggle' user.id %}" data-item_id="{{user.id}}" {% if user.is_active %} checked {% endif %} />

@@ -6,25 +6,24 @@ from django.urls import reverse
 from .. helper import renderfile
 from django.db import transaction
 from django.core.paginator import *
-from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.db import IntegrityError
 from django.shortcuts import redirect
 from adminpanel.helper import is_ajax
-from django.http import JsonResponse
+from django.db.models import Prefetch, Q
 from urllib.parse import urlparse, parse_qs
 from django.shortcuts import get_object_or_404
 from django.urls.exceptions import Resolver404
-from django.template.loader import render_to_string
-from django.contrib.auth.mixins import LoginRequiredMixin
-from adminpanel.constantvariables import PAGINATION_PERPAGE
-from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth import login, authenticate, logout
-from adminpanel.models import User, Categories, Spots, SpotImages
-from ..utils import add_distance_to_spots_from_request, retry_database_operation
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-
+from django.template.loader import render_to_string
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login, authenticate, logout
+from adminpanel.constantvariables import PAGINATION_PERPAGE
+from django.contrib.auth.hashers import check_password, make_password
+from adminpanel.models import User, Categories, Spots, SpotImages, Reviews
+from ..utils import add_distance_to_spots_from_request, retry_database_operation
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
@@ -116,14 +115,113 @@ class SearchView(View):
       
 class SpotDetailView(View):
     def get(self, request, *args, **kwargs):
-        data = {}
-        return renderfile(request,'spots','detail',data)
+        try:
+            # Get the slug from URL parameters
+            slug = kwargs.get('slug')
+            
+            # Fetch the spot with related data
+            spot = Spots.objects.prefetch_related(
+                'spot_images',
+                'category',
+                'user'
+            ).select_related(
+                'category',
+                'user'
+            ).get(
+                slug=slug,
+                is_active=True,
+                is_approved=True
+            )
+            
+            # Get all images for this spot
+            spot_images = spot.spot_images.all()
+            cover_image = spot_images.filter(is_cover=True).first()
+            
+            # Get related spots (same category, excluding current spot)
+            related_spots = Spots.objects.prefetch_related(
+                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+            ).filter(
+                is_active=True,
+                is_approved=True,
+                category=spot.category
+            ).exclude(id=spot.id).order_by('-created_at')[:4]
+            
+            # Add distance calculation if coordinates are provided
+            lat = request.GET.get('lat')
+            lon = request.GET.get('lon')
+            if lat and lon:
+                related_spots = add_distance_to_spots_from_request(related_spots, request)
+            
+            # Calculate ratings for related spots
+            for related_spot in related_spots:
+                approved_reviews = related_spot.spot_reviews.filter(is_approved=True)
+                if approved_reviews.exists():
+                    total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                    review_count = approved_reviews.count()
+                    related_spot.average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                    related_spot.review_count = review_count
+                else:
+                    # Use stored rating as fallback if no reviews exist
+                    related_spot.average_rating = related_spot.rating if related_spot.rating else 0
+                    related_spot.review_count = 0
+            
+            # Get approved reviews for this spot
+            approved_reviews = spot.spot_reviews.filter(is_approved=True).order_by('-created_at')
+            # Get first 3 reviews for initial display
+            initial_reviews = approved_reviews[:3]
+            
+            # Calculate average rating
+            if approved_reviews.exists():
+                total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                review_count = approved_reviews.count()
+                average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+            else:
+                average_rating = 0
+                review_count = 0
+            
+            # Calculate rating distribution (for the bars)
+            rating_distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            for review in approved_reviews:
+                if review.rating and 1 <= review.rating <= 5:
+                    rating_distribution[review.rating] += 1
+            
+            # Calculate percentages for the bars
+            rating_percentages = {}
+            for rating, count in rating_distribution.items():
+                rating_percentages[rating] = (count / review_count * 100) if review_count > 0 else 0
+            
+            data = {
+                'spot': spot,
+                'spot_images': spot_images,
+                'cover_image': cover_image,
+                'related_spots': related_spots,
+                'lat': lat,
+                'lon': lon,
+                'reviews': initial_reviews,
+                'all_reviews': approved_reviews,
+                'average_rating': average_rating,
+                'review_count': review_count,
+                'rating_distribution': rating_distribution,
+                'rating_percentages': rating_percentages,
+            }
+            
+            return renderfile(request, 'spots', 'detail', data)
+            
+        except Spots.DoesNotExist:
+            # Spot not found - render 404 page
+            return renderfile(request, 'portal', '404', {}, status=404)
+        except Exception as e:
+            # Any other error - render 404 page
+            return renderfile(request, 'portal', '404', {}, status=404)
     
 class AddSpotView(LoginRequiredMixin, View):
+    login_url = '/'
+    
     def get(self, request, *args, **kwargs):
-        lat = request.GET.get('lat')
         data = {}
         data['categories'] = Categories.objects.filter(is_active=True)
+        data['lat'] = request.GET.get('lat')
+        data['lon'] = request.GET.get('lon')
         return renderfile(request,'spots','add-spot',data)
     
     def post(self, request, *args, **kwargs):
@@ -139,6 +237,7 @@ class AddSpotView(LoginRequiredMixin, View):
             building = request.POST.get('building', '').strip()
             landmark = request.POST.get('landmark', '').strip()
             city = request.POST.get('city', '').strip()
+            category = request.POST.get('category', '').strip()
             
             # Validation errors list
             errors = {}
@@ -213,7 +312,7 @@ class AddSpotView(LoginRequiredMixin, View):
                 }, status=400)
             
             # Get default category (first active category) - outside transaction
-            default_category = Categories.objects.filter(is_active=True).first()
+            default_category = Categories.objects.filter(is_active=True, id=category).first()
             
             def create_spot_with_images():
                 """Function to create spot and images with retry mechanism"""
@@ -327,11 +426,187 @@ class AddSpotView(LoginRequiredMixin, View):
                     'error_type': 'server_error'
                 }, status=500)
 
-class ProfileView(View):
+class ProfileView(LoginRequiredMixin, View):
+    login_url = '/portal/login/'
+    
     def get(self, request, *args, **kwargs):
         data = {}
+        data['lat'] = request.GET.get('lat')
+        data['lon'] = request.GET.get('lon')
+        
+        # Get user's spots with related data
+        my_spots_queryset = Spots.objects.prefetch_related(
+            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+        ).select_related(
+            'category',
+            'user'
+        ).filter(
+            user=request.user,
+            is_active=True
+        ).order_by('-created_at')
+        
+        # Get the count before converting to list
+        spots_count = my_spots_queryset.count()
+        
+        # Add distance calculation if coordinates are provided
+        if data['lat'] and data['lon']:
+            my_spots_queryset = add_distance_to_spots_from_request(my_spots_queryset, request)
+        
+        # Calculate ratings for each spot
+        for spot in my_spots_queryset:
+            approved_reviews = spot.spot_reviews.filter(is_approved=True)
+            if approved_reviews.exists():
+                total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                review_count = approved_reviews.count()
+                spot.average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                spot.review_count = review_count
+            else:
+                # Use stored rating as fallback if no reviews exist
+                spot.average_rating = spot.rating if spot.rating else 0
+                spot.review_count = 0
+        
+        data['my_spots'] = my_spots_queryset
+        data['spots_count'] = spots_count
+        
         return renderfile(request,'profile','index',data)
+
+class UpdateProfileView(LoginRequiredMixin, View):
+    login_url = '/portal/login/'
     
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        try:
+            # Get form data
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            # Validate required fields
+            if not first_name:
+                errors['first_name'] = 'First name is required'
+            elif len(first_name) < 2:
+                errors['first_name'] = 'First name must be at least 2 characters long'
+            elif len(first_name) > 50:
+                errors['first_name'] = 'First name cannot exceed 50 characters'
+            elif not first_name.replace(' ', '').isalpha():
+                errors['first_name'] = 'First name can only contain letters'
+                
+            if not last_name:
+                errors['last_name'] = 'Last name is required'
+            elif len(last_name) < 2:
+                errors['last_name'] = 'Last name must be at least 2 characters long'
+            elif len(last_name) > 50:
+                errors['last_name'] = 'Last name cannot exceed 50 characters'
+            elif not last_name.replace(' ', '').isalpha():
+                errors['last_name'] = 'Last name can only contain letters'
+            
+            # If there are validation errors, return them
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            # Update user profile
+            user = request.user
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+                
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An unexpected error occurred. Please try again.',
+                'error_type': 'server_error'
+            }, status=500)
+
+class ChangePasswordView(LoginRequiredMixin, View):
+    login_url = '/portal/login/'
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
+            # Get form data
+            current_password = request.POST.get('currentPassword', '').strip()
+            new_password = request.POST.get('newPassword', '').strip()
+            confirm_password = request.POST.get('confirmPassword', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            # Validate required fields
+            if not current_password:
+                errors['currentPassword'] = 'Current password is required'
+            
+            if not new_password:
+                errors['newPassword'] = 'New password is required'
+            elif len(new_password) < 8:
+                errors['newPassword'] = 'New password must be at least 8 characters long'
+            elif len(new_password) > 128:
+                errors['newPassword'] = 'New password cannot exceed 128 characters'
+            elif not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]', new_password):
+                errors['newPassword'] = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+            
+            if not confirm_password:
+                errors['confirmPassword'] = 'Please confirm your new password'
+            elif new_password != confirm_password:
+                errors['confirmPassword'] = 'Passwords do not match'
+            
+            # If there are validation errors, return them
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            # Verify current password
+            user = request.user
+            if not check_password(current_password, user.password):
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Current password is incorrect',
+                    'error_type': 'invalid_current_password'
+                }, status=400)
+            
+            # Check if new password is same as current password
+            if check_password(new_password, user.password):
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'New password must be different from current password',
+                    'error_type': 'same_password'
+                }, status=400)
+            
+            # Update password
+            user.set_password(new_password)
+            user.save()
+            
+            # Logout user after password change
+            logout(request)
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Password changed successfully! Please login with your new password.',
+                'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
+            })
+                
+        except Exception as e:
+            print('-----------', e)
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An unexpected error occurred. Please try again.',
+                'error_type': 'server_error'
+            }, status=500)
+
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         data = {}
@@ -398,13 +673,17 @@ class LoginView(View):
 
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
         logout(request)
-        return redirect('portal:home')
+        return redirect(f'{reverse("portal:home")}?lat={lat}&lon={lon}')
     
 class RegisterView(View):
     def post(self, request, *args, **kwargs):
         try:
             # Get form data
+            lat = request.GET.get('lat')
+            lon = request.GET.get('lon')
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             email = request.POST.get('email', '').strip()
@@ -518,7 +797,7 @@ class RegisterView(View):
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Registration successful! Welcome to NearSpots.',
-                    'redirect_url': reverse('portal:home')
+                    'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
                 })
                 
         except IntegrityError as e:
@@ -527,6 +806,63 @@ class RegisterView(View):
                 'message': 'An error occurred during registration. Please try again.',
                 'error_type': 'database_error'
             }, status=500)
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An unexpected error occurred. Please try again.',
+                'error_type': 'server_error'
+            }, status=500)
+        
+class WriteReviewView(View):
+    def post(self, request, slug, *args, **kwargs):
+        try:
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
+            
+            review_text = request.POST.get('review', '').strip()
+            rating = request.POST.get('rating', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            if not review_text:
+                errors['review'] = 'Review text is required'
+            if not rating:
+                errors['rating'] = 'Rating is required'
+            
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            spot = Spots.objects.get(slug=slug)
+            
+            # Create review (auto-approve for now)
+            review = Reviews.objects.create(
+                spot=spot,
+                review_text=review_text,
+                rating=rating,
+                user=request.user if request.user.is_authenticated else None,
+                is_approved=True  # Auto-approve reviews
+            )
+            
+            # Update spot's average rating
+            approved_reviews = spot.spot_reviews.filter(is_approved=True)
+            if approved_reviews.exists():
+                total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                review_count = approved_reviews.count()
+                average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                spot.rating = average_rating
+                spot.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Review submitted successfully',
+                'redirect_url': reverse('portal:spot_detail', kwargs={'slug': slug}) + f'?lat={lat}&lon={lon}'
+            })
             
         except Exception as e:
             return JsonResponse({

@@ -48,7 +48,7 @@
     <div class="hotel-cards">
       <!-- Card 1 -->
        {% for top_rated_spot in  top_rated_spots %}
-      <div class="attraction-card">
+      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=top_rated_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
             {% for spot_image in top_rated_spot.spot_images.all %}
@@ -87,7 +87,7 @@
     </div>
     <div class="categories-list" data-type="food">
     {% for food_spot in  food_spots %}
-      <div class="category-card">
+      <div class="category-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=food_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <img src="{{food_spot.spot_images.first.image.url}}" alt="Tea & Snacks">
         <div class="category-label">{{food_spot.name}}</div>
         {% if food_spot.distance %}
@@ -98,7 +98,7 @@
     </div>
     <div class="categories-list" data-type="attraction" style="display:none;">
         {% for attraction_spot in attraction_spots %}
-      <div class="category-card">
+      <div class="category-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=attraction_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <img src="{{attraction_spot.spot_images.first.image.url}}" alt="Beaches">
         <div class="category-label">{{attraction_spot.name}}</div>
         {% if attraction_spot.distance %}
@@ -115,7 +115,7 @@
     <div class="hotel-cards">
       <!-- Card 1 -->
        {% for latest_attraction in latest_attractions %}
-      <div class="attraction-card">
+      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=latest_attraction.slug %}?lat={{lat}}&lon={{lon}}'">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
             {% for spot_image in latest_attraction.spot_images.all %}
@@ -149,12 +149,12 @@
     <div class="cta-card">
       <div class="cta-title">Do you know any unheard spots?</div>
       <div class="cta-subtitle">Let the world know by listing is here</div>
-      <button class="cta-btn">Add a new spot</button>
+      <button class="cta-btn" id="add-spot-btn">Add a new spot</button>
     </div>
   </section>
 
- <!-- Auth Modal -->
-  <div id="auth-modal-overlay" class="modal-overlay" style="display:none;">
+  <!-- Auth Modal -->
+  {% comment %} <div id="auth-modal-overlay" class="modal-overlay" style="display:none;">
     <div class="modal-container" role="dialog" aria-modal="true">
       <button class="modal-close" aria-label="Close">&times;</button>
       <h2 class="modal-heading">Sign In/Register</h2>
@@ -167,23 +167,20 @@
         </div>
         <button type="submit" class="modal-signin-btn">Sign In</button>
         <div class="modal-divider"><span>OR</span></div>
-        {% comment %} <button type="button" class="modal-google-btn">
-          <span class="google-logo"></span>
-          Continue with Google
-        </button> {% endcomment %}
+      
       </form>
       <div class="modal-register-prompt">
         Don't have an account? <a href="#" class="register-link" id="test-register-modal-btn">Register</a>
       </div>
     </div>
-  </div>
+  </div> {% endcomment %}
 <!-- Auth Modal -->
 
 
 
 
   <!-- Registration Modal Popup -->
-  <div id="register-modal-overlay" class="modal-overlay" style="display:none;">
+  {% comment %} <div id="register-modal-overlay" class="modal-overlay" style="display:none;">
     <div class="modal-container" role="dialog" aria-modal="true">
       <button class="modal-close" aria-label="Close">&times;</button>
       <h2 class="modal-heading">Register</h2>
@@ -215,16 +212,13 @@
         </div>
         <button type="submit" class="modal-signin-btn" style="margin-top:18px;">Register</button>
         <div class="modal-divider"><span>Or</span></div>
-        {% comment %} <button type="button" class="modal-google-btn">
-          <span class="google-logo"></span>
-          Continue with Google
-        </button> {% endcomment %}
+      
       </form>
       <div class="modal-register-prompt">
         Already have an account? <a href="#" class="signin-link">Sign In</a>
       </div>
     </div>
-  </div>
+  </div> {% endcomment %}
   <!-- Registration Modal Popup -->
 
 
@@ -232,7 +226,7 @@
 
 
   <!-- OTP Verification Modal Popup -->
-  <div id="otp-modal-overlay" class="modal-overlay" style="display:none;">
+  {% comment %} <div id="otp-modal-overlay" class="modal-overlay" style="display:none;">
     <div class="modal-container" role="dialog" aria-modal="true">
       <button class="modal-close" aria-label="Close">&times;</button>
       <h2 class="modal-heading" style="margin-bottom:0.3em;">Verify OTP</h2>
@@ -254,10 +248,10 @@
         Already have an account? <a href="#" class="signin-link">Sign In</a>
       </div>
     </div>
-  </div>
+  </div> {% endcomment %}
 
 
-  <script>
+  {% comment %} <script>
       // Test Register Modal button logic
       document.getElementById('test-register-modal-btn').addEventListener('click', function() {
         document.getElementById('register-modal-overlay').style.display = 'flex';
@@ -323,6 +317,6 @@
       } else {
         console.error('Search button not found!');
       }
-  </script>
+  </script> {% endcomment %}
 
 {% endblock %}

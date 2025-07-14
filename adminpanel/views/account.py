@@ -17,6 +17,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from adminpanel.constantvariables import PAGINATION_PERPAGE
 from django.contrib.auth.hashers import check_password
+from django.db.models import Count
 import pdb
 
 
@@ -87,7 +88,9 @@ class UsersView(LoginRequiredMixin, View):
                 status = True if status == 'active' else False
                 filter_conditions['is_active'] = status
 
-        users = User.objects.prefetch_related('account_deletion_status').filter(**filter_conditions).exclude(is_superuser=True).order_by('-id')
+        users = User.objects.filter(**filter_conditions).exclude(is_superuser=True).annotate(
+            post_count=Count('user_spots')
+        ).order_by('-id')
         try:
             page = int(request.GET.get("page", 1))
         except ValueError:

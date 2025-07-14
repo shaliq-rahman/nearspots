@@ -32,4 +32,11 @@ urlpatterns = [
     path('spots/images-preview/', master.SpotsImagesPreviewView.as_view(), name='spots_images_preview'),
     path('spots/<str:id>/approve/', master.SpotsApproveView.as_view(), name='spots_approve'),
     
+    #REVIEWS
+    path('reviews/', master.ReviewsView.as_view(), name='reviews'),
+    path('reviews/<str:id>/edit/', master.ReviewsUpdateView.as_view(), name='review_edit'),
+    path('reviews/<str:id>/toggle/', master.ReviewsToggleView.as_view(), name='review_toggle'),
+    path('reviews/<str:id>/approve/', master.ReviewsApproveView.as_view(), name='reviews_approve'),
+    path('reviews/<str:id>/delete/', master.ReviewsDeleteView.as_view(), name='reviews_delete'),
+    
 ]

@@ -1,0 +1,261 @@
+{% extends 'portal/layout/base.html' %}
+{% load static %}
+
+{% block 'content' %}
+<style>
+  .error-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+
+  .error-container {
+    max-width: 600px;
+    background: white;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .error-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+  }
+
+  .error-number {
+    font-size: 8rem;
+    font-weight: 900;
+    color: #ff6b6b;
+    margin: 0;
+    line-height: 1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 1rem 0;
+  }
+
+  .error-message {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-secondary {
+    background: white;
+    color: #667eea;
+    padding: 12px 24px;
+    border: 2px solid #667eea;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+  }
+
+  .error-illustration {
+    margin-bottom: 2rem;
+  }
+
+  .error-illustration svg {
+    width: 120px;
+    height: 120px;
+    opacity: 0.8;
+  }
+
+  .search-suggestion {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-left: 4px solid #667eea;
+  }
+
+  .search-suggestion h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .search-suggestion p {
+    color: #7f8c8d;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .search-form {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .search-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .search-btn:hover {
+    background: #5a6fd8;
+  }
+
+  @media (max-width: 768px) {
+    .error-container {
+      padding: 2rem 1.5rem;
+    }
+    
+    .error-number {
+      font-size: 6rem;
+    }
+    
+    .error-title {
+      font-size: 1.5rem;
+    }
+    
+    .error-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .search-form {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<div class="error-page">
+  <div class="error-container">
+    <div class="error-illustration">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#ff6b6b"/>
+      </svg>
+    </div>
+    
+    <h1 class="error-number">404</h1>
+    <h2 class="error-title">Page Not Found</h2>
+    <p class="error-message">
+      Oops! The spot you're looking for doesn't exist or may have been moved. 
+      Don't worry, there are plenty of amazing places to discover!
+    </p>
+    
+    <div class="error-actions">
+      <a href="{% url 'portal:home' %}" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 8px; display: inline;">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
+        </svg>
+        Go Home
+      </a>
+      <a href="{% url 'portal:search' %}" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 8px; display: inline;">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Search Spots
+      </a>
+    </div>
+    
+    <div class="search-suggestion">
+      <h3>Looking for something specific?</h3>
+      <p>Try searching for spots in your area or browse our categories</p>
+      <form class="search-form" action="{% url 'portal:search' %}" method="GET">
+        <input type="text" name="q" class="search-input" placeholder="Search for spots, restaurants, attractions..." autocomplete="off">
+        <button type="submit" class="search-btn">Search</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add some interactive elements
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animate the error number
+    const errorNumber = document.querySelector('.error-number');
+    errorNumber.style.opacity = '0';
+    errorNumber.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      errorNumber.style.transition = 'all 0.6s ease';
+      errorNumber.style.opacity = '1';
+      errorNumber.style.transform = 'translateY(0)';
+    }, 200);
+    
+    // Add hover effect to buttons
+    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary');
+    buttons.forEach(button => {
+      button.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+      });
+      
+      button.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  });
+</script>
+{% endblock %} 

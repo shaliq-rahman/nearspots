@@ -99,6 +99,7 @@ class Categories(models.Model):
 class Spots(models.Model):
     name = models.CharField(max_length=250, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_spots')
+    profile_image = models.ImageField(upload_to='profile_image/', null=True, blank=True)
     slug = AutoSlugField(populate_from='name', max_length=250, unique=True, null=True, blank=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True, blank=True)
     coordinates = models.CharField(max_length=250, null=True, blank=True)
@@ -124,6 +125,13 @@ class SpotImages(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     
-    
-    
+
+class Reviews(models.Model):
+    spot = models.ForeignKey(Spots, on_delete=models.CASCADE, null=True, blank=True, related_name='spot_reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_reviews')
+    review_text = models.TextField(null=True, blank=True)
+    rating = models.IntegerField(null=True, blank=True)
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     

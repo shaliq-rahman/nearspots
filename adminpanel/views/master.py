@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from adminpanel.helper import is_ajax
 from django.shortcuts import redirect
 from urllib.parse import urlparse, parse_qs
-from adminpanel.models import User, Categories, Spots, SpotImages
+from adminpanel.models import User, Categories, Spots, SpotImages, Reviews
 from django.urls.exceptions import Resolver404
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -593,7 +593,6 @@ class SpotsUpdateView(LoginRequiredMixin, View):
                 'message': error_message
             })
 
-
 class SpotSetCoverView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -675,7 +674,6 @@ class SpotsImagesPreviewView(LoginRequiredMixin, View):
                 'message': error_message
             })
 
-
 class SpotsApproveView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -695,3 +693,140 @@ class SpotsApproveView(LoginRequiredMixin, View):
             data["success"] = False
             data["message"] = "Something went wrong"
         return JsonResponse(data)
+    
+    
+#REVIEWS
+class ReviewsView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    def get(self, request, *args, **kwargs):
+        data, filter_conditions = {}, {}
+        if is_ajax(request=request):
+            keyword = request.GET.get('keyword', None)
+            status = request.GET.get('status', None)
+            if keyword:
+                filter_conditions['review_text__icontains'] = keyword
+            if status and status != 'all':
+                status = True if status == 'active' else False
+                filter_conditions['is_approved'] = status
+  
+        reviews = Reviews.objects.filter(**filter_conditions).order_by('-id')
+        try:
+            page = int(request.GET.get("page", 1))
+        except ValueError:
+            page = 1
+
+        paginator = Paginator(reviews, PAGINATION_PERPAGE)
+        try:
+            reviews = paginator.page(page)
+        except PageNotAnInteger:
+            reviews = paginator.page(1)  
+        except EmptyPage:
+            reviews = paginator.page(paginator.num_pages)
+
+        if is_ajax(request=request):
+            context = {}
+            context['reviews']= reviews
+            response = {"success": True,
+                        "template": render_to_string("adminpanel/reviews/reviews_ajax.html", context, request=request),
+                        "pagination": render_to_string("adminpanel/reviews/reviews_pagination.html", context=context, request=request),
+                        }
+            return JsonResponse(response)
+        
+        data['reviews'], data['current_page'] = reviews, page
+        return renderfile(request,'reviews','index',data)
+    
+    
+class ReviewsApproveView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    def post(self, request, id, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                data = {}
+                review = get_object_or_404(Reviews, id=id)
+                review.is_approved = True
+                review.save()   
+                data['success'] = True
+                data['message'] = 'Review approved successfully'
+                data['redirect_url'] = reverse('adminpanel:reviews')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+    
+
+class ReviewsDeleteView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    def post(self, request, id, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                data = {}
+                review = get_object_or_404(Reviews, id=id)
+                review.delete()
+                data['success'] = True
+                data['message'] = 'Review deleted successfully'
+                data['redirect_url'] = reverse('adminpanel:reviews')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+
+
+class ReviewsToggleView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    def post(self, request, id, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                data = {}
+                review = get_object_or_404(Reviews, id=id)
+                review.is_approved = not review.is_approved
+                review.save()
+                data['success'] = True
+                data['message'] = f'Review {"approved" if review.is_approved else "disapproved"} successfully'
+                data['redirect_url'] = reverse('adminpanel:reviews')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+
+
+class ReviewsUpdateView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    def get(self, request, id, *args, **kwargs):
+        try:
+            review = get_object_or_404(Reviews, id=id)
+            data = {'review': review}
+            return renderfile(request, 'reviews', 'form', data)
+        except Exception as error:
+            return redirect('adminpanel:reviews')
+    
+    def post(self, request, id, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                review = get_object_or_404(Reviews, id=id)
+                review_text = request.POST.get('review_text')
+                rating = request.POST.get('rating')
+                is_approved = request.POST.get('is_approved') == 'on'
+                
+                review.review_text = review_text
+                review.rating = rating if rating else None
+                review.is_approved = is_approved
+                review.save()
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Review updated successfully',
+                    'redirect_url': reverse('adminpanel:reviews')
+                })
+        except Exception as error:
+            return JsonResponse({
+                'success': False,
+                'message': 'Something went wrong'
+            })
