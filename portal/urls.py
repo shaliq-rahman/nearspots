@@ -9,7 +9,10 @@ def debug_view(request):
     return render(request, 'portal/debug.html')
 
 urlpatterns = [
-    # path('debug/', debug_view, name='debug'),
+    #Login Page
+    path('login/', home.LoginView.as_view(), name='login'),
+    path('logout/', home.LogoutView.as_view(), name='logout'),
+    path('register/', home.RegisterView.as_view(), name='register'),
     
     #Home Page
     path('', home.HomeView.as_view(), name='home'),
@@ -24,8 +27,8 @@ urlpatterns = [
     #Profile Page
     path('profile/', home.ProfileView.as_view(), name='profile'),
     
-    #Login Page
-    path('login/', home.LoginView.as_view(), name='login'),
-    path('logout/', home.LogoutView.as_view(), name='logout'),
-    path('register/', home.RegisterView.as_view(), name='register'),
+    #write review
+    path('write-review/<slug:slug>/', home.WriteReviewView.as_view(), name='write_review'),
+    
+    
 ]

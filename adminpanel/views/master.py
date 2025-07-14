@@ -593,7 +593,6 @@ class SpotsUpdateView(LoginRequiredMixin, View):
                 'message': error_message
             })
 
-
 class SpotSetCoverView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -675,7 +674,6 @@ class SpotsImagesPreviewView(LoginRequiredMixin, View):
                 'message': error_message
             })
 
-
 class SpotsApproveView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -695,3 +693,45 @@ class SpotsApproveView(LoginRequiredMixin, View):
             data["success"] = False
             data["message"] = "Something went wrong"
         return JsonResponse(data)
+    
+    
+#REVIEWS
+class ReviewsView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+    
+    def get(self, request, *args, **kwargs):
+        data, filter_conditions = {}, {}
+        if is_ajax(request=request):
+            keyword = request.GET.get('keyword', None)
+            status = request.GET.get('status', None)
+            if keyword:
+                filter_conditions['name__icontains'] = keyword
+            if status and status != 'all':
+                status = True if status == 'active' else False
+                filter_conditions['is_active'] = status
+  
+        spots = Spots.objects.filter(**filter_conditions).order_by('-id')
+        try:
+            page = int(request.GET.get("page", 1))
+        except ValueError:
+            page = 1
+
+        paginator = Paginator(spots, PAGINATION_PERPAGE)
+        try:
+            spots = paginator.page(page)
+        except PageNotAnInteger:
+            spots = paginator.page(1)  
+        except EmptyPage:
+            spots = paginator.page(paginator.num_pages)
+
+        if is_ajax(request=request):
+            context = {}
+            context['spots']= spots
+            response = {"success": True,
+                        "template": render_to_string("adminpanel/spots/spots_ajax.html", context, request=request),
+                        "pagination": render_to_string("adminpanel/spots/spots_pagination.html", context=context, request=request),
+                        }
+            return JsonResponse(response)
+        
+        data['spots'], data['current_page'] = spots, page
+        return renderfile(request,'spots','index',data)

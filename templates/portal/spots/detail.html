@@ -98,9 +98,11 @@
           </div>
 
           <!-- Write a Review Section -->
-          {% if user.is_authenticated %}
-          <form action="{% url 'portal:write_review' slug=spot.slug %}" method="post">
+ 
+          <form action="{% url 'portal:write_review' slug=spot.slug %}" method="post" id="write-review-form">
             {% csrf_token %}
+            <input type="hidden" name="lat" value="{{ lat }}">
+            <input type="hidden" name="lon" value="{{ lon }}">
             <div class="write-review-section">
               <h3 class="write-review-title">Write a review</h3>
               <div class="star-rating" id="starRating">
@@ -113,11 +115,11 @@
               <textarea class="review-textarea" name="review" placeholder="Write down your own experience"></textarea>
               <div class="review-actions">
                 <button class="review-cancel-btn" type="button">Cancel</button>
-                <button class="review-submit-btn" type="button">Post review</button>
+                <button class="review-submit-btn" type="submit">Post review</button>
               </div>
             </div>
           </form>
-          {% endif %}
+      
           
           <div class="spot-reviews-list">
             <div class="spot-review">
@@ -318,6 +320,161 @@
         }
       });
     }
+
+    // Star rating functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const starRating = document.getElementById('starRating');
+      const stars = starRating.querySelectorAll('.star');
+      let selectedRating = 0;
+
+      // Add hover effects
+      stars.forEach((star, index) => {
+        star.addEventListener('mouseenter', () => {
+          highlightStars(index + 1);
+        });
+
+        star.addEventListener('mouseleave', () => {
+          highlightStars(selectedRating);
+        });
+
+        star.addEventListener('click', () => {
+          selectedRating = index + 1;
+          highlightStars(selectedRating);
+          
+          // Add hidden input for rating
+          let ratingInput = document.querySelector('input[name="rating"]');
+          if (!ratingInput) {
+            ratingInput = document.createElement('input');
+            ratingInput.type = 'hidden';
+            ratingInput.name = 'rating';
+            document.getElementById('write-review-form').appendChild(ratingInput);
+          }
+          ratingInput.value = selectedRating;
+        });
+      });
+
+      function highlightStars(count) {
+        stars.forEach((star, index) => {
+          if (index < count) {
+            star.style.color = '#ffd700';
+          } else {
+            star.style.color = '#ccc';
+          }
+        });
+      }
+
+      // Handle form submission
+      const reviewForm = document.getElementById('write-review-form');
+      const cancelBtn = document.querySelector('.review-cancel-btn');
+
+      reviewForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const rating = document.querySelector('input[name="rating"]');
+        const review = document.querySelector('textarea[name="review"]');
+        
+        if (!rating || !rating.value) {
+          showPopup('Please select a rating', 'error');
+          return;
+        }
+        
+        if (!review.value.trim()) {
+          showPopup('Please write a review', 'error');
+          return;
+        }
+        
+        // Show loading state
+        const submitBtn = document.querySelector('.review-submit-btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
+        
+        // Submit the form using fetch
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        })
+        .then(response => {
+          if (response.ok) {
+            return response.text();
+          }
+          throw new Error('Network response was not ok');
+        })
+        .then(data => {
+          // Show success popup
+          showPopup('Review submitted successfully!', 'success');
+          
+          // Reset form
+          review.value = '';
+          if (rating) rating.value = '';
+          selectedRating = 0;
+          highlightStars(0);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showPopup('Failed to submit review. Please try again.', 'error');
+        })
+        .finally(() => {
+          // Reset button state
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        });
+      });
+
+      // Handle cancel button
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+          const review = document.querySelector('textarea[name="review"]');
+          const rating = document.querySelector('input[name="rating"]');
+          
+          if (review) review.value = '';
+          if (rating) rating.value = '';
+          
+          selectedRating = 0;
+          highlightStars(0);
+        });
+      }
+    });
+
+    // Popup function
+    function showPopup(message, type = 'info') {
+      // Remove existing popup if any
+      const existingPopup = document.querySelector('.popup-message');
+      if (existingPopup) {
+        existingPopup.remove();
+      }
+
+      // Create popup element
+      const popup = document.createElement('div');
+      popup.className = `popup-message popup-${type}`;
+      popup.innerHTML = `
+        <div class="popup-content">
+          <span class="popup-icon">${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}</span>
+          <span class="popup-text">${message}</span>
+        </div>
+      `;
+
+      // Add to page
+      document.body.appendChild(popup);
+
+      // Show popup
+      setTimeout(() => {
+        popup.classList.add('show');
+      }, 10);
+
+      // Auto hide after 3 seconds
+      setTimeout(() => {
+        popup.classList.remove('show');
+        setTimeout(() => {
+          popup.remove();
+        }, 300);
+      }, 3000);
+    }
   </script>
 
   <style>
@@ -338,5 +495,122 @@
       opacity: 0.95;
     }
     #share-btn { position: relative; }
+    
+    /* Star rating styles */
+    .star-rating {
+      display: flex;
+      gap: 4px;
+      margin: 16px 0;
+    }
+    
+    .star-rating .star {
+      font-size: 24px;
+      color: #ccc;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    
+    .star-rating .star:hover {
+      color: #ffd700;
+    }
+    
+    .review-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: vertical;
+      margin: 16px 0;
+    }
+    
+    .review-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    
+    .review-cancel-btn,
+    .review-submit-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s ease;
+    }
+    
+    .review-cancel-btn {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .review-cancel-btn:hover {
+      background-color: #e5e5e5;
+    }
+    
+    .review-submit-btn {
+      background-color: #222;
+      color: white;
+    }
+    
+    .review-submit-btn:hover {
+      background-color: #333;
+    }
+    
+    /* Popup styles */
+    .popup-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 350px;
+    }
+    
+    .popup-message.show {
+      transform: translateX(0);
+    }
+    
+    .popup-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .popup-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .popup-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .popup-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .popup-icon {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    .popup-text {
+      flex: 1;
+    }
   </style>
 {% endblock %}

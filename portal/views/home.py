@@ -6,25 +6,24 @@ from django.urls import reverse
 from .. helper import renderfile
 from django.db import transaction
 from django.core.paginator import *
-from django.db.models import Prefetch, Q
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.db import IntegrityError
 from django.shortcuts import redirect
 from adminpanel.helper import is_ajax
-from django.http import JsonResponse
+from django.db.models import Prefetch, Q
 from urllib.parse import urlparse, parse_qs
 from django.shortcuts import get_object_or_404
 from django.urls.exceptions import Resolver404
-from django.template.loader import render_to_string
-from django.contrib.auth.mixins import LoginRequiredMixin
-from adminpanel.constantvariables import PAGINATION_PERPAGE
-from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth import login, authenticate, logout
-from adminpanel.models import User, Categories, Spots, SpotImages
-from ..utils import add_distance_to_spots_from_request, retry_database_operation
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
-
+from django.template.loader import render_to_string
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login, authenticate, logout
+from adminpanel.constantvariables import PAGINATION_PERPAGE
+from django.contrib.auth.hashers import check_password, make_password
+from adminpanel.models import User, Categories, Spots, SpotImages, Reviews
+from ..utils import add_distance_to_spots_from_request, retry_database_operation
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
@@ -579,6 +578,53 @@ class RegisterView(View):
                 'message': 'An error occurred during registration. Please try again.',
                 'error_type': 'database_error'
             }, status=500)
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An unexpected error occurred. Please try again.',
+                'error_type': 'server_error'
+            }, status=500)
+        
+class WriteReviewView(View):
+    def post(self, request, slug, *args, **kwargs):
+        try:
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
+            
+            review_text = request.POST.get('review', '').strip()
+            rating = request.POST.get('rating', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            if not review_text:
+                errors['review'] = 'Review text is required'
+            if not rating:
+                errors['rating'] = 'Rating is required'
+            
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            spot = Spots.objects.get(slug=slug)
+            
+            # Create review
+            review = Reviews.objects.create(
+                spot=spot,
+                review_text=review_text,
+                rating=rating,
+                user=request.user if request.user.is_authenticated else None
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Review submitted successfully',
+                'redirect_url': reverse('portal:spot_detail', kwargs={'slug': slug}) + f'?lat={lat}&lon={lon}'
+            })
             
         except Exception as e:
             return JsonResponse({
