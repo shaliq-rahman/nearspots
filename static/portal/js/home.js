@@ -144,8 +144,106 @@ $("#register-form").validate({
     return false; // Prevent the form from submitting via the usual way
   }
 });
-  
 
+$("#auth-form").validate({
+  rules: {
+    email: {
+      required: true,
+      email: true
+    },
+    password: {
+      required: true,
+      minlength: 1
+    }
+  },
+  messages: {
+    email: {
+      required: "Email is required",
+      email: "Please enter a valid email address"
+    },
+    password: {
+      required: "Password is required"
+    }
+  },
+  errorPlacement: function(error, element) {
+    // Place error after the input
+    error.insertAfter(element);
+    // Add error-message class to the error element
+    error.addClass('error-message');
+  },
+  highlight: function(element) {
+    $(element).addClass("error");
+  },
+  unhighlight: function(element) {
+    $(element).removeClass("error");
+  },
+  submitHandler: function(form) {
+    // Get form data
+    const formData = $(form).serialize();
+    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+    
+    // Disable submit button and show loading
+    const submitBtn = $(form).find('button[type="submit"]');
+    const originalText = submitBtn.text();
+    submitBtn.prop('disabled', true).text('Signing in...');
+    
+    // Submit form via AJAX
+    $.ajax({
+      type: "POST",
+      url: $(form).attr('action'),
+      data: formData,
+      headers: {
+        "X-CSRFToken": csrfToken,
+      },
+      dataType: "json",
+      success: function(response) {
+        if (response.status === 'success') {
+          // Show success message
+          alert(response.message);
+          // Close modal
+          $('#auth-modal-overlay').hide();
+          // Redirect to home page
+          if (response.redirect_url) {
+            window.location.href = response.redirect_url;
+          }
+        }
+      },
+      error: function(xhr, status, error) {
+        const response = xhr.responseJSON;
+        
+        if (response && response.errors) {
+          // Clear previous errors
+          $('.error').removeClass('error');
+          $('.error-message').remove();
+          
+          // Display field-specific errors
+          Object.keys(response.errors).forEach(function(field) {
+            const errorMessage = response.errors[field];
+            const fieldElement = $(`[name="${field}"]`);
+            
+            // Add error class to field
+            fieldElement.addClass('error');
+            
+            // Add error message
+            fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
+          });
+        } else if (response && response.message) {
+          // Display general error message
+          alert(response.message);
+        } else {
+          // Generic error
+          alert('Login failed. Please try again.');
+        }
+      },
+      complete: function() {
+        // Re-enable submit button
+        submitBtn.prop('disabled', false).text(originalText);
+      }
+    });
+    
+    return false; // Prevent the form from submitting via the usual way
+  }
+});
 
 // Add custom validation method for file inputs
 $.validator.addMethod("fileRequired", function(value, element) {

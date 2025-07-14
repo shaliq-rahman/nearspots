@@ -11,6 +11,11 @@
       <button class="hidden-spot-btn" id="test-login-modal-btn">Know a hidden spot?</button>
       {% endif %}
       {% comment %} <button class="hidden-spot-btn">Know a hidden spot?</button> {% endcomment %}
-      <div class="avatar"></div>
+
+      {% if request.user.is_authenticated %}
+      <a href="{% url 'portal:profile' %}?lat={{lat}}&lon={{lon}}"><div class="avatar" id="user-avatar"></div></a>
+      {% else %}
+      <button class="login-btn" id="test-login-modal-btn">Login</button>
+      {% endif %}
     </div>
   </header> 

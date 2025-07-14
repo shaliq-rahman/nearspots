@@ -422,9 +422,48 @@ class AddSpotView(LoginRequiredMixin, View):
                     'error_type': 'server_error'
                 }, status=500)
 
-class ProfileView(View):
+class ProfileView(LoginRequiredMixin, View):
+    login_url = '/portal/login/'
+    
     def get(self, request, *args, **kwargs):
         data = {}
+        data['lat'] = request.GET.get('lat')
+        data['lon'] = request.GET.get('lon')
+        
+        # Get user's spots with related data
+        my_spots_queryset = Spots.objects.prefetch_related(
+            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+        ).select_related(
+            'category',
+            'user'
+        ).filter(
+            user=request.user,
+            is_active=True
+        ).order_by('-created_at')
+        
+        # Get the count before converting to list
+        spots_count = my_spots_queryset.count()
+        
+        # Add distance calculation if coordinates are provided
+        if data['lat'] and data['lon']:
+            my_spots_queryset = add_distance_to_spots_from_request(my_spots_queryset, request)
+        
+        # Calculate ratings for each spot
+        for spot in my_spots_queryset:
+            approved_reviews = spot.spot_reviews.filter(is_approved=True)
+            if approved_reviews.exists():
+                total_rating = sum(review.rating for review in approved_reviews if review.rating)
+                review_count = approved_reviews.count()
+                spot.average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                spot.review_count = review_count
+            else:
+                # Use stored rating as fallback if no reviews exist
+                spot.average_rating = spot.rating if spot.rating else 0
+                spot.review_count = 0
+        
+        data['my_spots'] = my_spots_queryset
+        data['spots_count'] = spots_count
+        
         return renderfile(request,'profile','index',data)
     
 class LoginView(View):
