@@ -23,9 +23,10 @@
       <button class="modal-close" aria-label="Close">&times;</button>
       <h2 class="modal-heading">Sign In/Register</h2>
       <p class="modal-subtext">Please enter your e-mail address and password</p>
-      <form class="modal-form" autocomplete="off">
-        <input type="email" class="modal-input" placeholder="Email address" required>
-        <input type="password" class="modal-input" placeholder="Password" required>
+      <form class="modal-form" autocomplete="off" id="auth-form" action="{% url 'portal:login' %}" method="post">
+        {% csrf_token %}
+        <input type="email" class="modal-input" placeholder="Email address" name="email" required>
+        <input type="password" class="modal-input" placeholder="Password" name="password" required>
         <div class="modal-links">
           <a href="#" class="forgot-link">Forgot Password?</a>
         </div>
@@ -85,7 +86,7 @@
         </button> {% endcomment %}
       </form>
       <div class="modal-register-prompt">
-        Already have an account? <a href="#" class="signin-link">Sign In</a>
+        Already have an account? <a href="#" class="signin-link" id="test-auth-modal-btn">Sign In</a>
       </div>
     </div>
   </div>
