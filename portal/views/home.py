@@ -116,8 +116,60 @@ class SearchView(View):
       
 class SpotDetailView(View):
     def get(self, request, *args, **kwargs):
-        data = {}
-        return renderfile(request,'spots','detail',data)
+        try:
+            # Get the slug from URL parameters
+            slug = kwargs.get('slug')
+            
+            # Fetch the spot with related data
+            spot = Spots.objects.prefetch_related(
+                'spot_images',
+                'category',
+                'user'
+            ).select_related(
+                'category',
+                'user'
+            ).get(
+                slug=slug,
+                is_active=True,
+                is_approved=True
+            )
+            
+            # Get all images for this spot
+            spot_images = spot.spot_images.all()
+            cover_image = spot_images.filter(is_cover=True).first()
+            
+            # Get related spots (same category, excluding current spot)
+            related_spots = Spots.objects.prefetch_related(
+                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+            ).filter(
+                is_active=True,
+                is_approved=True,
+                category=spot.category
+            ).exclude(id=spot.id).order_by('-created_at')[:4]
+            
+            # Add distance calculation if coordinates are provided
+            lat = request.GET.get('lat')
+            lon = request.GET.get('lon')
+            if lat and lon:
+                related_spots = add_distance_to_spots_from_request(related_spots, request)
+            
+            data = {
+                'spot': spot,
+                'spot_images': spot_images,
+                'cover_image': cover_image,
+                'related_spots': related_spots,
+                'lat': lat,
+                'lon': lon,
+            }
+            
+            return renderfile(request, 'spots', 'detail', data)
+            
+        except Spots.DoesNotExist:
+            # Spot not found - render 404 page
+            return renderfile(request, 'portal', '404', {}, status=404)
+        except Exception as e:
+            # Any other error - render 404 page
+            return renderfile(request, 'portal', '404', {}, status=404)
     
 class AddSpotView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):

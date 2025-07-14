@@ -99,6 +99,7 @@ class Categories(models.Model):
 class Spots(models.Model):
     name = models.CharField(max_length=250, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name='user_spots')
+    profile_image = models.ImageField(upload_to='profile_image/', null=True, blank=True)
     slug = AutoSlugField(populate_from='name', max_length=250, unique=True, null=True, blank=True)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE, null=True, blank=True)
     coordinates = models.CharField(max_length=250, null=True, blank=True)

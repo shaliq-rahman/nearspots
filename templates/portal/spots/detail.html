@@ -45,15 +45,22 @@
       <!-- Left: Main image and thumbnails -->
       <div class="spot-detail-left">
         <div class="spot-image-main-wrapper">
-          <img class="spot-main-image" id="mainSpotImage" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Treehouse on the Water">
+          {% if cover_image %}
+            <img class="spot-main-image" id="mainSpotImage" src="{{ cover_image.image.url }}" alt="{{ spot.name }}">
+          {% else %}
+            <img class="spot-main-image" id="mainSpotImage" src="{% static 'portal/images/placeholder.jpg' %}" alt="{{ spot.name }}">
+          {% endif %}
         </div>
+        {% if spot_images %}
         <div class="spot-thumbnails">
-          <img class="spot-thumb active" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Thumb 1" data-img="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80">
-          <img class="spot-thumb" src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" alt="Thumb 2" data-img="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80">
-          <img class="spot-thumb" src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80" alt="Thumb 3" data-img="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80">
-          <img class="spot-thumb" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Thumb 4" data-img="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80">
-          <img class="spot-thumb" src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" alt="Thumb 5" data-img="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80">
+          {% for image in spot_images %}
+            <img class="spot-thumb {% if forloop.first %}active{% endif %}" 
+                 src="{{ image.image.url }}" 
+                 alt="{{ spot.name }} - Image {{ forloop.counter }}" 
+                 data-img="{{ image.image.url }}">
+          {% endfor %}
         </div>
+        {% endif %}
         <hr class="map-divider">
         <div id="spotMap" style="width:100%;height:320px;border-radius:12px;margin:24px 0 10px 0;"></div>
         <div class="spot-map-caption">We verified that this listing's location is accurate. <a href="#">Learn more</a></div>
@@ -127,42 +134,85 @@
           <button class="icon-btn" title="Share"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" stroke="#222" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Share</button>
           <button class="icon-btn" title="Save"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/></svg> Save</button>
         </div>
-        <h1 class="spot-title">Treehouse on the Water -Eagles Nest-20 ft high</h1>
+        <h1 class="spot-title">{{ spot.name }}</h1>
         <div class="spot-meta-row">
-          <span class="spot-distance">8,015 km away</span>
-          <span class="spot-rating"><span class="star">&#9733;</span> 4.84</span>
-          <a href="#" class="spot-reviews-link">366 Reviews</a>
+          {% if spot.distance %}
+            <span class="spot-distance">{{ spot.distance|floatformat:1 }} km away</span>
+          {% endif %}
+          {% if spot.rating %}
+            <span class="spot-rating"><span class="star">&#9733;</span> {{ spot.rating }}</span>
+          {% endif %}
+          {% if spot.category %}
+            <span class="spot-category">{{ spot.category.title }}</span>
+          {% endif %}
         </div>
         <div class="spot-description">
-          Soar 20 ft in the trees as you overlook the Strait. Relax in many areas of this unique craftsman treehouse. You can be mesmerized as you sit or sleep in the large window seat watching the ships sail by, eagles fly across your window, deer eat in the meadow below- or spend time in the hammock hanging from the tree inside or the loft hammock. Every part of the treehouse is unique–you will find yourself wanting to unplug and enjoy every aspect of the house.
+          {{ spot.description|linebreaks }}
         </div>
+        
+        {% if spot.created_at %}
+        <div class="spot-added-info">
+          <span class="spot-added-text">Added on {{ spot.created_at|date:"F j, Y" }}</span>
+        </div>
+        {% endif %}
+
         <hr class="host-divider">
-        <div class="spot-host-row">
-          <div class="host-avatar-card">
-            <img class="user-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Beverly">
+        {% if spot.user %}
+        <div class="hosted-by-section">
+          <div class="hosted-by-avatar">
+            {% if spot.user.profile_image %}
+              <img src="{{ spot.user.profile_image.url }}" alt="{{ spot.user.name|default:spot.user.username }}">
+            {% else %}
+              <img src="{% static 'portal/images/default-avatar.svg' %}" alt="Default avatar">
+            {% endif %}
           </div>
-          <div class="spot-host-info">
-            <div class="spot-host-name">Hosted by Beverly</div>
-            <div class="spot-host-spots">33 Spots</div>
+          <div class="hosted-by-info">
+            <div class="hosted-by-label">
+              Hosted by
+              {% if spot.user.is_superuser or spot.user.user_type == 1 %}
+                Admin
+              {% else %}
+                {{ spot.user.name|default:spot.user.username }}
+              {% endif %}
+            </div>
+            <div class="hosted-by-count">
+              {{ spot.user.user_spots.count }} Spots
+            </div>
           </div>
         </div>
+        {% endif %}
+        
+        {% if spot.address or spot.building_name or spot.landmark or spot.city %}
+        <div class="spot-location-details">
+          <h3>Location Details</h3>
+          {% if spot.address %}<p><strong>Address:</strong> {{ spot.address }}</p>{% endif %}
+          {% if spot.building_name %}<p><strong>Building:</strong> {{ spot.building_name }}</p>{% endif %}
+          {% if spot.landmark %}<p><strong>Landmark:</strong> {{ spot.landmark }}</p>{% endif %}
+          {% if spot.city %}<p><strong>City:</strong> {{ spot.city }}</p>{% endif %}
+        </div>
+        {% endif %}
       </div>
     </div>
   </section>
 
   <!-- Related Spots Section -->
+  {% if related_spots %}
   <section class="related-spots-section">
     <h2 class="related-spots-title">Related Spots</h2>
     <div class="related-spots-grid">
-      <!-- 4 cards, same as homepage -->
+      {% for related_spot in related_spots %}
       <div class="attraction-card">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
+            {% for image in related_spot.spot_images.all %}
+              <img src="{{ image.image.url }}" class="carousel-img {% if forloop.first %}active{% endif %}" alt="{{ related_spot.name }}">
+            {% empty %}
+              <img src="{% static 'portal/images/placeholder.jpg' %}" class="carousel-img active" alt="{{ related_spot.name }}">
+            {% endfor %}
           </div>
-          <span class="attraction-badge">Rated #1</span>
+          {% if related_spot.top_rated %}
+            <span class="attraction-badge">Top Rated</span>
+          {% endif %}
           <span class="attraction-heart">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
               <circle cx="11" cy="11" r="11" fill="#fff"/>
@@ -170,118 +220,30 @@
             </svg>
           </span>
           <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+            {% for image in related_spot.spot_images.all %}
+              <span class="dot {% if forloop.first %}active{% endif %}"></span>
+            {% endfor %}
           </div>
         </div>
         <div class="attraction-card-content">
           <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
+            <span class="attraction-location">{{ related_spot.city|default:"Location" }}</span>
+            {% if related_spot.rating %}
             <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
+              <span class="star">&#9733;</span> {{ related_spot.rating }}
             </span>
+            {% endif %}
           </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
+          {% if related_spot.distance %}
+            <div class="attraction-distance">{{ related_spot.distance|floatformat:1 }} km away</div>
+          {% endif %}
+          <div class="attraction-title">{{ related_spot.name }}</div>
         </div>
       </div>
-      <!-- Repeat for 4 cards -->
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          </div>
-          <span class="attraction-badge">Rated #2</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
-            </span>
-          </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
-        </div>
-      </div>
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          </div>
-          <span class="attraction-badge">Rated #3</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
-            </span>
-          </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
-        </div>
-      </div>
-      <div class="attraction-card">
-        <div class="attraction-image-container">
-          <div class="attraction-carousel">
-            <img src="https://images.unsplash.com/photo-1507089947368-19c1da9775ae?auto=format&fit=crop&w=400&q=80" class="carousel-img active" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-            <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80" class="carousel-img" alt="Hotel">
-          </div>
-          <span class="attraction-badge">Rated #4</span>
-          <span class="attraction-heart">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="11" fill="#fff"/>
-              <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
-            </svg>
-          </span>
-          <div class="attraction-pagination">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-          </div>
-        </div>
-        <div class="attraction-card-content">
-          <div class="attraction-card-row">
-            <span class="attraction-location">Bourré, France</span>
-            <span class="attraction-rating">
-              <span class="star">&#9733;</span> 4.84
-            </span>
-          </div>
-          <div class="attraction-distance">8,015 km away</div>
-          <div class="attraction-price">$154 CAD</div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -291,18 +253,33 @@
   
   <script>
     function initSpotMap() {
-      // Initialize the map
-      var map = L.map('spotMap').setView([11.2587531, 75.78041], 14);
-      
-      // Add OpenStreetMap tiles
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-      }).addTo(map);
-      
-      // Add a marker for the spot location
-      var marker = L.marker([11.2587531, 75.78041]).addTo(map);
-      marker.bindPopup('Verified listing').openPopup();
+      {% if spot.latitude and spot.longitude %}
+        // Initialize the map with spot coordinates
+        var map = L.map('spotMap').setView([{{ spot.latitude }}, {{ spot.longitude }}], 14);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19
+        }).addTo(map);
+        
+        // Add a marker for the spot location
+        var marker = L.marker([{{ spot.latitude }}, {{ spot.longitude }}]).addTo(map);
+        marker.bindPopup('{{ spot.name }}').openPopup();
+      {% else %}
+        // Initialize the map with default coordinates if spot coordinates are not available
+        var map = L.map('spotMap').setView([11.2587531, 75.78041], 14);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19
+        }).addTo(map);
+        
+        // Add a marker for the spot location
+        var marker = L.marker([11.2587531, 75.78041]).addTo(map);
+        marker.bindPopup('Location not available').openPopup();
+      {% endif %}
     }
     
     document.addEventListener('DOMContentLoaded', function() {
