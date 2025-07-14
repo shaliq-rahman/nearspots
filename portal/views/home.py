@@ -469,7 +469,65 @@ class ProfileView(LoginRequiredMixin, View):
         data['spots_count'] = spots_count
         
         return renderfile(request,'profile','index',data)
+
+class UpdateProfileView(LoginRequiredMixin, View):
+    login_url = '/portal/login/'
     
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        try:
+            # Get form data
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            # Validate required fields
+            if not first_name:
+                errors['first_name'] = 'First name is required'
+            elif len(first_name) < 2:
+                errors['first_name'] = 'First name must be at least 2 characters long'
+            elif len(first_name) > 50:
+                errors['first_name'] = 'First name cannot exceed 50 characters'
+            elif not first_name.replace(' ', '').isalpha():
+                errors['first_name'] = 'First name can only contain letters'
+                
+            if not last_name:
+                errors['last_name'] = 'Last name is required'
+            elif len(last_name) < 2:
+                errors['last_name'] = 'Last name must be at least 2 characters long'
+            elif len(last_name) > 50:
+                errors['last_name'] = 'Last name cannot exceed 50 characters'
+            elif not last_name.replace(' ', '').isalpha():
+                errors['last_name'] = 'Last name can only contain letters'
+            
+            # If there are validation errors, return them
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            # Update user profile
+            user = request.user
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Profile updated successfully!'
+            })
+                
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An unexpected error occurred. Please try again.',
+                'error_type': 'server_error'
+            }, status=500)
+
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         data = {}

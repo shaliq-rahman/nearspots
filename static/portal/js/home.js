@@ -522,3 +522,173 @@ $("#write-review-form").validate({
     return false; // Prevent the form from submitting via the usual way
   }
 });
+
+// Profile Update Validation and AJAX Submission
+$(".profile-update-form").validate({
+  rules: {
+    firstName: {
+      required: true,
+      minlength: 2,
+      maxlength: 50,
+      lettersOnly: true
+    },
+    lastName: {
+      required: true,
+      minlength: 2,
+      maxlength: 50,
+      lettersOnly: true
+    }
+  },
+  messages: {
+    firstName: {
+      required: "First name is required",
+      minlength: "First name must be at least 2 characters long",
+      maxlength: "First name cannot exceed 50 characters",
+      lettersOnly: "First name can only contain letters"
+    },
+    lastName: {
+      required: "Last name is required",
+      minlength: "Last name must be at least 2 characters long",
+      maxlength: "Last name cannot exceed 50 characters",
+      lettersOnly: "Last name can only contain letters"
+    }
+  },
+  errorPlacement: function(error, element) {
+    error.insertAfter(element);
+    error.addClass('error-message');
+  },
+  highlight: function(element) {
+    $(element).addClass("error");
+  },
+  unhighlight: function(element) {
+    $(element).removeClass("error");
+  },
+  submitHandler: function(form) {
+    console.log('Profile form submitted');
+    // Get form data
+    const formData = {
+      first_name: $('#firstName').val().trim(),
+      last_name: $('#lastName').val().trim(),
+      csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+    };
+    console.log('Form data:', formData);
+    
+    // Disable submit button and show loading
+    const submitBtn = $(form).find('button[type="submit"]');
+    const originalText = submitBtn.text();
+    submitBtn.prop('disabled', true).text('Updating...');
+    
+    // Submit form via AJAX
+    $.ajax({
+      type: "POST",
+      url: "/update-profile/",
+      data: formData,
+      headers: {
+        "X-CSRFToken": formData.csrfmiddlewaretoken,
+      },
+      dataType: "json",
+      success: function(response) {
+        console.log('Profile update success:', response);
+        if (response.status === 'success') {
+          // Show success popup
+          showProfileUpdateSuccess();
+        }
+      },
+      error: function(xhr, status, error) {
+        const response = xhr.responseJSON;
+        
+        if (response && response.errors) {
+          // Clear previous errors
+          $('.error').removeClass('error');
+          $('.error-message').remove();
+          
+          // Display field-specific errors
+          Object.keys(response.errors).forEach(function(field) {
+            const errorMessage = response.errors[field];
+            let fieldElement;
+            
+            if (field === 'first_name') {
+              fieldElement = $('#firstName');
+            } else if (field === 'last_name') {
+              fieldElement = $('#lastName');
+            }
+            
+            if (fieldElement) {
+              // Add error class to field
+              fieldElement.addClass('error');
+              // Add error message
+              fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
+            }
+          });
+        } else if (response && response.message) {
+          // Display general error message
+          alert(response.message);
+        } else {
+          // Generic error
+          alert('Profile update failed. Please try again.');
+        }
+      },
+      complete: function() {
+        // Re-enable submit button
+        submitBtn.prop('disabled', false).text(originalText);
+      }
+    });
+    
+    return false; // Prevent the form from submitting via the usual way
+  }
+});
+
+// Add custom validation method for letters only
+$.validator.addMethod("lettersOnly", function(value, element) {
+  return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
+}, "This field can only contain letters");
+
+// Function to show profile update success popup
+function showProfileUpdateSuccess() {
+  // Create popup HTML
+  const popupHTML = `
+    <div id="profile-success-popup" class="profile-success-popup">
+      <div class="profile-success-content">
+        <div class="profile-success-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="12" fill="#4CAF50"/>
+            <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>Profile Updated Successfully!</h3>
+        <p>Your profile information has been updated.</p>
+        <button onclick="closeProfileSuccessPopup()" class="btn-primary">OK</button>
+      </div>
+    </div>
+  `;
+  
+  // Add popup to body
+  $('body').append(popupHTML);
+  
+  // Show popup with animation
+  setTimeout(function() {
+    $('#profile-success-popup').addClass('show');
+  }, 100);
+}
+
+// Function to close profile success popup
+function closeProfileSuccessPopup() {
+  $('#profile-success-popup').removeClass('show');
+  setTimeout(function() {
+    $('#profile-success-popup').remove();
+  }, 300);
+}
+
+// Close popup when clicking outside
+$(document).on('click', '#profile-success-popup', function(e) {
+  if (e.target.id === 'profile-success-popup') {
+    closeProfileSuccessPopup();
+  }
+});
+
+// Close popup with Escape key
+$(document).on('keydown', function(e) {
+  if (e.key === 'Escape' && $('#profile-success-popup').length) {
+    closeProfileSuccessPopup();
+  }
+});
