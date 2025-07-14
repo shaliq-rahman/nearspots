@@ -29,6 +29,4 @@ urlpatterns = [
     
     #write review
     path('write-review/<slug:slug>/', home.WriteReviewView.as_view(), name='write_review'),
-    
-    
 ]

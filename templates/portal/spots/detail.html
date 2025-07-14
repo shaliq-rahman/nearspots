@@ -378,7 +378,7 @@
         }
         
         if (!review.value.trim()) {
-          showPopup('Please write your review', 'error');
+          showPopup('Please write a review', 'error');
           return;
         }
         
@@ -477,19 +477,6 @@
             review.blur();
             review.focus();
             review.blur();
-          }
-          
-          // Clear any review error messages specifically
-          const reviewErrorMessages = document.querySelectorAll('.review-error, .error-message, [data-error="review"]');
-          reviewErrorMessages.forEach(errorMsg => {
-            errorMsg.remove();
-          });
-          
-          // Remove any error styling from review textarea
-          if (review) {
-            review.style.borderColor = '';
-            review.style.boxShadow = '';
-            review.removeAttribute('aria-invalid');
           }
         });
       }
