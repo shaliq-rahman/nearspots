@@ -114,6 +114,8 @@ class Spots(models.Model):
     top_rated = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
     rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    is_featured = models.BooleanField(default=False)
+    top_rated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
     
