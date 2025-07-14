@@ -1,8 +1,15 @@
 <header class="header">
     <div class="logo" id="portal-logo" style="cursor:pointer;">LOGO</div>
     <nav class="nav">
-      <a href="#" class="active">Food Spots</a>
-      <a href="#">Attraction Sights</a>
+      {% for category in header_categories %}
+        {% if request.resolver_match.url_name == 'category' and request.resolver_match.kwargs.category_slug == category.slug %}
+          <a href="javascript:void(0)" class="active" data-category-slug="{{ category.slug }}" data-category-id="{{ category.id }}">{{ category.title }}</a>
+        {% elif request.resolver_match.url_name == 'home' and forloop.first %}
+          <a href="javascript:void(0)" class="active" data-category-slug="{{ category.slug }}" data-category-id="{{ category.id }}">{{ category.title }}</a>
+        {% else %}
+          <a href="javascript:void(0)" data-category-slug="{{ category.slug }}" data-category-id="{{ category.id }}">{{ category.title }}</a>
+        {% endif %}
+      {% endfor %}
     </nav>
     <div class="header-right">
       {% if request.user.is_authenticated %}

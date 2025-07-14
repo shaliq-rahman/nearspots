@@ -3288,3 +3288,16 @@ body {
     max-width: none;
   }
 }
+
+.clear-filter {
+  font-size: 14px;
+  color: #666;
+  text-decoration: none;
+  margin-left: 10px;
+  transition: color 0.2s;
+}
+
+.clear-filter:hover {
+  color: #006073;
+  text-decoration: underline;
+}

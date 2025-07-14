@@ -67,6 +67,7 @@ class SearchView(View):
         # Get search parameters
         search_text = request.GET.get('q', '').strip()
         distance = request.GET.get('distance', '5').strip()
+        category_slug = request.GET.get('category', '').strip()
         lat = request.GET.get('lat')
         lon = request.GET.get('lon')
         
@@ -74,6 +75,15 @@ class SearchView(View):
         spots_queryset = Spots.objects.prefetch_related(
             Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
         ).filter(is_active=True, is_approved=True)
+        
+        # Apply category filter if provided
+        if category_slug:
+            try:
+                category = Categories.objects.get(slug=category_slug, is_active=True)
+                spots_queryset = spots_queryset.filter(category=category)
+                data['active_category'] = category
+            except Categories.DoesNotExist:
+                pass
         
         # Apply text search if provided
         if search_text:
@@ -107,6 +117,7 @@ class SearchView(View):
         data['spots'] = spots_queryset
         data['search_text'] = search_text
         data['distance'] = distance
+        data['category_slug'] = category_slug
         data['lat'] = lat
         data['lon'] = lon
         data['categories'] = Categories.objects.filter(is_active=True)

@@ -156,6 +156,23 @@ document.addEventListener('DOMContentLoaded', function() {
       attractionToggle.classList.remove('active');
       foodList.style.display = '';
       attractionList.style.display = 'none';
+
+      // Sync with header navigation - find and activate the corresponding header category
+      const categoryId = this.getAttribute('data-id');
+      const headerNavLinks = document.querySelectorAll('.nav a');
+      headerNavLinks.forEach(link => {
+        if (link.getAttribute('data-category-id') === categoryId) {
+          // Remove active class from all header links
+          headerNavLinks.forEach(l => l.classList.remove('active'));
+          // Add active class to matching link
+          link.classList.add('active');
+          // Store in sessionStorage
+          const categorySlug = link.getAttribute('data-category-slug');
+          if (categorySlug) {
+            sessionStorage.setItem('activeCategorySlug', categorySlug);
+          }
+        }
+      });
     });
 
     attractionToggle.addEventListener('click', function() {
@@ -163,6 +180,23 @@ document.addEventListener('DOMContentLoaded', function() {
       foodToggle.classList.remove('active');
       attractionList.style.display = '';
       foodList.style.display = 'none';
+
+      // Sync with header navigation - find and activate the corresponding header category
+      const categoryId = this.getAttribute('data-id');
+      const headerNavLinks = document.querySelectorAll('.nav a');
+      headerNavLinks.forEach(link => {
+        if (link.getAttribute('data-category-id') === categoryId) {
+          // Remove active class from all header links
+          headerNavLinks.forEach(l => l.classList.remove('active'));
+          // Add active class to matching link
+          link.classList.add('active');
+          // Store in sessionStorage
+          const categorySlug = link.getAttribute('data-category-slug');
+          if (categorySlug) {
+            sessionStorage.setItem('activeCategorySlug', categorySlug);
+          }
+        }
+      });
     });
   }
 
