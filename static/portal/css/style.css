@@ -1913,6 +1913,7 @@ body {
   margin: 0 auto 48px auto;
   padding: 0;
   background: none;
+  width: 100%;
 }
 .spot-reviews-title {
   font-size: 2rem;
@@ -1994,6 +1995,7 @@ body {
   flex-direction: column;
   gap: 32px;
   margin-bottom: 32px;
+  width: 100%;
 }
 .spot-review {
   display: flex;
@@ -2061,7 +2063,8 @@ body {
 @media (max-width: 700px) {
   .spot-reviews-section {
     max-width: 100%;
-    padding: 0 8px;
+    padding: 0;
+    margin: 0 0 48px 0;
   }
   .spot-reviews-summary-row {
     flex-direction: column;
@@ -2194,6 +2197,15 @@ body {
   margin: 32px 0 24px 0;
   padding: 24px 0 0 0;
   border-top: 1px solid #eee;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure no-reviews-section uses full width */
+.no-reviews-section {
+  max-width: 100% !important;
+  margin: 0 0 48px 0 !important;
+  padding: 0 !important;
 }
 
 .write-review-title {
@@ -2208,6 +2220,7 @@ body {
   margin-bottom: 16px;
   font-size: 2rem;
   user-select: none;
+  width: 100%;
 }
 
 .star-rating .star {
@@ -2231,12 +2244,14 @@ body {
   margin-bottom: 18px;
   resize: vertical;
   box-sizing: border-box;
+  max-width: 100%;
 }
 
 .review-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  width: 100%;
 }
 
 .review-cancel-btn,
