@@ -62,10 +62,13 @@
         <!-- Change Password -->
         <h3>Change Password</h3>
         <form class="profile-form" autocomplete="off">
+          {% csrf_token %}
+          <input type="hidden" name="lat" value="{{ lat }}">
+          <input type="hidden" name="lon" value="{{ lon }}">
           <div class="form-row">
             <div class="form-group">
               <label for="currentPassword">Current Password</label>
-              <input type="password" id="currentPassword" name="currentPassword" placeholder="Current Password" />
+              <input type="password" id="currentPassword" name="currentPassword" placeholder="Current Password" required />
             </div>
           </div>
           <div class="form-row">
@@ -164,6 +167,10 @@
       </section>
     </main>
   </div>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Profile JavaScript -->
+  <script src="{% static 'portal/js/profile.js' %}?v=1"></script>
   <script src="{% static 'portal/js/script.js' %}?v=1"></script>
   <script>
     function logout() {
@@ -180,6 +187,10 @@
       if (tab === 'profile') {
         document.getElementById('tab-profile').classList.add('active');
         document.getElementById('section-profile').style.display = 'block';
+        // Clear any validation errors when switching to profile tab
+        if (typeof clearErrors === 'function') {
+          clearErrors();
+        }
       } else if (tab === 'spots') {
         document.getElementById('tab-spots').classList.add('active');
         document.getElementById('section-spots').style.display = 'block';

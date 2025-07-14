@@ -69,7 +69,7 @@
   <div class="results-grid">
     {% if spots %}
       {% for spot in spots %}
-        <div class="attraction-card">
+        <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' spot.slug %}?lat={{lat}}&lon={{lon}}'">
           <div class="attraction-image-container">
             <div class="attraction-carousel">
               {% for spot_image in spot.spot_images.all %}

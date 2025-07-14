@@ -27,6 +27,7 @@ urlpatterns = [
     #Profile Page
     path('profile/', home.ProfileView.as_view(), name='profile'),
     path('update-profile/', home.UpdateProfileView.as_view(), name='update_profile'),
+    path('change-password/', home.ChangePasswordView.as_view(), name='change_password'),
     
     #write review
     path('write-review/<slug:slug>/', home.WriteReviewView.as_view(), name='write_review'),

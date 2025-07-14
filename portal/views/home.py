@@ -528,6 +528,85 @@ class UpdateProfileView(LoginRequiredMixin, View):
                 'error_type': 'server_error'
             }, status=500)
 
+class ChangePasswordView(LoginRequiredMixin, View):
+    login_url = '/portal/login/'
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
+            # Get form data
+            current_password = request.POST.get('currentPassword', '').strip()
+            new_password = request.POST.get('newPassword', '').strip()
+            confirm_password = request.POST.get('confirmPassword', '').strip()
+            
+            # Validation errors list
+            errors = {}
+            
+            # Validate required fields
+            if not current_password:
+                errors['currentPassword'] = 'Current password is required'
+            
+            if not new_password:
+                errors['newPassword'] = 'New password is required'
+            elif len(new_password) < 8:
+                errors['newPassword'] = 'New password must be at least 8 characters long'
+            elif len(new_password) > 128:
+                errors['newPassword'] = 'New password cannot exceed 128 characters'
+            elif not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]', new_password):
+                errors['newPassword'] = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+            
+            if not confirm_password:
+                errors['confirmPassword'] = 'Please confirm your new password'
+            elif new_password != confirm_password:
+                errors['confirmPassword'] = 'Passwords do not match'
+            
+            # If there are validation errors, return them
+            if errors:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please correct the errors below',
+                    'errors': errors
+                }, status=400)
+            
+            # Verify current password
+            user = request.user
+            if not check_password(current_password, user.password):
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Current password is incorrect',
+                    'error_type': 'invalid_current_password'
+                }, status=400)
+            
+            # Check if new password is same as current password
+            if check_password(new_password, user.password):
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'New password must be different from current password',
+                    'error_type': 'same_password'
+                }, status=400)
+            
+            # Update password
+            user.set_password(new_password)
+            user.save()
+            
+            # Logout user after password change
+            logout(request)
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Password changed successfully! Please login with your new password.',
+                'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
+            })
+                
+        except Exception as e:
+            print('-----------', e)
+            return JsonResponse({
+                'status': 'error',
+                'message': 'An unexpected error occurred. Please try again.',
+                'error_type': 'server_error'
+            }, status=500)
+
 class LoginView(View):
     def get(self, request, *args, **kwargs):
         data = {}
