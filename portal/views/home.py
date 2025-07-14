@@ -237,6 +237,7 @@ class AddSpotView(LoginRequiredMixin, View):
             building = request.POST.get('building', '').strip()
             landmark = request.POST.get('landmark', '').strip()
             city = request.POST.get('city', '').strip()
+            category = request.POST.get('category', '').strip()
             
             # Validation errors list
             errors = {}
@@ -311,7 +312,7 @@ class AddSpotView(LoginRequiredMixin, View):
                 }, status=400)
             
             # Get default category (first active category) - outside transaction
-            default_category = Categories.objects.filter(is_active=True).first()
+            default_category = Categories.objects.filter(is_active=True, id=category).first()
             
             def create_spot_with_images():
                 """Function to create spot and images with retry mechanism"""

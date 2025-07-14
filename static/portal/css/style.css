@@ -1250,6 +1250,86 @@ body {
   color: #b0b8be;
   opacity: 1;
 }
+
+/* === Select Field Styles === */
+.form-group select {
+  padding: 12px 16px;
+  border: 1.5px solid #e0e6ea;
+  border-radius: 32px;
+  font-size: 1rem;
+  background: #f8fafb;
+  color: #222;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230B4C4C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 48px;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  border-color: #0B4C4C;
+  box-shadow: 0 0 0 2px #e6f3f3;
+}
+
+.form-group select:hover {
+  border-color: #0B4C4C;
+}
+
+.form-group select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Custom select wrapper for better control */
+.form-group .select-wrapper {
+  position: relative;
+  display: block;
+}
+
+.form-group .select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #0B4C4C;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Error state for select fields */
+.form-group select.error {
+  border-color: #e74c3c;
+  background-color: #fdf2f2;
+}
+
+.form-group select.error:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+}
+
+/* Success state for select fields */
+.form-group select.success {
+  border-color: #27ae60;
+  background-color: #f8fff9;
+}
+
+.form-group select.success:focus {
+  border-color: #27ae60;
+  box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.1);
+}
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -1394,7 +1474,7 @@ body {
 }
 
 /* === Smooth Transitions === */
-.sidebar, .sidebar-menu li, .btn-primary, .form-group input, .avatar-upload {
+.sidebar, .sidebar-menu li, .btn-primary, .form-group input, .form-group select, .avatar-upload {
   transition: all 0.2s cubic-bezier(.4,0,.2,1);
 }
 
@@ -2338,7 +2418,8 @@ body {
   margin-bottom: 2px;
 }
 .add-spot-form input[type="text"],
-.add-spot-form textarea {
+.add-spot-form textarea,
+.add-spot-form select {
   border: 1.5px solid #e0e0e0;
   border-radius: 14px;
   padding: 12px 16px;
@@ -2351,21 +2432,24 @@ body {
   resize: none;
 }
 .add-spot-form input[type="text"]:focus,
-.add-spot-form textarea:focus {
+.add-spot-form textarea:focus,
+.add-spot-form select:focus {
   border-color: #006073;
   box-shadow: 0 2px 8px rgba(0,96,115,0.08);
   background: #fff;
 }
 
 .add-spot-form input[type="text"].error,
-.add-spot-form textarea.error {
+.add-spot-form textarea.error,
+.add-spot-form select.error {
   border-color: #e74c3c !important;
   background-color: #fdf2f2 !important;
   box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
 }
 
 .add-spot-form input[type="text"].error:focus,
-.add-spot-form textarea.error:focus {
+.add-spot-form textarea.error:focus,
+.add-spot-form select.error:focus {
   border-color: #e74c3c !important;
   background-color: #fff !important;
   box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
@@ -2374,6 +2458,30 @@ body {
 .add-spot-form textarea::placeholder {
   color: #b0b0b0;
   opacity: 1;
+}
+
+/* Add-spot form select specific styling */
+.add-spot-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23006073' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 48px;
+  cursor: pointer;
+}
+
+.add-spot-form select:hover {
+  border-color: #006073;
+}
+
+.add-spot-form select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 .required {
   color: #e74c3c;
