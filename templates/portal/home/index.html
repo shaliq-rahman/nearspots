@@ -98,7 +98,7 @@
     </div>
     <div class="categories-list" data-type="attraction" style="display:none;">
         {% for attraction_spot in attraction_spots %}
-      <div class="category-card">
+      <div class="category-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=attraction_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <img src="{{attraction_spot.spot_images.first.image.url}}" alt="Beaches">
         <div class="category-label">{{attraction_spot.name}}</div>
         {% if attraction_spot.distance %}
