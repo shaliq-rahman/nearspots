@@ -31,6 +31,12 @@ document.addEventListener('DOMContentLoaded', function() {
             urlParams.append('distance', distance);
         }
         
+        // Get active category from header
+        const activeCategorySlug = window.getActiveCategorySlug ? window.getActiveCategorySlug() : null;
+        if (activeCategorySlug) {
+            urlParams.append('category', activeCategorySlug);
+        }
+        
         // Get current location from URL if available
         const currentUrl = new URL(window.location.href);
         const lat = currentUrl.searchParams.get('lat');

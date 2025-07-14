@@ -40,13 +40,24 @@
 <section class="results-grid-section" style="padding-left:40px; padding-right:40px;">
   <div class="results-header">
     <h1 class="results-title">
-      {% if search_text %}
+      {% if active_category %}
+        {{ active_category.title }}
+        {% if search_text %}
+          - Search Results for "{{ search_text }}"
+        {% endif %}
+       
+      {% elif search_text %}
         Search Results for "{{ search_text }}"
       {% else %}
         All Spots
       {% endif %}
       {% if spots %}
         ({{ spots|length }} found)
+      {% endif %}
+      {% if active_category %}
+      <a href="{% url 'portal:search' %}?q={{ search_text|urlencode }}&distance={{ distance }}&lat={{ lat }}&lon={{ lon }}" class="clear-filter" style="font-size: 14px; color: #666; text-decoration: none; margin-left: 10px;">
+        (Clear category filter)
+      </a>
       {% endif %}
     </h1>
     {% comment %} <div class="results-sort">
@@ -121,5 +132,27 @@
 </section>
 
 <script src="{% static 'portal/js/search.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update header active state based on category parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const categorySlug = urlParams.get('category');
+    
+    if (categorySlug) {
+        // Remove active class from all nav links
+        const navLinks = document.querySelectorAll('.nav a');
+        navLinks.forEach(link => link.classList.remove('active'));
+        
+        // Add active class to the matching category link
+        const activeLink = document.querySelector(`.nav a[data-category-slug="${categorySlug}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active');
+            // Store in sessionStorage
+            sessionStorage.setItem('activeCategorySlug', categorySlug);
+        }
+    }
+});
+</script>
 
 {% endblock %}
