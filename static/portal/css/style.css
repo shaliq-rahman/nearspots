@@ -59,6 +59,33 @@ body {
   z-index: 10;
   flex-wrap: wrap;
 }
+
+/* Desktop - maintain original layout */
+@media (min-width: 769px) {
+  .header-top {
+    display: contents;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    order: 1;
+  }
+
+  .nav {
+    order: 2;
+    display: flex;
+    gap: 32px;
+  }
+
+  .header-right {
+    order: 3;
+  }
+}
 .logo {
   font-size: 2rem;
   font-weight: bold;
@@ -454,65 +481,94 @@ body {
     height: auto;
     min-height: var(--header-height);
     padding: 16px 20px;
-    flex-direction: row;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-top {
+    display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
   }
 
   .logo {
     font-size: 1.5rem;
     order: 1;
+    flex: 0 0 auto;
   }
 
   .mobile-menu-toggle {
-    display: block;
+    display: none; /* Hide since nav is always visible */
     order: 3;
     min-height: 44px;
     min-width: 44px;
   }
 
   .nav {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    flex-direction: column;
-    gap: 0;
-    padding: 16px 0;
-    z-index: 1000;
-    max-height: calc(100vh - var(--header-height));
-    overflow-y: auto;
+    display: flex;
+    position: static;
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    flex-direction: row;
+    gap: 8px;
+    padding: 8px 0;
+    z-index: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+    order: 3;
   }
 
-  .nav.mobile-open {
-    display: flex;
-    animation: slideDown 0.3s ease-out;
+  .nav::-webkit-scrollbar {
+    height: 3px;
   }
+
+  .nav::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+  }
+
+  .nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+
 
   .nav a {
-    padding: 16px 20px;
+    padding: 8px 16px;
     border-bottom: none;
-    border-left: 3px solid transparent;
+    border-left: none;
     transition: all 0.2s;
-    font-size: 1.1rem;
-    min-height: 44px;
+    font-size: 0.9rem;
+    min-height: 36px;
     display: flex;
     align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 18px;
+    background: #f0f4f4;
+    color: #006073;
+    font-weight: 500;
   }
 
   .nav a:hover,
   .nav a.active {
-    background-color: #f8fafb;
-    border-left: 3px solid #006073;
+    background-color: #006073;
+    color: #fff;
     border-bottom: none;
+    border-left: none;
   }
 
   .header-right {
     order: 2;
     gap: 12px;
+    flex: 0 0 auto;
   }
 
   .hidden-spot-btn {
@@ -542,7 +598,35 @@ body {
   }
 }
 
+
+
 /* Small mobile devices */
+@media (max-width: 480px) {
+  .header {
+    padding: 12px 16px;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .hidden-spot-btn {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+
+  .nav {
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  .nav a {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    min-height: 32px;
+    border-radius: 16px;
+  }
+}
 @media (max-width: 480px) {
   .header {
     padding: 12px 16px;
