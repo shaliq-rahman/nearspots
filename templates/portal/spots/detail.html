@@ -230,12 +230,12 @@
           {% if related_spot.top_rated %}
             <span class="attraction-badge">Top Rated</span>
           {% endif %}
-          <span class="attraction-heart">
+          {% comment %} <span class="attraction-heart">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
               <circle cx="11" cy="11" r="11" fill="#fff"/>
               <path d="M11 16l-1-0.9C6.6 12.8 4.5 10.8 4.5 8.3 4.5 6.5 5.9 5 7.7 5c0.9 0 1.8 0.4 2.3 1.1C10.8 5.4 11.7 5 12.6 5c1.8 0 3.2 1.5 3.2 3.3 0 2.5-2.1 4.5-5.5 6.8L11 16z" stroke="#222" stroke-width="1.2" fill="none"/>
             </svg>
-          </span>
+          </span> {% endcomment %}
           <div class="attraction-pagination">
             {% for image in related_spot.spot_images.all %}
               <span class="dot {% if forloop.first %}active{% endif %}"></span>
