@@ -1,5 +1,69 @@
 // Profile page functionality
 $(document).ready(function() {
+    // Mobile sidebar toggle functionality
+    $('.sidebar-toggle').on('click', function() {
+        $('.sidebar').toggleClass('open');
+        $(this).toggleClass('active');
+
+        // Prevent body scrolling when menu is open
+        if ($('.sidebar').hasClass('open')) {
+            $('body').css('overflow', 'hidden');
+        } else {
+            $('body').css('overflow', '');
+        }
+    });
+
+    // Close mobile menu when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.sidebar').length && !$(e.target).closest('.sidebar-toggle').length) {
+            $('.sidebar').removeClass('open');
+            $('.sidebar-toggle').removeClass('active');
+            $('body').css('overflow', '');
+        }
+    });
+
+    // Close mobile menu on window resize if screen becomes larger
+    $(window).on('resize', function() {
+        if ($(window).width() > 767) {
+            $('.sidebar').removeClass('open');
+            $('.sidebar-toggle').removeClass('active');
+            $('body').css('overflow', '');
+        }
+    });
+
+    // Handle escape key to close mobile menu
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape') {
+            $('.sidebar').removeClass('open');
+            $('.sidebar-toggle').removeClass('active');
+            $('body').css('overflow', '');
+        }
+    });
+
+    // Close mobile menu when sidebar menu item is clicked
+    $('.sidebar-menu li').on('click', function() {
+        if ($(window).width() <= 767) {
+            $('.sidebar').removeClass('open');
+            $('.sidebar-toggle').removeClass('active');
+            $('body').css('overflow', '');
+        }
+    });
+
+    // Improve form input focus for mobile
+    $('.form-group input, .form-group select').on('focus', function() {
+        $(this).parent().addClass('focused');
+    }).on('blur', function() {
+        $(this).parent().removeClass('focused');
+    });
+
+    // Add touch-friendly interactions for mobile
+    if ('ontouchstart' in window) {
+        $('.sidebar-menu li').on('touchstart', function() {
+            $(this).addClass('touch-active');
+        }).on('touchend', function() {
+            $(this).removeClass('touch-active');
+        });
+    }
     // Profile update form handling
     $('.profile-update-form').on('submit', function(e) {
         e.preventDefault();

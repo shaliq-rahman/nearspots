@@ -1,6 +1,25 @@
 <header class="header">
-    <div class="logo" id="portal-logo" style="cursor:pointer;">LOGO</div>
-    <nav class="nav">
+    <div class="header-top">
+      <div class="logo" id="portal-logo" style="cursor:pointer;">LOGO</div>
+      <div class="header-right">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'portal:add_spot' %}?lat={{lat}}&lon={{lon}}"><button class="hidden-spot-btn">Know a hidden spot?</button></a>
+        {% else %}
+        <button class="hidden-spot-btn" id="test-login-modal-btn">Know a hidden spot?</button>
+        {% endif %}
+        {% comment %} <button class="hidden-spot-btn">Know a hidden spot?</button> {% endcomment %}
+
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'portal:profile' %}?lat={{lat}}&lon={{lon}}"><div class="avatar" id="user-avatar"></div></a>
+        {% else %}
+        <button class="hidden-spot-btn" id="test-login-modal-btn-2">Login</button>
+        {% endif %}
+      </div>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation menu" style="display: none;">
+        <span id="menu-icon">☰</span>
+      </button>
+    </div>
+    <nav class="nav" id="main-nav">
       {% for category in header_categories %}
         {% if request.resolver_match.url_name == 'category' and request.resolver_match.kwargs.category_slug == category.slug %}
           <a href="javascript:void(0)" class="active" data-category-slug="{{ category.slug }}" data-category-id="{{ category.id }}">{{ category.title }}</a>
@@ -11,18 +30,4 @@
         {% endif %}
       {% endfor %}
     </nav>
-    <div class="header-right">
-      {% if request.user.is_authenticated %}
-      <a href="{% url 'portal:add_spot' %}?lat={{lat}}&lon={{lon}}"><button class="hidden-spot-btn">Know a hidden spot?</button></a>
-      {% else %}
-      <button class="hidden-spot-btn" id="test-login-modal-btn">Know a hidden spot?</button>
-      {% endif %}
-      {% comment %} <button class="hidden-spot-btn">Know a hidden spot?</button> {% endcomment %}
-
-      {% if request.user.is_authenticated %}
-      <a href="{% url 'portal:profile' %}?lat={{lat}}&lon={{lon}}"><div class="avatar" id="user-avatar"></div></a>
-      {% else %}
-      <button class="hidden-spot-btn" id="test-login-modal-btn-2">Login</button>
-      {% endif %}
-    </div>
-  </header> 
+  </header>

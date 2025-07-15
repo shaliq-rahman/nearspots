@@ -625,6 +625,8 @@ class LoginView(View):
         
     def post(self, request, *args, **kwargs):
         try:
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
             email = request.POST.get('email', '').strip()
             password = request.POST.get('password', '').strip()
             
@@ -666,7 +668,7 @@ class LoginView(View):
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Login successful! Welcome back.',
-                    'redirect_url': reverse('portal:home')
+                    'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
                 })
             else:
                 return JsonResponse({

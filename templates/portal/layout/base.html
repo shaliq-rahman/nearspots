@@ -25,6 +25,8 @@
       <p class="modal-subtext">Please enter your e-mail address and password</p>
       <form class="modal-form" autocomplete="off" id="auth-form" action="{% url 'portal:login' %}" method="post">
         {% csrf_token %}
+        <input type="hidden" name="lat" value="{{ lat|default:"" }}">
+        <input type="hidden" name="lon" value="{{ lon|default:"" }}">
         <input type="email" class="modal-input" placeholder="Email address" name="email" required>
         <input type="password" class="modal-input" placeholder="Password" name="password" required>
         <div class="modal-links">
