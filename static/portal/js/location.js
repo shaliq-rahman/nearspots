@@ -150,7 +150,7 @@ function showLoadingScreen() {
   loadingScreen.innerHTML = `
     <div style="text-align: center; color: white;">
       <div style="font-size: 4rem; margin-bottom: 20px;">📍</div>
-      <h2 style="margin: 0 0 10px 0; font-size: 2rem; font-weight: 600;">Welcome to NearSpots</h2>
+      <h2 style="margin: 0 0 10px 0; font-size: 2rem; font-weight: 600;">Welcome to LocalWonders</h2>
       <p style="margin: 0 0 30px 0; font-size: 1.1rem; opacity: 0.9;">Location access is required to show you accurate distances to nearby spots.</p>
       <button class="location-allow-btn" onclick="getUserLocation()" style="background: #006073; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(0, 96, 115, 0.3);">Allow Location Access</button>
       <div style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
