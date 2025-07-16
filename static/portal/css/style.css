@@ -32,6 +32,31 @@ body {
   max-width: 100vw;
 }
 
+/* Auth Error Message Styling */
+.auth-error-message {
+  color: #dc3545 !important;
+  font-size: 0.875em !important;
+  margin-top: 8px !important;
+  text-align: center !important;
+  padding: 8px 12px !important;
+  background-color: #f8d7da !important;
+  border: 1px solid #f5c6cb !important;
+  border-radius: 4px !important;
+  font-weight: 500 !important;
+  animation: fadeIn 0.3s ease-in !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Prevent horizontal scrolling on all containers */
 .container, .section, .wrapper {
   max-width: 100%;

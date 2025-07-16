@@ -306,11 +306,17 @@ document.addEventListener('DOMContentLoaded', function() {
       if (firstInput) firstInput.focus();
     }, 200);
   }
+  
+  // Make openAuthModal globally available
+  window.openAuthModal = openAuthModal;
   function closeAuthModal() {
     const overlay = document.getElementById('auth-modal-overlay');
     overlay.classList.remove('active');
     setTimeout(() => { overlay.style.display = 'none'; }, 300);
   }
+  
+  // Make closeAuthModal globally available
+  window.closeAuthModal = closeAuthModal;
 
   // Open modal on test button click
   const testBtn = document.getElementById('test-login-modal-btn');
