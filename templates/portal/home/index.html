@@ -79,11 +79,16 @@
   </section>
   {% endif %}
   <!-- Categories Section -->
+  {% if categories %}
   <section class="categories-section">
     <div class="categories-title">Categories</div>
     <div class="categories-toggles">
+      {% if categories.0 %}
       <button class="toggle-btn active" data-id="{{categories.0.id}}" id="food-toggle">{{categories.0.title}}</button>
+      {% endif %}
+      {% if categories.1 %}
       <button class="toggle-btn" data-id="{{categories.1.id}}" id="attraction-toggle">{{categories.1.title}}</button>
+      {% endif %}
     </div>
     <div class="categories-list" data-type="food">
     {% for food_spot in  food_spots %}
@@ -108,6 +113,7 @@
       {% endfor %}
     </div>
   </section>
+  {% endif %}
 
   <!-- Latest Attraction Sights Section -->
   <section class="top-rated-section">

@@ -34,23 +34,33 @@ class HomeView(View):
         data['lon'] = lon
         data['categories'] = Categories.objects.filter(is_active=True)
         
-        # Get food spots and add distance
-        food_spots_queryset = Spots.objects.prefetch_related(
-            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-        ).filter(is_active=True,  category_id=data['categories'][0].id, is_approved=True)
-        data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
+        # Initialize empty querysets
+        data['food_spots'] = []
+        data['attraction_spots'] = []
+        data['latest_attractions'] = []
+        data['top_rated_spots'] = []
         
-        # Get attraction spots and add distance
-        attraction_spots_queryset = Spots.objects.prefetch_related(
-            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-        ).filter(is_active=True, category_id=data['categories'][1].id, is_approved=True)
-        data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+        # Get food spots and add distance (first category)
+        if data['categories'].count() > 0:
+            first_category = data['categories'][0]
+            food_spots_queryset = Spots.objects.prefetch_related(
+                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+            ).filter(is_active=True, category_id=first_category.id, is_approved=True)
+            data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
         
-        # Latest attraction sites (limited to 4) with distance
-        latest_attractions_queryset = Spots.objects.prefetch_related(
-            'spot_images'
-        ).filter(is_active=True, category_id=data['categories'][1].id, is_approved=True).order_by('-created_at')[:4]
-        data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
+        # Get attraction spots and add distance (second category)
+        if data['categories'].count() > 1:
+            second_category = data['categories'][1]
+            attraction_spots_queryset = Spots.objects.prefetch_related(
+                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+            ).filter(is_active=True, category_id=second_category.id, is_approved=True)
+            data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+            
+            # Latest attraction sites (limited to 4) with distance
+            latest_attractions_queryset = Spots.objects.prefetch_related(
+                'spot_images'
+            ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
+            data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
         
         # Top rated spots (limited to 4) with distance
         top_rated_spots_queryset = Spots.objects.prefetch_related(
@@ -220,10 +230,10 @@ class SpotDetailView(View):
             
         except Spots.DoesNotExist:
             # Spot not found - render 404 page
-            return renderfile(request, 'portal', '404', {}, status=404)
+            return render(request, 'portal/404.html', {})
         except Exception as e:
             # Any other error - render 404 page
-            return renderfile(request, 'portal', '404', {}, status=404)
+            return render(request, 'portal/404.html', {})
     
 class AddSpotView(LoginRequiredMixin, View):
     login_url = '/'
