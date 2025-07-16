@@ -69,6 +69,32 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Geocode address and update map
   var addressInput = document.getElementById('spot-address');
+  
+  // Function to show error message below the input field
+  function showAddressError(message) {
+    // Remove any existing error message
+    var existingError = addressInput.parentNode.querySelector('.address-error');
+    if (existingError) {
+      existingError.remove();
+    }
+    
+    // Create error message element
+    var errorDiv = document.createElement('div');
+    errorDiv.className = 'address-error';
+    errorDiv.style.cssText = 'color: #dc3545; font-size: 14px; margin-top: 5px; display: block;';
+    errorDiv.textContent = message;
+    
+    // Insert error message after the input field
+    addressInput.parentNode.insertBefore(errorDiv, addressInput.nextSibling);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(function() {
+      if (errorDiv.parentNode) {
+        errorDiv.remove();
+      }
+    }, 5000);
+  }
+  
   function geocodeAddress() {
     var address = addressInput.value.trim();
     if (!address) return;
@@ -83,13 +109,19 @@ document.addEventListener('DOMContentLoaded', function() {
           map.setView(latlng, 16);
           marker.setLatLng(latlng);
           updateCoords(latlng);
+          
+          // Remove any existing error message on success
+          var existingError = addressInput.parentNode.querySelector('.address-error');
+          if (existingError) {
+            existingError.remove();
+          }
         } else {
-          alert('Location not found. Please try a different address.');
+          showAddressError('The location not found, Try selecting the pointer from the map to get accurate location');
         }
       })
       .catch(error => {
         console.log('Geocoding error:', error);
-        alert('Error searching for address.');
+        showAddressError('The location not found, Try selecting the pointer from the map to get accurate location');
       });
   }
   
