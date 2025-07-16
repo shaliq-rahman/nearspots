@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
   
-  // Initialize the map
-  var map = L.map('add-spot-map').setView([25.1972, 55.2744], 13);
+  // Initialize the map with Malaysia coordinates (Kuala Lumpur)
+  var map = L.map('add-spot-map').setView([3.1390, 101.6869], 13);
   
   // Add OpenStreetMap tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -25,26 +25,29 @@ document.addEventListener('DOMContentLoaded', function() {
     loadingDiv.remove();
   }
   
-  // Add a draggable marker
-  var marker = L.marker([25.1972, 55.2744], {draggable: true}).addTo(map);
+  // Add a draggable marker at Malaysia location
+  var marker = L.marker([3.1390, 101.6869], {draggable: true}).addTo(map);
   
   // Function to update coordinates and reverse geocode
-  function updateCoords(latlng) {
+  function updateCoords(latlng, updateAddress = true) {
     var lat = latlng.lat.toFixed(6);
     var lng = latlng.lng.toFixed(6);
     document.getElementById('spot-coords').value = lat + ', ' + lng;
     
-    // Reverse geocode to update address field
-    fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.display_name) {
-          document.getElementById('spot-address').value = data.display_name;
-        }
-      })
-      .catch(error => {
-        console.log('Reverse geocoding error:', error);
-      });
+    // Only update address field if explicitly requested
+    if (updateAddress) {
+      // Reverse geocode to update address field
+      fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.display_name) {
+            document.getElementById('spot-address').value = data.display_name;
+          }
+        })
+        .catch(error => {
+          console.log('Reverse geocoding error:', error);
+        });
+    }
   }
   
   // Handle map clicks
@@ -58,8 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCoords(marker.getLatLng());
   });
   
-  // Set initial coordinates
-  updateCoords(marker.getLatLng());
+  // Clear address field on page load
+  document.getElementById('spot-address').value = '';
+  
+  // Set initial coordinates without updating address field
+  updateCoords(marker.getLatLng(), false);
   
   // Geocode address and update map
   var addressInput = document.getElementById('spot-address');
