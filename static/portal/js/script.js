@@ -323,6 +323,11 @@ document.addEventListener('DOMContentLoaded', function() {
     testBtn2.addEventListener('click', openAuthModal);
   }
 
+  const testBtn3 = document.getElementById('test-login-modal-btn-3');
+  if (testBtn3) {
+    testBtn3.addEventListener('click', openAuthModal);
+  }
+
   // Open modal on CTA button click (if present)
   const ctaBtn = document.querySelector('.cta-btn');
   if (ctaBtn) {

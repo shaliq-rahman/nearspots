@@ -96,7 +96,9 @@
           </div>
 
           <!-- Write a Review Section -->
- 
+         
+          
+          {% if request.user.is_authenticated %}
           <form action="{% url 'portal:write_review' slug=spot.slug %}" method="post" id="write-review-form" style="width: 100%;">
             {% csrf_token %}
             <input type="hidden" name="lat" value="{{ lat }}">
@@ -117,6 +119,12 @@
               </div>
             </div>
           </form>
+          {% else %}
+          <div class="write-review-section">
+            <h3 class="write-review-title">Write a review</h3>
+             <button class="hidden-spot-btn" id="test-login-modal-btn-3">Please login to write a review</button>
+          </div>
+          {% endif %}
       
           
           <div class="spot-reviews-list">
