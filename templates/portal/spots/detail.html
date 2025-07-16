@@ -166,7 +166,9 @@
       <div class="spot-detail-right">
         <div class="spot-detail-actions">
           <button class="icon-btn" id="share-btn" title="Share" onclick="copyCurrentUrlToClipboard()">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" stroke="#222" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Share
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" stroke="#222" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Share</span>
+            <div id="copy-message" class="copy-message"></div>
           </button>
         </div>
         <h1 class="spot-title">{{ spot.name }}</h1>
@@ -359,20 +361,23 @@
 
     function copyCurrentUrlToClipboard() {
       const url = window.location.href;
+      
       navigator.clipboard.writeText(url).then(function() {
-        // Show a temporary tooltip or alert
-        const shareBtn = document.getElementById('share-btn');
-        if (shareBtn) {
-          let tooltip = document.createElement('span');
-          tooltip.className = 'copy-tooltip';
-          tooltip.innerText = 'Link copied!';
-          shareBtn.appendChild(tooltip);
+        // Show success message
+        const copyMessage = document.getElementById('copy-message');
+        if (copyMessage) {
+          copyMessage.textContent = 'Link copied!';
+          copyMessage.classList.add('show');
+          
+          // Hide message after 3 seconds
           setTimeout(() => {
-            tooltip.remove();
-          }, 1500);
-        } else {
-          alert('Link copied!');
+            copyMessage.classList.remove('show');
+          }, 3000);
         }
+      }).catch(function(err) {
+        console.error('Clipboard error:', err);
+        // Fallback for browsers that don't support clipboard API
+        alert('Link copied!');
       });
     }
 
@@ -675,23 +680,43 @@
   </script>
 
   <style>
-    .copy-tooltip {
+    .copy-message {
       position: absolute;
-      top: -32px;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      padding: 6px 10px;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    
+    .copy-message.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    .copy-message::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
       left: 50%;
       transform: translateX(-50%);
-      background: #222;
-      color: #fff;
-      padding: 4px 12px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      white-space: nowrap;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-      pointer-events: none;
-      opacity: 0.95;
+      border: 4px solid transparent;
+      border-bottom-color: #d4edda;
     }
-    #share-btn { position: relative; }
+    
+    #share-btn {
+      position: relative;
+    }
     
     /* Star rating styles */
     .star-rating {
