@@ -157,7 +157,6 @@ $(document).on("click", "#delete-btn-confirm", function (event) {
         FilterMaster("");
         // location.href = response.redirect_url;
       } else {
-        alert("FAIL")
         $(".msg_desc").text(response.message);
         $("#flash_message_error").attr("style", "display:block;");
         setTimeout(function () {

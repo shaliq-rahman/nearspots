@@ -817,6 +817,7 @@ class ReviewsDeleteView(LoginRequiredMixin, View):
                 data['success'] = True
                 data['message'] = 'Review deleted successfully'
                 data['redirect_url'] = reverse('adminpanel:reviews')
+                return JsonResponse(data)
         except Exception as error:
             data = {}
             data["success"] = False
