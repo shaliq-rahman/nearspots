@@ -226,7 +226,7 @@
     <h2 class="related-spots-title">Related Spots</h2>
     <div class="related-spots-grid">
       {% for related_spot in related_spots %}
-      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=related_spot.slug %}'">
+      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=related_spot.slug %}?lat={{ lat }}&lon={{ lon }}'">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
             {% for image in related_spot.spot_images.all %}
