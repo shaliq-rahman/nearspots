@@ -34,23 +34,33 @@ class HomeView(View):
         data['lon'] = lon
         data['categories'] = Categories.objects.filter(is_active=True)
         
-        # Get food spots and add distance
-        food_spots_queryset = Spots.objects.prefetch_related(
-            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-        ).filter(is_active=True,  category_id=data['categories'][0].id, is_approved=True)
-        data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
+        # Initialize empty querysets
+        data['food_spots'] = []
+        data['attraction_spots'] = []
+        data['latest_attractions'] = []
+        data['top_rated_spots'] = []
         
-        # Get attraction spots and add distance
-        attraction_spots_queryset = Spots.objects.prefetch_related(
-            Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-        ).filter(is_active=True, category_id=data['categories'][1].id, is_approved=True)
-        data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+        # Get food spots and add distance (first category)
+        if data['categories'].count() > 0:
+            first_category = data['categories'][0]
+            food_spots_queryset = Spots.objects.prefetch_related(
+                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+            ).filter(is_active=True, category_id=first_category.id, is_approved=True)
+            data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
         
-        # Latest attraction sites (limited to 4) with distance
-        latest_attractions_queryset = Spots.objects.prefetch_related(
-            'spot_images'
-        ).filter(is_active=True, category_id=data['categories'][1].id, is_approved=True).order_by('-created_at')[:4]
-        data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
+        # Get attraction spots and add distance (second category)
+        if data['categories'].count() > 1:
+            second_category = data['categories'][1]
+            attraction_spots_queryset = Spots.objects.prefetch_related(
+                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+            ).filter(is_active=True, category_id=second_category.id, is_approved=True)
+            data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+            
+            # Latest attraction sites (limited to 4) with distance
+            latest_attractions_queryset = Spots.objects.prefetch_related(
+                'spot_images'
+            ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
+            data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
         
         # Top rated spots (limited to 4) with distance
         top_rated_spots_queryset = Spots.objects.prefetch_related(
@@ -220,10 +230,10 @@ class SpotDetailView(View):
             
         except Spots.DoesNotExist:
             # Spot not found - render 404 page
-            return renderfile(request, 'portal', '404', {}, status=404)
+            return render(request, 'portal/404.html', {})
         except Exception as e:
             # Any other error - render 404 page
-            return renderfile(request, 'portal', '404', {}, status=404)
+            return render(request, 'portal/404.html', {})
     
 class AddSpotView(LoginRequiredMixin, View):
     login_url = '/'
@@ -525,6 +535,7 @@ class UpdateProfileView(LoginRequiredMixin, View):
             user = request.user
             user.first_name = first_name
             user.last_name = last_name
+            user.name = f"{first_name} {last_name}"        
             user.save()
             
             return JsonResponse({
@@ -832,36 +843,50 @@ class WriteReviewView(View):
         try:
             lat = request.POST.get('lat', '').strip()
             lon = request.POST.get('lon', '').strip()
-            
+
             review_text = request.POST.get('review', '').strip()
             rating = request.POST.get('rating', '').strip()
-            
+
             # Validation errors list
             errors = {}
-            
+
             if not review_text:
                 errors['review'] = 'Review text is required'
             if not rating:
                 errors['rating'] = 'Rating is required'
-            
+
             if errors:
                 return JsonResponse({
                     'status': 'error',
                     'message': 'Please correct the errors below',
                     'errors': errors
                 }, status=400)
-            
+
             spot = Spots.objects.get(slug=slug)
-            
+
+            # Check for duplicate review from the same user for the same spot
+            # if request.user.is_authenticated:
+            #     existing_review = Reviews.objects.filter(
+            #         spot=spot,
+            #         user=request.user
+            #     ).first()
+
+            #     # if existing_review:
+            #     #     return JsonResponse({
+            #     #         'status': 'error',
+            #     #         'message': 'You have already submitted a review for this spot.',
+            #     #         'error_type': 'duplicate_review'
+            #     #     }, status=400)
+
             # Create review (auto-approve for now)
             review = Reviews.objects.create(
                 spot=spot,
                 review_text=review_text,
                 rating=rating,
                 user=request.user if request.user.is_authenticated else None,
-                is_approved=True  # Auto-approve reviews
+                is_approved=True
             )
-            
+
             # Update spot's average rating
             approved_reviews = spot.spot_reviews.filter(is_approved=True)
             if approved_reviews.exists():
@@ -870,13 +895,13 @@ class WriteReviewView(View):
                 average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
                 spot.rating = average_rating
                 spot.save()
-            
+
             return JsonResponse({
                 'status': 'success',
-                'message': 'Review submitted successfully',
+                'message': 'Review submitted successfully.',
                 'redirect_url': reverse('portal:spot_detail', kwargs={'slug': slug}) + f'?lat={lat}&lon={lon}'
             })
-            
+
         except Exception as e:
             return JsonResponse({
                 'status': 'error',

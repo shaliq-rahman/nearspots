@@ -47,7 +47,7 @@
   <!-- Add Spot Section -->
   <section class="add-spot-section">
     <div class="add-spot-container">
-      <a href="#" class="add-spot-back">Go Back</a>
+      <a href="{% url 'portal:home' %}?lat={{ lat }}&lon={{ lon }}" class="add-spot-back">Go to Home</a>
       <form class="add-spot-form" autocomplete="off" id="add-spot-form" action="{% url 'portal:add_spot' %}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="lat" value="{{ lat }}">
         <input type="hidden" name="lon" value="{{ lon }}">
@@ -64,10 +64,6 @@
             <option value="{{category.id}}">{{category.title}}</option>
             {% endfor %}
           </select>
-        </div>
-        <div class="form-group">
-          <label for="spot-name">Spot Name</label>
-          <input type="text" id="spot-name" name="spot-name" placeholder="Name" required />
         </div>
         <div class="form-group">
           <label for="spot-description">Short Description About Spot</label>
@@ -215,7 +211,7 @@
       <div class="modal-subtext modal-success-subtext">
         <p>Admin will verifying the details. then let you know.<br>Thank you for the spot buddy</p>
       </div>
-      <button class="modal-home-btn modal-success-btn" type="button">Back to home</button>
+      <button class="modal-home-btn modal-success-btn" onclick="window.location.href='{% url 'portal:home' %}?lat={{ lat }}&lon={{ lon }}'" type="button">Back to home</button>
     </div>
   </div>
 
@@ -223,5 +219,5 @@
   <script src="{% static 'adminpanel/assets/js/jquery.min.js' %}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js" integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="{% static 'portal/js/add-spot.js' %}?v=1"></script>
-  <script src="{% static 'portal/js/home.js' %}?v=1"></script>
+  {% comment %} <script src="{% static 'portal/js/home.js' %}?v=1"></script> {% endcomment %}
 {% endblock %}

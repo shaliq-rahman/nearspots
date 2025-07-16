@@ -156,10 +156,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Close modal and redirect to home when "Back to home" button is clicked
-  modalHomeBtn.addEventListener('click', function() {
-    successModal.style.display = 'none';
-    window.location.href = '/'; // Redirect to home page
-  });
+  // modalHomeBtn.addEventListener('click', function() {
+  //   successModal.style.display = 'none';
+  //   window.location.href = '/'; // Redirect to home page
+  // });
 
   // Close modal when clicking outside the modal container
   successModal.addEventListener('click', function(e) {

@@ -435,100 +435,100 @@ $(document).ready(function() {
 });
 
 
-$("#write-review-form").validate({
-  rules: {
-    "review": {
-      required: true,
-      minlength: 10,
-      maxlength: 1000
-    }
-  },
-  messages: {
-    "review": {
-      required: "Please write your review",
-      minlength: "Review must be at least 10 characters",
-      maxlength: "Review cannot exceed 1000 characters"
-    }
-  },
-  errorPlacement: function(error, element) {
-    // For review textarea, place error after the textarea
-    error.insertAfter(element);
-    // Add error-message class to the error element
-    error.addClass('error-message');
-  },
-  highlight: function(element) {
-    $(element).addClass("error");
-  },
-  unhighlight: function(element) {
-    $(element).removeClass("error");
-  },
-  submitHandler: function(form) {
-    // Get form data
-    const formData = new FormData(form);
-    const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+// $("#write-review-form").validate({
+//   rules: {
+//     "review": {
+//       required: true,
+//       minlength: 10,
+//       maxlength: 1000
+//     }
+//   },
+//   messages: {
+//     "review": {
+//       required: "Please write your review",
+//       minlength: "Review must be at least 10 characters",
+//       maxlength: "Review cannot exceed 1000 characters"
+//     }
+//   },
+//   errorPlacement: function(error, element) {
+//     // For review textarea, place error after the textarea
+//     error.insertAfter(element);
+//     // Add error-message class to the error element
+//     error.addClass('error-message');
+//   },
+//   highlight: function(element) {
+//     $(element).addClass("error");
+//   },
+//   unhighlight: function(element) {
+//     $(element).removeClass("error");
+//   },
+//   submitHandler: function(form) {
+//     // Get form data
+//     const formData = new FormData(form);
+//     const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
     
-    // Disable submit button and show loading
-    const submitBtn = $(form).find('button[type="submit"]');
-    const originalText = submitBtn.text();
-    submitBtn.prop('disabled', true).text('Submitting...');
+//     // Disable submit button and show loading
+//     const submitBtn = $(form).find('button[type="submit"]');
+//     const originalText = submitBtn.text();
+//     submitBtn.prop('disabled', true).text('Submitting...');
     
-    // Submit form via AJAX
-    $.ajax({
-      type: "POST",
-      url: $(form).attr('action'),
-      data: formData,
-      processData: false,
-      contentType: false,
-      headers: {
-        "X-CSRFToken": csrfToken,
-      },
-      dataType: "json",
-      success: function(response) {
-        if (response.status === 'success') {
-          // Show success modal
-          $('#success-modal').show();
-          // Reset form
-          form.reset();
-        } else {
-          alert(response.message || 'Failed to add spot. Please try again.');
-        }
-      },
-      error: function(xhr, status, error) {
-        const response = xhr.responseJSON;
+//     // Submit form via AJAX
+//     $.ajax({
+//       type: "POST",
+//       url: $(form).attr('action'),
+//       data: formData,
+//       processData: false,
+//       contentType: false,
+//       headers: {
+//         "X-CSRFToken": csrfToken,
+//       },
+//       dataType: "json",
+//       success: function(response) {
+//         if (response.status === 'success') {
+//           // Show success modal
+//           $('#success-modal').show();
+//           // Reset form
+//           form.reset();
+//         } else {
+//           alert(response.message || 'Failed to add spot. Please try again.');
+//         }
+//       },
+//       error: function(xhr, status, error) {
+//         const response = xhr.responseJSON;
         
-        if (response && response.errors) {
-          // Clear previous errors
-          $('.error').removeClass('error');
-          $('.error-message').remove();
+//         if (response && response.errors) {
+//           // Clear previous errors
+//           $('.error').removeClass('error');
+//           $('.error-message').remove();
           
-          // Display field-specific errors
-          Object.keys(response.errors).forEach(function(field) {
-            const errorMessage = response.errors[field];
-            const fieldElement = $(`[name="${field}"]`);
+//           // Display field-specific errors
+//           Object.keys(response.errors).forEach(function(field) {
+//             const errorMessage = response.errors[field];
+//             const fieldElement = $(`[name="${field}"]`);
             
-            // Add error class to field
-            fieldElement.addClass('error');
+//             // Add error class to field
+//             fieldElement.addClass('error');
             
-            // Add error message
-            fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
-          });
-        } else if (response && response.message) {
-          // Display general error message
-          alert(response.message);
-        } else {
-          // Generic error
-          alert('Failed to add spot. Please try again.');
-        }
-      },
-      complete: function() {
-        // Re-enable submit button
-        submitBtn.prop('disabled', false).text(originalText);
-      }
-    });
+//             // Add error message
+//             fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
+//           });
+//         } else if (response && response.message) {
+//           // Display general error message
+//           alert(response.message);
+//         } else {
+//           // Generic error
+//           alert('Failed to add spot. Please try again.');
+//         }
+//       },
+//       complete: function() {
+//         // Re-enable submit button
+//         submitBtn.prop('disabled', false).text(originalText);
+//       }
+//     });
     
-    return false; // Prevent the form from submitting via the usual way
-  }
-});
+//     return false; // Prevent the form from submitting via the usual way
+//   }
+// });
 
 // Profile Update Validation and AJAX Submission
 $(".profile-update-form").validate({
@@ -603,23 +603,23 @@ $(".profile-update-form").validate({
       },
       error: function(xhr, status, error) {
         const response = xhr.responseJSON;
-        
+
         if (response && response.errors) {
           // Clear previous errors
           $('.error').removeClass('error');
           $('.error-message').remove();
-          
+
           // Display field-specific errors
           Object.keys(response.errors).forEach(function(field) {
             const errorMessage = response.errors[field];
             let fieldElement;
-            
+
             if (field === 'first_name') {
               fieldElement = $('#firstName');
             } else if (field === 'last_name') {
               fieldElement = $('#lastName');
             }
-            
+
             if (fieldElement) {
               // Add error class to field
               fieldElement.addClass('error');
@@ -640,7 +640,7 @@ $(".profile-update-form").validate({
         submitBtn.prop('disabled', false).text(originalText);
       }
     });
-    
+
     return false; // Prevent the form from submitting via the usual way
   }
 });
@@ -649,6 +649,7 @@ $(".profile-update-form").validate({
 $.validator.addMethod("lettersOnly", function(value, element) {
   return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
 }, "This field can only contain letters");
+
 
 // Function to show profile update success popup
 function showProfileUpdateSuccess() {

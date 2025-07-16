@@ -442,6 +442,32 @@ class SpotsToggleView(LoginRequiredMixin, View):
             data["message"] = "Something went wrong"
         return JsonResponse(data)
 
+class SpotsTopRatedToggleView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def post(self, request, id, *args, **kwargs):
+        id  = request.POST.get('id', None)
+        status  = request.POST.get('status', None)
+        try:
+            with transaction.atomic():
+                data = {}
+                spot = get_object_or_404(Spots, id=id)
+                if status == 'unchecked':
+                    spot.top_rated = False
+                    message = 'Spot removed from Top Rated successfully'
+                else:
+                    spot.top_rated = True
+                    message = 'Spot marked as Top Rated successfully'
+                spot.save()
+                data['success'] = True
+                data['message'] = message
+                data['redirect_url'] = reverse('adminpanel:spots')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+
 class SpotsDeleteView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 
@@ -746,7 +772,18 @@ class ReviewsApproveView(LoginRequiredMixin, View):
                 data = {}
                 review = get_object_or_404(Reviews, id=id)
                 review.is_approved = True
-                review.save()   
+                review.save()
+                # Recalculate average rating for the spot
+                spot = review.spot
+                approved_reviews = spot.spot_reviews.filter(is_approved=True)
+                if approved_reviews.exists():
+                    total_rating = sum(r.rating for r in approved_reviews if r.rating)
+                    review_count = approved_reviews.count()
+                    average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                else:
+                    average_rating = 0
+                spot.rating = average_rating
+                spot.save()
                 data['success'] = True
                 data['message'] = 'Review approved successfully'
                 data['redirect_url'] = reverse('adminpanel:reviews')
@@ -765,10 +802,22 @@ class ReviewsDeleteView(LoginRequiredMixin, View):
             with transaction.atomic():
                 data = {}
                 review = get_object_or_404(Reviews, id=id)
+                spot = review.spot
                 review.delete()
+                # Recalculate average rating for the spot
+                approved_reviews = spot.spot_reviews.filter(is_approved=True)
+                if approved_reviews.exists():
+                    total_rating = sum(r.rating for r in approved_reviews if r.rating)
+                    review_count = approved_reviews.count()
+                    average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                else:
+                    average_rating = 0
+                spot.rating = average_rating
+                spot.save()
                 data['success'] = True
                 data['message'] = 'Review deleted successfully'
                 data['redirect_url'] = reverse('adminpanel:reviews')
+                return JsonResponse(data)
         except Exception as error:
             data = {}
             data["success"] = False
@@ -786,6 +835,17 @@ class ReviewsToggleView(LoginRequiredMixin, View):
                 review = get_object_or_404(Reviews, id=id)
                 review.is_approved = not review.is_approved
                 review.save()
+                # Recalculate average rating for the spot
+                spot = review.spot
+                approved_reviews = spot.spot_reviews.filter(is_approved=True)
+                if approved_reviews.exists():
+                    total_rating = sum(r.rating for r in approved_reviews if r.rating)
+                    review_count = approved_reviews.count()
+                    average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
+                else:
+                    average_rating = 0
+                spot.rating = average_rating
+                spot.save()
                 data['success'] = True
                 data['message'] = f'Review {"approved" if review.is_approved else "disapproved"} successfully'
                 data['redirect_url'] = reverse('adminpanel:reviews')

@@ -56,6 +56,12 @@
             </div>
         </td>
         <td>
+            <div class="material-switch">
+                <input class="toprated-toggle" id="topRatedSwitch-{{spot.id}}" name="topRatedSwitch" type="checkbox" data-url="{% url 'adminpanel:spots_toprated_toggle' spot.id %}" data-item_id="{{spot.id}}" {% if spot.top_rated %} checked {% endif %} />
+                <label for="topRatedSwitch-{{spot.id}}" class="label-warning"></label>
+            </div>
+        </td>
+        <td>
             {% if spot.spot_images.all %}
                 <a class="btn btn-primary btn-sm mb-1 preview-images-btn" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#images-preview-modal" data-spot-id="{{spot.id}}" data-spot-name="{{spot.name}}">
                     <i class="side-menu__icon fe fe-image"></i>
@@ -71,7 +77,7 @@
     </tr>
 {% empty %}
     <tr>
-        <td colspan="6" class="text-center">No spots found</td>
+        <td colspan="8" class="text-center">No spots found</td>
     </tr>
 {% endfor %}
 {% block page_script %}

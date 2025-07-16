@@ -67,44 +67,49 @@ $(document).ready(function() {
     // Profile update form handling
     $('.profile-update-form').on('submit', function(e) {
         e.preventDefault();
-        
+
         // Clear previous errors
         clearErrors();
-        
+
         // Get form data
         const formData = {
             first_name: $('#firstName').val().trim(),
             last_name: $('#lastName').val().trim(),
             csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
         };
-        
+
         // Client-side validation
         const errors = validateProfileForm(formData);
         if (errors.length > 0) {
             displayErrors(errors);
             return;
         }
-        
+
         // Show loading state
         const submitBtn = $(this).find('button[type="submit"]');
         const originalText = submitBtn.text();
         submitBtn.text('Saving...').prop('disabled', true);
-        
+
         // Send AJAX request
         $.ajax({
             url: '/portal/update-profile/',
             type: 'POST',
             data: formData,
+            dataType: 'json',
             success: function(response) {
+                console.log('Profile update response:', response);
                 if (response.status === 'success') {
                     showNotification(response.message, 'success');
                     // Optionally update the displayed name on the page
                     setTimeout(function() {
                         location.reload();
                     }, 1500);
+                } else {
+                    showNotification(response.message || 'Profile update failed', 'error');
                 }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
+                console.log('Profile update error:', xhr, status, error);
                 if (xhr.responseJSON) {
                     if (xhr.responseJSON.errors) {
                         displayFieldErrors(xhr.responseJSON.errors);
