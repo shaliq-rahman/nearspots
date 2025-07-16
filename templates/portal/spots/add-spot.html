@@ -211,7 +211,7 @@
       <div class="modal-subtext modal-success-subtext">
         <p>Admin will verifying the details. then let you know.<br>Thank you for the spot buddy</p>
       </div>
-      <button class="modal-home-btn modal-success-btn" type="button">Back to home</button>
+      <button class="modal-home-btn modal-success-btn" onclick="window.location.href='{% url 'portal:home' %}?lat={{ lat }}&lon={{ lon }}'" type="button">Back to home</button>
     </div>
   </div>
 

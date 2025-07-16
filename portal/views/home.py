@@ -535,6 +535,7 @@ class UpdateProfileView(LoginRequiredMixin, View):
             user = request.user
             user.first_name = first_name
             user.last_name = last_name
+            user.name = f"{first_name} {last_name}"        
             user.save()
             
             return JsonResponse({

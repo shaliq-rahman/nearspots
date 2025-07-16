@@ -105,6 +105,17 @@ $(".master-toggle").on("change", function () {
   }
 });
 
+// Top Rated toggle handler
+$(".toprated-toggle").on("change", function () {
+  var id = $(this).attr("data-item_id");
+  var toggle_url = $(this).attr("data-url");
+  if ($(this).is(":checked")) {
+    ToggleMaster(id, "checked", toggle_url);
+  } else {
+    ToggleMaster(id, "unchecked", toggle_url);
+  }
+});
+
 $(document).on("click", ".delete-item", function (event) {
   event.preventDefault();
 

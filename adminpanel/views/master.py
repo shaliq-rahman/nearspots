@@ -442,6 +442,32 @@ class SpotsToggleView(LoginRequiredMixin, View):
             data["message"] = "Something went wrong"
         return JsonResponse(data)
 
+class SpotsTopRatedToggleView(LoginRequiredMixin, View):
+    login_url = '/adminpanel/login/'
+
+    def post(self, request, id, *args, **kwargs):
+        id  = request.POST.get('id', None)
+        status  = request.POST.get('status', None)
+        try:
+            with transaction.atomic():
+                data = {}
+                spot = get_object_or_404(Spots, id=id)
+                if status == 'unchecked':
+                    spot.top_rated = False
+                    message = 'Spot removed from Top Rated successfully'
+                else:
+                    spot.top_rated = True
+                    message = 'Spot marked as Top Rated successfully'
+                spot.save()
+                data['success'] = True
+                data['message'] = message
+                data['redirect_url'] = reverse('adminpanel:spots')
+        except Exception as error:
+            data = {}
+            data["success"] = False
+            data["message"] = "Something went wrong"
+        return JsonResponse(data)
+
 class SpotsDeleteView(LoginRequiredMixin, View):
     login_url = '/adminpanel/login/'
 

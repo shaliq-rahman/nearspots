@@ -111,7 +111,6 @@ class Spots(models.Model):
     city = models.CharField(max_length=250, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
-    top_rated = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
     rating = models.DecimalField(max_digits=3, decimal_places=1, null=False, blank=False, default=0)
     is_featured = models.BooleanField(default=False)
