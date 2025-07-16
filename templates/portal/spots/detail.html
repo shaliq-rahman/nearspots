@@ -424,75 +424,87 @@
 
       // Handle form submission
       const reviewForm = document.getElementById('write-review-form');
+      let isSubmitting = false; // Flag to prevent multiple submissions
 
-      reviewForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const rating = document.querySelector('input[name="rating"]');
-        const review = document.querySelector('textarea[name="review"]');
-        
-        if (!rating || !rating.value) {
-          showPopup('Please select a rating', 'error');
-          return;
-        }
-        
-        if (!review.value.trim()) {
-          showPopup('Please write a review', 'error');
-          return;
-        }
-        
-        if (review.value.trim().length < 3) {
-          showPopup('Review must be at least 3 characters', 'error');
-          return;
-        }
-        
-        // Show loading state
-        const submitBtn = document.querySelector('.review-submit-btn');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Submitting...';
-        submitBtn.disabled = true;
-        
-        // Submit the form using fetch
-        const formData = new FormData(this);
-        
-        fetch(this.action, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+      if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          // Prevent multiple submissions
+          if (isSubmitting) {
+            return;
           }
-        })
-        .then(response => {
-          if (response.ok) {
-            return response.text();
+
+          const rating = document.querySelector('input[name="rating"]');
+          const review = document.querySelector('textarea[name="review"]');
+
+          if (!rating || !rating.value) {
+            showPopup('Please select a rating', 'error');
+            return;
           }
-          throw new Error('Network response was not ok');
-        })
-        .then(data => {
-          // Show success popup
-          showPopup('Review submitted successfully!', 'success');
-          
-          // Reset form
-          review.value = '';
-          if (rating) rating.value = '';
-          selectedRating = 0;
-          highlightStars(0);
-          
-          // Refresh the page after a short delay to show the new rating
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          showPopup('Failed to submit review. Please try again.', 'error');
-        })
-        .finally(() => {
-          // Reset button state
-          submitBtn.textContent = 'Post review';
-          submitBtn.disabled = false;
+
+          if (!review.value.trim()) {
+            showPopup('Please write a review', 'error');
+            return;
+          }
+
+          if (review.value.trim().length < 3) {
+            showPopup('Review must be at least 3 characters', 'error');
+            return;
+          }
+
+          // Set submitting flag and show loading state
+          isSubmitting = true;
+          const submitBtn = document.querySelector('.review-submit-btn');
+          const originalText = submitBtn.textContent;
+          submitBtn.textContent = 'Submitting...';
+          submitBtn.disabled = true;
+
+          // Submit the form using fetch
+          const formData = new FormData(this);
+
+          fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+          })
+          .then(response => {
+            return response.json();
+          })
+          .then(data => {
+            if (data.status === 'success') {
+              // Show success popup
+              showPopup('Review submitted successfully!', 'success');
+
+              // Reset form
+              review.value = '';
+              if (rating) rating.value = '';
+              selectedRating = 0;
+              highlightStars(0);
+
+              // Refresh the page after a short delay to show the new rating
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500);
+            } else {
+              // Handle error response
+              showPopup(data.message || 'Failed to submit review. Please try again.', 'error');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showPopup('Failed to submit review. Please try again.', 'error');
+          })
+          .finally(() => {
+            // Reset button state and submission flag
+            isSubmitting = false;
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+          });
         });
-      });
+      }
 
       // Handle cancel button
       const cancelBtn = document.querySelector('.review-cancel-btn');

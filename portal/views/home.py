@@ -832,36 +832,50 @@ class WriteReviewView(View):
         try:
             lat = request.POST.get('lat', '').strip()
             lon = request.POST.get('lon', '').strip()
-            
+
             review_text = request.POST.get('review', '').strip()
             rating = request.POST.get('rating', '').strip()
-            
+
             # Validation errors list
             errors = {}
-            
+
             if not review_text:
                 errors['review'] = 'Review text is required'
             if not rating:
                 errors['rating'] = 'Rating is required'
-            
+
             if errors:
                 return JsonResponse({
                     'status': 'error',
                     'message': 'Please correct the errors below',
                     'errors': errors
                 }, status=400)
-            
+
             spot = Spots.objects.get(slug=slug)
-            
+
+            # Check for duplicate review from the same user for the same spot
+            # if request.user.is_authenticated:
+            #     existing_review = Reviews.objects.filter(
+            #         spot=spot,
+            #         user=request.user
+            #     ).first()
+
+            #     # if existing_review:
+            #     #     return JsonResponse({
+            #     #         'status': 'error',
+            #     #         'message': 'You have already submitted a review for this spot.',
+            #     #         'error_type': 'duplicate_review'
+            #     #     }, status=400)
+
             # Create review (auto-approve for now)
             review = Reviews.objects.create(
                 spot=spot,
                 review_text=review_text,
                 rating=rating,
                 user=request.user if request.user.is_authenticated else None,
-                is_approved=True  # Auto-approve reviews
+                is_approved=True
             )
-            
+
             # Update spot's average rating
             approved_reviews = spot.spot_reviews.filter(is_approved=True)
             if approved_reviews.exists():
@@ -870,13 +884,13 @@ class WriteReviewView(View):
                 average_rating = round(total_rating / review_count, 1) if review_count > 0 else 0
                 spot.rating = average_rating
                 spot.save()
-            
+
             return JsonResponse({
                 'status': 'success',
-                'message': 'Review submitted successfully',
+                'message': 'Review submitted successfully.',
                 'redirect_url': reverse('portal:spot_detail', kwargs={'slug': slug}) + f'?lat={lat}&lon={lon}'
             })
-            
+
         except Exception as e:
             return JsonResponse({
                 'status': 'error',
