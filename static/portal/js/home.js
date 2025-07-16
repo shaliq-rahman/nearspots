@@ -187,6 +187,9 @@ $("#auth-form").validate({
     const originalText = submitBtn.text();
     submitBtn.prop('disabled', true).text('Signing in...');
     
+    // Clear any existing error messages
+    $('.auth-error-message').remove();
+    
     // Submit form via AJAX
     $.ajax({
       type: "POST",
@@ -247,11 +250,39 @@ $("#auth-form").validate({
             fieldElement.after('<div class="error-message">' + errorMessage + '</div>');
           });
         } else if (response && response.message) {
-          // Display general error message
-          alert(response.message);
+          // Display error message in red color below the password input
+          const passwordInput = $('input[name="password"]');
+          const errorMessage = '<div class="auth-error-message">' + response.message + '</div>';
+          
+          // Remove any existing error message
+          $('.auth-error-message').remove();
+          
+          // Add error message after the password input
+          passwordInput.after(errorMessage);
+          
+          // Auto-hide error message after 3.5 seconds
+          setTimeout(function() {
+            $('.auth-error-message').fadeOut(300, function() {
+              $(this).remove();
+            });
+          }, 3500);
         } else {
-          // Generic error
-          alert('Login failed. Please try again.');
+          // Generic error message
+          const passwordInput = $('input[name="password"]');
+          const errorMessage = '<div class="auth-error-message">Login failed. Please try again.</div>';
+          
+          // Remove any existing error message
+          $('.auth-error-message').remove();
+          
+          // Add error message after the password input
+          passwordInput.after(errorMessage);
+          
+          // Auto-hide error message after 3.5 seconds
+          setTimeout(function() {
+            $('.auth-error-message').fadeOut(300, function() {
+              $(this).remove();
+            });
+          }, 3500);
         }
       },
       complete: function() {
