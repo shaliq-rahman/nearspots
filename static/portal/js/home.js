@@ -198,14 +198,33 @@ $("#auth-form").validate({
       dataType: "json",
       success: function(response) {
         if (response.status === 'success') {
-          // Show success message
-          alert(response.message);
-          // Close modal
-          $('#auth-modal-overlay').hide();
-          // Redirect to home page
-          if (response.redirect_url) {
-            window.location.href = response.redirect_url;
-          }
+          // Show success message in modal with green color and tick icon
+          const modalContainer = $('#auth-modal-overlay .modal-container');
+          const originalContent = modalContainer.html();
+          
+          // Create success content
+          const successContent = `
+            <div class="modal-tick-circle">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="24" fill="#22c55e"/>
+                <path d="M20 28.5L16 24.5L14.5 26L20 31.5L34 17.5L32.5 16L20 28.5Z" fill="white"/>
+              </svg>
+            </div>
+            <h2 class="modal-success-title">Login Successful!</h2>
+            <p class="modal-success-subtext">Welcome back.</p>
+          `;
+          
+          // Replace modal content with success message
+          modalContainer.html(successContent);
+          
+          // Auto-hide and close modal after 2 seconds
+          setTimeout(function() {
+            closeAuthModal();
+            // Redirect to home page
+            if (response.redirect_url) {
+              window.location.href = response.redirect_url;
+            }
+          }, 2000);
         }
       },
       error: function(xhr, status, error) {
