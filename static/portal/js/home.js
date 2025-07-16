@@ -603,23 +603,23 @@ $(".profile-update-form").validate({
       },
       error: function(xhr, status, error) {
         const response = xhr.responseJSON;
-        
+
         if (response && response.errors) {
           // Clear previous errors
           $('.error').removeClass('error');
           $('.error-message').remove();
-          
+
           // Display field-specific errors
           Object.keys(response.errors).forEach(function(field) {
             const errorMessage = response.errors[field];
             let fieldElement;
-            
+
             if (field === 'first_name') {
               fieldElement = $('#firstName');
             } else if (field === 'last_name') {
               fieldElement = $('#lastName');
             }
-            
+
             if (fieldElement) {
               // Add error class to field
               fieldElement.addClass('error');
@@ -640,7 +640,7 @@ $(".profile-update-form").validate({
         submitBtn.prop('disabled', false).text(originalText);
       }
     });
-    
+
     return false; // Prevent the form from submitting via the usual way
   }
 });
@@ -649,6 +649,7 @@ $(".profile-update-form").validate({
 $.validator.addMethod("lettersOnly", function(value, element) {
   return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
 }, "This field can only contain letters");
+*/
 
 // Function to show profile update success popup
 function showProfileUpdateSuccess() {

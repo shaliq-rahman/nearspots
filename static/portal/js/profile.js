@@ -65,61 +65,61 @@ $(document).ready(function() {
         });
     }
     // Profile update form handling
-    $('.profile-update-form').on('submit', function(e) {
-        e.preventDefault();
+    // $('.profile-update-form').on('submit', function(e) {
+    //     e.preventDefault();
         
-        // Clear previous errors
-        clearErrors();
+    //     // Clear previous errors
+    //     clearErrors();
         
-        // Get form data
-        const formData = {
-            first_name: $('#firstName').val().trim(),
-            last_name: $('#lastName').val().trim(),
-            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
-        };
+    //     // Get form data
+    //     const formData = {
+    //         first_name: $('#firstName').val().trim(),
+    //         last_name: $('#lastName').val().trim(),
+    //         csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+    //     };
         
-        // Client-side validation
-        const errors = validateProfileForm(formData);
-        if (errors.length > 0) {
-            displayErrors(errors);
-            return;
-        }
+    //     // Client-side validation
+    //     const errors = validateProfileForm(formData);
+    //     if (errors.length > 0) {
+    //         displayErrors(errors);
+    //         return;
+    //     }
         
-        // Show loading state
-        const submitBtn = $(this).find('button[type="submit"]');
-        const originalText = submitBtn.text();
-        submitBtn.text('Saving...').prop('disabled', true);
+    //     // Show loading state
+    //     const submitBtn = $(this).find('button[type="submit"]');
+    //     const originalText = submitBtn.text();
+    //     submitBtn.text('Saving...').prop('disabled', true);
         
-        // Send AJAX request
-        $.ajax({
-            url: '/portal/update-profile/',
-            type: 'POST',
-            data: formData,
-            success: function(response) {
-                if (response.status === 'success') {
-                    showNotification(response.message, 'success');
-                    // Optionally update the displayed name on the page
-                    setTimeout(function() {
-                        location.reload();
-                    }, 1500);
-                }
-            },
-            error: function(xhr) {
-                if (xhr.responseJSON) {
-                    if (xhr.responseJSON.errors) {
-                        displayFieldErrors(xhr.responseJSON.errors);
-                    } else {
-                        showNotification(xhr.responseJSON.message || 'An error occurred', 'error');
-                    }
-                } else {
-                    showNotification('An unexpected error occurred', 'error');
-                }
-            },
-            complete: function() {
-                submitBtn.text(originalText).prop('disabled', false);
-            }
-        });
-    });
+    //     // Send AJAX request
+    //     $.ajax({
+    //         url: '/portal/update-profile/',
+    //         type: 'POST',
+    //         data: formData,
+    //         success: function(response) {
+    //             if (response.status === 'success') {
+    //                 showNotification(response.message, 'success');
+    //                 // Optionally update the displayed name on the page
+    //                 setTimeout(function() {
+    //                     location.reload();
+    //                 }, 1500);
+    //             }
+    //         },
+    //         error: function(xhr) {
+    //             if (xhr.responseJSON) {
+    //                 if (xhr.responseJSON.errors) {
+    //                     displayFieldErrors(xhr.responseJSON.errors);
+    //                 } else {
+    //                     showNotification(xhr.responseJSON.message || 'An error occurred', 'error');
+    //                 }
+    //             } else {
+    //                 showNotification('An unexpected error occurred', 'error');
+    //             }
+    //         },
+    //         complete: function() {
+    //             submitBtn.text(originalText).prop('disabled', false);
+    //         }
+    //     });
+    // });
     
     // Password change form handling
     $('.profile-form').on('submit', function(e) {
