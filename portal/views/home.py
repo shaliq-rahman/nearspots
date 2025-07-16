@@ -820,7 +820,7 @@ class RegisterView(View):
                 
                 return JsonResponse({
                     'status': 'success',
-                    'message': 'Registration successful! Welcome to NearSpots.',
+                    'message': 'Registration successful! Welcome to LocalWonders.',
                     'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
                 })
                 
