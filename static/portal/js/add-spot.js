@@ -73,15 +73,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Function to show error message below the input field
   function showAddressError(message) {
     // Remove any existing error message
-    var existingError = addressInput.parentNode.querySelector('.address-error');
+    var existingError = addressInput.parentNode.querySelector('.error-message');
     if (existingError) {
       existingError.remove();
     }
     
     // Create error message element
     var errorDiv = document.createElement('div');
-    errorDiv.className = 'address-error';
-    errorDiv.style.cssText = 'color: #dc3545; font-size: 14px; margin-top: 5px; display: block;';
+    errorDiv.className = 'error-message';
     errorDiv.textContent = message;
     
     // Insert error message after the input field

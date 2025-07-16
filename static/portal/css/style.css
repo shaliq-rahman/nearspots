@@ -2013,13 +2013,13 @@ body {
 
 /* Error state for select fields */
 .form-group select.error {
-  border-color: #e74c3c;
+  border-color: #dc3545;
   background-color: #fdf2f2;
 }
 
 .form-group select.error:focus {
-  border-color: #e74c3c;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
 }
 
 /* Success state for select fields */
@@ -3406,17 +3406,17 @@ body {
 .add-spot-form input[type="text"].error,
 .add-spot-form textarea.error,
 .add-spot-form select.error {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fdf2f2 !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
 }
 
 .add-spot-form input[type="text"].error:focus,
 .add-spot-form textarea.error:focus,
 .add-spot-form select.error:focus {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 .add-spot-form input::placeholder,
 .add-spot-form textarea::placeholder {
@@ -3448,25 +3448,25 @@ body {
   opacity: 0.6;
 }
 .required {
-  color: #e74c3c;
+  color: #dc3545;
   margin-left: 2px;
 }
 
 /* jQuery Validate Error Styles */
 .modal-input.error {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fdf2f2 !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
 }
 
 .modal-input.error:focus {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 
 .error {
-  color: #e74c3c;
+  color: #dc3545;
   font-size: 0.85rem;
   margin-top: 4px;
   display: block;
@@ -3474,16 +3474,39 @@ body {
 }
 
 .error-message {
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 4px;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 6px;
   display: block;
   font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Address error specific styling for backward compatibility */
+.address-error {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 6px;
+  display: block;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Ensure all error messages are red and prominent */
+.error-message,
+.address-error,
+.field-error {
+  color: #dc3545 !important;
+  font-size: 0.875rem;
+  margin-top: 6px;
+  display: block;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 /* Terms checkbox error styling */
 #terms-checkbox.error + label {
-  color: #e74c3c;
+  color: #dc3545;
 }
 
 #terms-checkbox.error + label + .error {
@@ -3500,15 +3523,15 @@ body {
 }
 
 .map-autofill.error {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fdf2f2 !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
 }
 
 .map-autofill.error:focus {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 .map-embed {
   width: 100%;
@@ -3550,15 +3573,15 @@ body {
 }
 
 .coords-input.error {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fdf2f2 !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
 }
 
 .coords-input.error:focus {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 .address-fields {
   gap: 10px;
@@ -3572,15 +3595,15 @@ body {
 }
 
 .address-row input.error {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fdf2f2 !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
 }
 
 .address-row input.error:focus {
-  border-color: #e74c3c !important;
+  border-color: #dc3545 !important;
   background-color: #fff !important;
-  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 .photos-section label {
   font-weight: 500;
@@ -3590,7 +3613,7 @@ body {
 
 .required-text {
   font-size: 0.875rem;
-  color: #e74c3c;
+  color: #dc3545;
   margin-top: 8px;
   font-weight: 500;
 }
@@ -3645,7 +3668,7 @@ body {
 }
 
 .photo-box.error {
-  border-color: #e74c3c;
+  border-color: #dc3545;
   background: #fdf2f2;
 }
 
