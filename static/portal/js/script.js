@@ -30,73 +30,73 @@ const destinations = [
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   // Autocomplete functionality
-  const input = document.getElementById('destination-input');
-  const list = document.getElementById('autocomplete-list');
-  let currentFocus = -1;
+  // const input = document.getElementById('destination-input');
+  // const list = document.getElementById('autocomplete-list');
+  // let currentFocus = -1;
 
-  if (input && list) {
-    input.addEventListener('input', function() {
-      const val = this.value.trim().toLowerCase();
-      list.innerHTML = '';
-      if (!val) {
-        list.classList.remove('active');
-        return;
-      }
-      const matches = destinations.filter(d => d.toLowerCase().includes(val));
-      if (matches.length === 0) {
-        list.classList.remove('active');
-        return;
-      }
-      matches.forEach((dest, idx) => {
-        const item = document.createElement('div');
-        item.className = 'autocomplete-item';
-        item.textContent = dest;
-        item.addEventListener('mousedown', function(e) {
-          e.preventDefault();
-          input.value = dest;
-          list.innerHTML = '';
-          list.classList.remove('active');
-        });
-        list.appendChild(item);
-      });
-      list.classList.add('active');
-      currentFocus = -1;
-    });
+  // if (input && list) {
+  //   input.addEventListener('input', function() {
+  //     const val = this.value.trim().toLowerCase();
+  //     list.innerHTML = '';
+  //     if (!val) {
+  //       list.classList.remove('active');
+  //       return;
+  //     }
+  //     const matches = destinations.filter(d => d.toLowerCase().includes(val));
+  //     if (matches.length === 0) {
+  //       list.classList.remove('active');
+  //       return;
+  //     }
+  //     matches.forEach((dest, idx) => {
+  //       const item = document.createElement('div');
+  //       item.className = 'autocomplete-item';
+  //       item.textContent = dest;
+  //       item.addEventListener('mousedown', function(e) {
+  //         e.preventDefault();
+  //         input.value = dest;
+  //         list.innerHTML = '';
+  //         list.classList.remove('active');
+  //       });
+  //       list.appendChild(item);
+  //     });
+  //     list.classList.add('active');
+  //     currentFocus = -1;
+  //   });
 
-    input.addEventListener('keydown', function(e) {
-      let items = list.querySelectorAll('.autocomplete-item');
-      if (!items.length) return;
-      if (e.key === 'ArrowDown') {
-        currentFocus++;
-        if (currentFocus >= items.length) currentFocus = 0;
-        setActive(items);
-        e.preventDefault();
-      } else if (e.key === 'ArrowUp') {
-        currentFocus--;
-        if (currentFocus < 0) currentFocus = items.length - 1;
-        setActive(items);
-        e.preventDefault();
-      } else if (e.key === 'Enter') {
-        if (currentFocus > -1) {
-          items[currentFocus].dispatchEvent(new Event('mousedown'));
-          e.preventDefault();
-        }
-      }
-    });
+  //   input.addEventListener('keydown', function(e) {
+  //     let items = list.querySelectorAll('.autocomplete-item');
+  //     if (!items.length) return;
+  //     if (e.key === 'ArrowDown') {
+  //       currentFocus++;
+  //       if (currentFocus >= items.length) currentFocus = 0;
+  //       setActive(items);
+  //       e.preventDefault();
+  //     } else if (e.key === 'ArrowUp') {
+  //       currentFocus--;
+  //       if (currentFocus < 0) currentFocus = items.length - 1;
+  //       setActive(items);
+  //       e.preventDefault();
+  //     } else if (e.key === 'Enter') {
+  //       if (currentFocus > -1) {
+  //         items[currentFocus].dispatchEvent(new Event('mousedown'));
+  //         e.preventDefault();
+  //       }
+  //     }
+  //   });
 
-    document.addEventListener('click', function(e) {
-      if (!input.contains(e.target) && !list.contains(e.target)) {
-        list.innerHTML = '';
-        list.classList.remove('active');
-      }
-    });
-  }
+  //   document.addEventListener('click', function(e) {
+  //     if (!input.contains(e.target) && !list.contains(e.target)) {
+  //       list.innerHTML = '';
+  //       list.classList.remove('active');
+  //     }
+  //   });
+  // }
 
-  function setActive(items) {
-    items.forEach((item, idx) => {
-      item.classList.toggle('active', idx === currentFocus);
-    });
-  }
+  // function setActive(items) {
+  //   items.forEach((item, idx) => {
+  //     item.classList.toggle('active', idx === currentFocus);
+  //   });
+  // }
 
   // Carousel with dots and auto-advance
   function startCarousels() {
