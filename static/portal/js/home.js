@@ -649,7 +649,7 @@ $(".profile-update-form").validate({
 $.validator.addMethod("lettersOnly", function(value, element) {
   return this.optional(element) || /^[a-zA-Z\s]+$/.test(value);
 }, "This field can only contain letters");
-*/
+
 
 // Function to show profile update success popup
 function showProfileUpdateSuccess() {

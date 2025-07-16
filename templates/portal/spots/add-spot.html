@@ -47,7 +47,7 @@
   <!-- Add Spot Section -->
   <section class="add-spot-section">
     <div class="add-spot-container">
-      <a href="#" class="add-spot-back">Go Back</a>
+      <a href="{% url 'portal:home' %}?lat={{ lat }}&lon={{ lon }}" class="add-spot-back">Go to Home</a>
       <form class="add-spot-form" autocomplete="off" id="add-spot-form" action="{% url 'portal:add_spot' %}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="lat" value="{{ lat }}">
         <input type="hidden" name="lon" value="{{ lon }}">
