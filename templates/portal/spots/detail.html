@@ -197,11 +197,7 @@
         {% if spot.user %}
         <div class="hosted-by-section">
           <div class="hosted-by-avatar">
-            {% if spot.user.profile_image %}
-              <img src="{{ spot.user.profile_image.url }}" alt="{{ spot.user.name|default:spot.user.username }}">
-            {% else %}
-              <img src="{% static 'portal/images/default-avatar.svg' %}" alt="Default avatar">
-            {% endif %}
+            <img src="{% static 'portal/images/default-avatar.svg' %}" alt="{{ spot.user.name|default:spot.user.username }}">
           </div>
           <div class="hosted-by-info">
             <div class="hosted-by-label">

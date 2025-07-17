@@ -23,15 +23,7 @@
       <section id="section-profile" class="profile-section" style="display:block;">
         <h2>My Profile</h2>
         <div class="profile-avatar-wrapper">
-          {% if request.user.profile_image %}
-            <img src="{{ request.user.profile_image.url }}" alt="Profile Picture" class="profile-avatar" />
-          {% else %}
-            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Profile Picture" class="profile-avatar" />
-          {% endif %}
-          <label class="avatar-upload" for="avatarInput" tabindex="0">
-            <input type="file" id="avatarInput" accept="image/*" hidden />
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#0B4C4C"/><path d="M12 7a3 3 0 100 6 3 3 0 000-6zm-7 9.5V18a1 1 0 001 1h12a1 1 0 001-1v-1.5a4.5 4.5 0 00-9 0z" fill="#fff"/></svg>
-          </label>
+          <img src="{% static 'portal/images/default-avatar.svg' %}" alt="Profile Picture" class="profile-avatar" />
         </div>
         <form class="profile-update-form" autocomplete="off">
           {% csrf_token %}

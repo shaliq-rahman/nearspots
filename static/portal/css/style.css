@@ -181,8 +181,8 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: url('https://randomuser.me/api/portraits/men/32.jpg') center/cover no-repeat;
   border: 2px solid #eee;
+  object-fit: cover;
 }
 
 /* Hero Section */
@@ -608,6 +608,8 @@ body {
   .avatar {
     min-width: 44px;
     min-height: 44px;
+    width: 44px;
+    height: 44px;
   }
 }
 

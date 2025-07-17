@@ -1,3 +1,4 @@
+{% load static %}
 <header class="header">
     <div class="header-top">
       <div class="logo" id="portal-logo" style="cursor:pointer;">LOCAL WONDERS</div>
@@ -10,7 +11,9 @@
         {% comment %} <button class="hidden-spot-btn">Know a hidden spot?</button> {% endcomment %}
 
         {% if request.user.is_authenticated %}
-        <a href="{% url 'portal:profile' %}?lat={{lat}}&lon={{lon}}"><div class="avatar" id="user-avatar"></div></a>
+        <a href="{% url 'portal:profile' %}?lat={{lat}}&lon={{lon}}">
+          <img src="{% static 'portal/images/default-avatar.svg' %}" alt="User Avatar" class="avatar" id="user-avatar" />
+        </a>
         {% else %}
         <button class="hidden-spot-btn" id="test-login-modal-btn-2">Login</button>
         {% endif %}
