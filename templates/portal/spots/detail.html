@@ -205,7 +205,7 @@
           </div>
           <div class="hosted-by-info">
             <div class="hosted-by-label">
-              Hosted by
+              Posted by
               {% if spot.user.is_superuser or spot.user.user_type == 1 %}
                 Admin
               {% else %}
@@ -213,7 +213,7 @@
               {% endif %}
             </div>
             <div class="hosted-by-count">
-              {{ spot.user.user_spots.count }} Spots
+              {{ user_active_spots_count }} Spots
             </div>
           </div>
         </div>

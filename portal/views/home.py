@@ -211,6 +211,9 @@ class SpotDetailView(View):
             for rating, count in rating_distribution.items():
                 rating_percentages[rating] = (count / review_count * 100) if review_count > 0 else 0
             
+            # Calculate total active spots count for the user
+            user_active_spots_count = spot.user.user_spots.filter(is_active=True, is_approved=True).count()
+            
             data = {
                 'spot': spot,
                 'spot_images': spot_images,
@@ -224,16 +227,17 @@ class SpotDetailView(View):
                 'review_count': review_count,
                 'rating_distribution': rating_distribution,
                 'rating_percentages': rating_percentages,
+                'user_active_spots_count': user_active_spots_count,
             }
             
             return renderfile(request, 'spots', 'detail', data)
             
         except Spots.DoesNotExist:
             # Spot not found - render 404 page
-            return render(request, 'portal/404.html', {})
+            return render(request, 'portal/404.html', {'lat': request.GET.get('lat'), 'lon': request.GET.get('lon')})
         except Exception as e:
             # Any other error - render 404 page
-            return render(request, 'portal/404.html', {})
+            return render(request, 'portal/404.html', {'lat': request.GET.get('lat'), 'lon': request.GET.get('lon')})
     
 class AddSpotView(LoginRequiredMixin, View):
     login_url = '/'
@@ -463,7 +467,8 @@ class ProfileView(LoginRequiredMixin, View):
             'user'
         ).filter(
             user=request.user,
-            is_active=True
+            is_active=True,
+            is_approved=True
         ).order_by('-created_at')
         
         # Get the count before converting to list
