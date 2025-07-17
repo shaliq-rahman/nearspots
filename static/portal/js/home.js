@@ -789,6 +789,14 @@ $(document).ready(function() {
       if (scrollWidth > containerWidth) {
         container.addClass('has-overflow');
         container.css('justify-content', 'flex-start');
+
+        // Force scrollbar visibility on mobile
+        if (window.innerWidth <= 1024) {
+          container.css({
+            'scrollbar-width': 'auto',
+            'overflow-x': 'scroll'
+          });
+        }
       } else {
         container.removeClass('has-overflow');
         container.css('justify-content', 'center');
@@ -868,4 +876,39 @@ $(document).ready(function() {
 
   // Make category cards focusable for accessibility
   $('.category-card').attr('tabindex', '0');
+
+  // Force scrollbar visibility on mobile devices
+  function ensureMobileScrollbarVisibility() {
+    if (window.innerWidth <= 1024) {
+      $('.categories-list').each(function() {
+        const $this = $(this);
+        const element = this;
+
+        // Force scrollbar to be visible
+        $this.css({
+          'overflow-x': 'scroll',
+          'scrollbar-width': 'auto',
+          '-webkit-overflow-scrolling': 'touch'
+        });
+
+        // Add a temporary scroll event to ensure scrollbar appears
+        $this.on('scroll.forceScrollbar', function() {
+          // Remove the event after first scroll
+          $this.off('scroll.forceScrollbar');
+        });
+
+        // Trigger a minimal scroll to show scrollbar
+        if (element.scrollWidth > element.clientWidth) {
+          element.scrollLeft = 1;
+          setTimeout(() => {
+            element.scrollLeft = 0;
+          }, 100);
+        }
+      });
+    }
+  }
+
+  // Call on load and resize
+  ensureMobileScrollbarVisibility();
+  $(window).on('resize', ensureMobileScrollbarVisibility);
 });
