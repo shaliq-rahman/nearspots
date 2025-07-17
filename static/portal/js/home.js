@@ -776,3 +776,139 @@ $(document).on('keydown', function(e) {
     closeProfileSuccessPopup();
   }
 });
+
+// Category cards scrolling and center alignment functionality
+$(document).ready(function() {
+  function handleCategoryCardsAlignment() {
+    $('.categories-list').each(function() {
+      const container = $(this);
+      const containerWidth = container.width();
+      const scrollWidth = container[0].scrollWidth;
+
+      // If content overflows, align to start for scrolling, otherwise center
+      if (scrollWidth > containerWidth) {
+        container.addClass('has-overflow');
+        container.css('justify-content', 'flex-start');
+
+        // Force scrollbar visibility on mobile
+        if (window.innerWidth <= 1024) {
+          container.css({
+            'scrollbar-width': 'auto',
+            'overflow-x': 'scroll'
+          });
+        }
+      } else {
+        container.removeClass('has-overflow');
+        container.css('justify-content', 'center');
+      }
+    });
+  }
+
+  // Handle category cards alignment on load and resize
+  handleCategoryCardsAlignment();
+
+  // Debounced resize handler for better performance
+  let resizeTimeout;
+  $(window).on('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(handleCategoryCardsAlignment, 150);
+  });
+
+  // Re-check alignment when images load
+  $('.category-card img').on('load', function() {
+    setTimeout(handleCategoryCardsAlignment, 100);
+  });
+
+  // Smooth scrolling for category cards on mobile
+  $('.categories-list').on('touchstart', function(e) {
+    this.startX = e.originalEvent.touches[0].pageX;
+    this.scrollLeft = this.scrollLeft;
+  });
+
+  $('.categories-list').on('touchmove', function(e) {
+    if (!this.startX) return;
+
+    const x = e.originalEvent.touches[0].pageX;
+    const walk = (x - this.startX) * 2; // Scroll speed multiplier
+    this.scrollLeft = this.scrollLeft - walk;
+  });
+
+  $('.categories-list').on('touchend', function() {
+    this.startX = null;
+  });
+
+  // Handle category toggle and re-align cards
+  $('.toggle-btn').on('click', function() {
+    // Wait for the category switch animation to complete
+    setTimeout(handleCategoryCardsAlignment, 100);
+  });
+
+  // Add keyboard navigation for category cards
+  $('.category-card').on('keydown', function(e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const cards = $('.categories-list:visible .category-card');
+      const currentIndex = cards.index(this);
+      let nextIndex;
+
+      if (e.key === 'ArrowLeft') {
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : cards.length - 1;
+      } else {
+        nextIndex = currentIndex < cards.length - 1 ? currentIndex + 1 : 0;
+      }
+
+      cards.eq(nextIndex).focus();
+
+      // Scroll the focused card into view
+      const container = $('.categories-list:visible');
+      const card = cards.eq(nextIndex);
+      const cardOffset = card.position().left;
+      const cardWidth = card.outerWidth();
+      const containerWidth = container.width();
+
+      if (cardOffset < 0) {
+        container.scrollLeft(container.scrollLeft() + cardOffset - 20);
+      } else if (cardOffset + cardWidth > containerWidth) {
+        container.scrollLeft(container.scrollLeft() + cardOffset + cardWidth - containerWidth + 20);
+      }
+    }
+  });
+
+  // Make category cards focusable for accessibility
+  $('.category-card').attr('tabindex', '0');
+
+  // Force scrollbar visibility on mobile devices
+  function ensureMobileScrollbarVisibility() {
+    if (window.innerWidth <= 1024) {
+      $('.categories-list').each(function() {
+        const $this = $(this);
+        const element = this;
+
+        // Force scrollbar to be visible
+        $this.css({
+          'overflow-x': 'scroll',
+          'scrollbar-width': 'auto',
+          '-webkit-overflow-scrolling': 'touch'
+        });
+
+        // Add a temporary scroll event to ensure scrollbar appears
+        $this.on('scroll.forceScrollbar', function() {
+          // Remove the event after first scroll
+          $this.off('scroll.forceScrollbar');
+        });
+
+        // Trigger a minimal scroll to show scrollbar
+        if (element.scrollWidth > element.clientWidth) {
+          element.scrollLeft = 1;
+          setTimeout(() => {
+            element.scrollLeft = 0;
+          }, 100);
+        }
+      });
+    }
+  }
+
+  // Call on load and resize
+  ensureMobileScrollbarVisibility();
+  $(window).on('resize', ensureMobileScrollbarVisibility);
+});

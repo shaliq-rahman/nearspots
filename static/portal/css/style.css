@@ -1035,19 +1035,90 @@ body {
   justify-content: center;
   align-items: flex-start;
   overflow-x: auto;
+  overflow-y: hidden;
   padding: 8px 0 0 0;
   scrollbar-width: thin;
   scrollbar-color: #b2d6e6 #06506b;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  min-height: fit-content;
 }
 .categories-list::-webkit-scrollbar {
   height: 8px;
+  display: block; /* Ensure scrollbar is always visible */
+}
+.categories-list::-webkit-scrollbar-track {
+  background: rgba(0, 96, 115, 0.1);
+  border-radius: 4px;
 }
 .categories-list::-webkit-scrollbar-thumb {
   background: #b2d6e6;
   border-radius: 4px;
+  transition: background 0.3s ease;
+}
+.categories-list::-webkit-scrollbar-thumb:hover {
+  background: #006073;
+}
+
+/* Force scrollbar visibility on all devices */
+.categories-list {
+  scrollbar-width: auto !important;
+  /* Ensure scrollbar is always visible on Firefox */
+  scrollbar-color: #006073 rgba(0, 96, 115, 0.15) !important;
+}
+
+/* When content overflows, align to start for scrolling */
+.categories-list.has-overflow {
+  justify-content: flex-start;
+}
+
+/* Additional mobile scrollbar support */
+@supports not (-webkit-overflow-scrolling: touch) {
+  .categories-list {
+    scrollbar-width: auto !important;
+  }
+}
+
+/* Force scrollbar visibility on iOS and mobile Safari */
+.categories-list {
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories-list::-webkit-scrollbar {
+  -webkit-appearance: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Mobile-specific scrollbar enhancements */
+@media (max-width: 1024px) {
+  .categories-list {
+    scrollbar-width: auto !important;
+    scrollbar-color: #006073 rgba(0, 96, 115, 0.2) !important;
+  }
+
+  .categories-list::-webkit-scrollbar {
+    display: block !important;
+    -webkit-appearance: none !important;
+  }
+
+  /* Add a subtle pulse animation to make scrollbar more noticeable */
+  .categories-list.has-overflow::-webkit-scrollbar-thumb {
+    animation: scrollbarPulse 3s ease-in-out infinite;
+  }
+}
+
+/* Scrollbar pulse animation */
+@keyframes scrollbarPulse {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 .category-card {
   background: transparent;
@@ -1060,8 +1131,30 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 0 10px;
-  transition: box-shadow 0.18s;
+  transition: box-shadow 0.18s, transform 0.2s ease;
+  flex-shrink: 0; /* Prevent cards from shrinking */
+  cursor: pointer;
 }
+
+.category-card:hover {
+  transform: translateY(-2px);
+}
+
+.category-card:hover img {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.category-card:focus {
+  outline: 2px solid #006073;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.category-card:focus img {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* Remove white gradient indicators */
 .category-card img {
   width: 100%;
   aspect-ratio: 1/1;
@@ -1095,18 +1188,55 @@ body {
   }
   .categories-list {
     gap: 18px;
+    padding: 8px 12px 0 12px;
   }
   .category-card {
     min-width: 90px;
     max-width: 120px;
     width: 28vw;
     padding: 0 4px;
+    flex-shrink: 0;
   }
 }
 @media (max-width: 768px) {
   .categories-section {
     padding: 32px 16px 20px 16px;
     margin-top: 24px;
+  }
+
+  /* Improve touch scrolling and ensure scrollbar visibility */
+  .categories-list {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: auto !important;
+    padding-bottom: 16px; /* Add more space for scrollbar */
+  }
+
+  .categories-list::-webkit-scrollbar {
+    height: 10px !important;
+    display: block !important;
+    -webkit-appearance: none !important;
+  }
+
+  .categories-list::-webkit-scrollbar-track {
+    background: rgba(0, 96, 115, 0.15) !important;
+    border-radius: 5px !important;
+    border: 1px solid rgba(0, 96, 115, 0.1) !important;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb {
+    background: #006073 !important;
+    border-radius: 5px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    min-width: 30px !important;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb:active {
+    background: #004a59 !important;
+  }
+
+  .category-card {
+    scroll-snap-align: start;
   }
 
   .categories-title {
@@ -1129,6 +1259,7 @@ body {
   .categories-list {
     gap: 16px;
     padding: 12px 8px 0 8px;
+    justify-content: flex-start;
   }
 
   .category-card {
@@ -1136,6 +1267,7 @@ body {
     max-width: 140px;
     width: calc(30% - 12px);
     padding: 0 6px;
+    flex-shrink: 0;
   }
 
   .category-label {
@@ -1174,7 +1306,32 @@ body {
 
   .categories-list {
     gap: 12px;
-    padding: 8px 4px 0 4px;
+    padding: 8px 4px 16px 4px;
+    justify-content: flex-start;
+    scrollbar-width: auto !important;
+  }
+
+  .categories-list::-webkit-scrollbar {
+    height: 8px !important;
+    display: block !important;
+    -webkit-appearance: none !important;
+  }
+
+  .categories-list::-webkit-scrollbar-track {
+    background: rgba(0, 96, 115, 0.2) !important;
+    border-radius: 4px !important;
+    border: 1px solid rgba(0, 96, 115, 0.15) !important;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb {
+    background: #006073 !important;
+    border-radius: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    min-width: 25px !important;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb:active {
+    background: #004a59 !important;
   }
 
   .category-card {
@@ -1182,6 +1339,7 @@ body {
     max-width: 110px;
     width: calc(35% - 8px);
     padding: 0 4px;
+    flex-shrink: 0;
   }
 
   .category-label {
@@ -1224,7 +1382,32 @@ body {
 
   .categories-list {
     gap: 8px;
-    padding: 6px 2px 0 2px;
+    padding: 6px 2px 18px 2px;
+    justify-content: flex-start;
+    scrollbar-width: auto !important;
+  }
+
+  .categories-list::-webkit-scrollbar {
+    height: 8px !important;
+    display: block !important;
+    -webkit-appearance: none !important;
+  }
+
+  .categories-list::-webkit-scrollbar-track {
+    background: rgba(0, 96, 115, 0.25) !important;
+    border-radius: 4px !important;
+    border: 1px solid rgba(0, 96, 115, 0.2) !important;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb {
+    background: #006073 !important;
+    border-radius: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    min-width: 20px !important;
+  }
+
+  .categories-list::-webkit-scrollbar-thumb:active {
+    background: #004a59 !important;
   }
 
   .category-card {
@@ -1232,6 +1415,7 @@ body {
     max-width: 95px;
     width: calc(40% - 4px);
     padding: 0 2px;
+    flex-shrink: 0;
   }
 
   .category-label {
