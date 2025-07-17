@@ -1,5 +1,33 @@
 console.log('JavaScript file loaded successfully!');
 
+// Validate if coordinates are valid numbers
+function isValidCoordinates(lat, lon) {
+  if (!lat || !lon) {
+    return false;
+  }
+  
+  // Convert to numbers and check if they are valid
+  const latNum = parseFloat(lat);
+  const lonNum = parseFloat(lon);
+  
+  // Check if they are valid numbers and within valid ranges
+  if (isNaN(latNum) || isNaN(lonNum)) {
+    return false;
+  }
+  
+  // Latitude must be between -90 and 90
+  if (latNum < -90 || latNum > 90) {
+    return false;
+  }
+  
+  // Longitude must be between -180 and 180
+  if (lonNum < -180 || lonNum > 180) {
+    return false;
+  }
+  
+  return true;
+}
+
 // Get user's current location and update page with coordinates
 function getUserLocation() {
   console.log('getUserLocation called');
@@ -19,6 +47,13 @@ function getUserLocation() {
         const lon = position.coords.longitude;
         
         console.log('Location obtained:', lat, lon);
+        
+        // Validate the obtained coordinates
+        if (!isValidCoordinates(lat, lon)) {
+          console.log('Invalid coordinates obtained from geolocation');
+          showLocationError('Invalid location data received. Please try again.');
+          return;
+        }
         
         // Update URL with coordinates
         const url = new URL(window.location);
@@ -214,15 +249,18 @@ function showMainContent() {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM ready');
   
-  // Check if we already have location coordinates
+  // Check if we have valid location coordinates
   const urlParams = new URLSearchParams(window.location.search);
-  if (!urlParams.has('lat') || !urlParams.has('lon')) {
-    console.log('No location found - showing loading screen');
+  const lat = urlParams.get('lat');
+  const lon = urlParams.get('lon');
+  
+  if (!isValidCoordinates(lat, lon)) {
+    console.log('No valid location found - showing loading screen');
     // Show blocking loading screen
     showLoadingScreen();
   } else {
-    console.log('Location already provided - showing main content');
-    // Location already provided, show main content
+    console.log('Valid location provided - showing main content');
+    // Valid location provided, show main content
     showMainContent();
   }
 }); 

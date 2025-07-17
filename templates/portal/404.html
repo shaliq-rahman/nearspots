@@ -205,29 +205,29 @@
     </p>
     
     <div class="error-actions">
-      <a href="{% url 'portal:home' %}" class="btn-primary">
+      <a href="{% url 'portal:home' %}?lat={{lat}}&lon={{lon}}" class="btn-primary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 8px; display: inline;">
           <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
         </svg>
         Go Home
       </a>
-      <a href="{% url 'portal:search' %}" class="btn-secondary">
+      {% comment %} <a href="{% url 'portal:search' %}" class="btn-secondary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 8px; display: inline;">
           <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
           <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
         Search Spots
-      </a>
+      </a> {% endcomment %}
     </div>
     
-    <div class="search-suggestion">
+    {% comment %} <div class="search-suggestion">
       <h3>Looking for something specific?</h3>
       <p>Try searching for spots in your area or browse our categories</p>
       <form class="search-form" action="{% url 'portal:search' %}" method="GET">
         <input type="text" name="q" class="search-input" placeholder="Search for spots, restaurants, attractions..." autocomplete="off">
         <button type="submit" class="search-btn">Search</button>
       </form>
-    </div>
+    </div> {% endcomment %}
   </div>
 </div>
 

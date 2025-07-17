@@ -17,7 +17,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from adminpanel.constantvariables import PAGINATION_PERPAGE
 from django.contrib.auth.hashers import check_password
-from django.db.models import Count
+from django.db.models import Count, Q
 import pdb
 
 
@@ -89,7 +89,7 @@ class UsersView(LoginRequiredMixin, View):
                 filter_conditions['is_active'] = status
 
         users = User.objects.filter(**filter_conditions).exclude(is_superuser=True).annotate(
-            post_count=Count('user_spots')
+            post_count=Count('user_spots', filter=Q(user_spots__is_active=True, user_spots__is_approved=True))
         ).order_by('-id')
         try:
             page = int(request.GET.get("page", 1))

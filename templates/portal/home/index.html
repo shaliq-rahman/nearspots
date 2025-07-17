@@ -41,36 +41,35 @@
   </div>
 </section>
 
-<!-- Top Rated Section -->
- {% if top_rated_spots %}
+<!-- Latest Food Spots Section -->
+ {% if latest_food_spots %}
 <section class="top-rated-section">
-    <div class="top-rated-title">Top Rated</div>
+    <div class="top-rated-title">Latest Food Spots</div>
     <div class="hotel-cards">
       <!-- Card 1 -->
-       {% for top_rated_spot in  top_rated_spots %}
-      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=top_rated_spot.slug %}?lat={{lat}}&lon={{lon}}'">
+       {% for food_spot in latest_food_spots %}
+      <div class="attraction-card" onclick="window.location.href='{% url 'portal:spot_detail' slug=food_spot.slug %}?lat={{lat}}&lon={{lon}}'">
         <div class="attraction-image-container">
           <div class="attraction-carousel">
-            {% for spot_image in top_rated_spot.spot_images.all %}
-            <img src="{{spot_image.image.url}}" class="carousel-img {% if forloop.first %}active{% endif %}" alt="{{top_rated_spot.name}}">
+            {% for spot_image in food_spot.spot_images.all %}
+            <img src="{{spot_image.image.url}}" class="carousel-img {% if forloop.first %}active{% endif %}" alt="{{food_spot.name}}">
             {% endfor %}
           </div>
-          <span class="attraction-badge">Rated #{{forloop.counter}}</span>
-    
+          {% comment %} <span class="attraction-badge">Rated #1</span> {% endcomment %}
           <div class="attraction-pagination">
-            {% for spot_image in top_rated_spot.spot_images.all %}
+            {% for spot_image in food_spot.spot_images.all %}
             <span class="dot {% if forloop.first %}active{% endif %}"></span>
             {% endfor %}
           </div>
         </div>
         <div class="attraction-card-content">
           <div class="attraction-card-row">
-            <span class="attraction-location">{{top_rated_spot.name}}</span>
+            <span class="attraction-location">{{food_spot.name}}</span>
             <span class="attraction-rating">
-              <span class="star">&#9733;</span> {{top_rated_spot.rating}}
+              <span class="star">&#9733;</span> {{food_spot.rating}}
             </span>
           </div>
-          <div class="attraction-distance">{% if top_rated_spot.distance %}{{top_rated_spot.distance}} km away{% else %}Distance unavailable{% endif %}</div>
+          <div class="attraction-distance">{% if food_spot.distance %}{{food_spot.distance}} km away{% else %}Distance unavailable{% endif %}</div>
           {% comment %} <div class="attraction-price">$154 CAD</div> {% endcomment %}
         </div>
       </div>

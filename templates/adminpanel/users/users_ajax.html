@@ -4,7 +4,7 @@
     <td>{{forloop.counter}}</td>
     <td>{{user.first_name}} {{user.last_name}}</td>
     <td>{{user.email}}</td>
-    <td>{{user.mobile}}</td>
+    <td>{% if user.country_code %}{{user.country_code}} {% endif %}{{user.mobile}}</td>
     <td>{{user.post_count}}</td>
     <td>
         <div class="material-switch">

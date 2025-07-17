@@ -1,5 +1,19 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="32" cy="32" r="32" fill="#e3f2fd"/>
-  <circle cx="32" cy="24" r="12" fill="#1976d2"/>
-  <path d="M8 56c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="#1976d2"/>
-</svg> 
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="headGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4A90E2"/>
+      <stop offset="100%" stop-color="#005CB2"/>
+    </linearGradient>
+    <linearGradient id="bodyGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6EA8FE"/>
+      <stop offset="100%" stop-color="#004C99"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Head -->
+  <circle cx="32" cy="22" r="10" fill="url(#headGradient)" />
+
+  <!-- Body -->
+  <path d="M16,54 C16,42 26,36 32,36 C38,36 48,42 48,54 Z" fill="url(#bodyGradient)" />
+</svg>
