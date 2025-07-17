@@ -19,8 +19,8 @@ $("#register-form").validate({
     },
     mobile: {
       required: true,
-      minlength: 10,
-      maxlength: 10,
+      minlength: 6,
+      maxlength: 15,
       digits: true
     },
     password: {
@@ -46,8 +46,8 @@ $("#register-form").validate({
     },
     mobile: {
       required: "This field is required",
-      minlength: "Mobile number must be exactly 10 digits",
-      maxlength: "Mobile number must be exactly 10 digits",
+      minlength: "Mobile number must contain at least 6 digits",
+      maxlength: "Mobile number must contain at most 15 digits",
       digits: "Mobile number must contain only digits"
     },
     password: {
@@ -94,14 +94,40 @@ $("#register-form").validate({
       dataType: "json",
       success: function(response) {
         if (response.status === 'success') {
-          // Show success message
-          alert(response.message);
-          // Close modal
+          // First completely hide the registration modal
           $('#register-modal-overlay').hide();
-          // Redirect to home page
-          if (response.redirect_url) {
-            window.location.href = response.redirect_url;
-          }
+          $('#register-modal-overlay').css('display', 'none');
+          $('#register-modal-overlay').removeClass('active');
+          
+          // Clear any existing success modal
+          $('#success-modal-overlay').remove();
+          
+          // Show success message in a new modal overlay
+          const successOverlay = $('<div id="success-modal-overlay" class="modal-overlay" style="display:flex;z-index:9999;background-color:rgba(0,0,0,0.5);">');
+          const successContainer = $(`
+            <div class="modal-container" role="dialog" aria-modal="true" style="text-align:center;">
+              <div class="modal-tick-circle">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="24" r="24" fill="#22c55e"/>
+                  <path d="M20 28.5L16 24.5L14.5 26L20 31.5L34 17.5L32.5 16L20 28.5Z" fill="white"/>
+                </svg>
+              </div>
+              <h2 class="modal-success-title">Registration Successful!</h2>
+              <p class="modal-success-subtext">Welcome to LocalWonders.</p>
+            </div>
+          `);
+          
+          successOverlay.append(successContainer);
+          $('body').append(successOverlay);
+          
+          // Auto-hide and close success modal after 2 seconds
+          setTimeout(function() {
+            successOverlay.remove();
+            // Redirect to home page
+            if (response.redirect_url) {
+              window.location.href = response.redirect_url;
+            }
+          }, 2000);
         }
       },
       error: function(xhr, status, error) {

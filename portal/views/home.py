@@ -711,12 +711,14 @@ class RegisterView(View):
     def post(self, request, *args, **kwargs):
         try:
             # Get form data
-            lat = request.GET.get('lat')
-            lon = request.GET.get('lon')
+            lat = request.POST.get('lat')
+            lon = request.POST.get('lon')
+            
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             email = request.POST.get('email', '').strip()
             mobile = request.POST.get('mobile', '').strip()
+            country_code = request.POST.get('country_code', '').strip()
             password = request.POST.get('password', '').strip()
             terms_and_conditions = request.POST.get('terms_and_conditions')
             
@@ -743,14 +745,18 @@ class RegisterView(View):
                 except ValidationError:
                     errors['email'] = 'Please enter a valid email address'
             
+            # Validate country code
+            if not country_code:
+                errors['country_code'] = 'Country code is required'
+            
             # Validate mobile number (10 digits)
             if not mobile:
                 errors['mobile'] = 'Mobile number is required'
             else:
                 # Remove any non-digit characters
                 mobile_clean = re.sub(r'\D', '', mobile)
-                if len(mobile_clean) != 10:
-                    errors['mobile'] = 'Mobile number must be exactly 10 digits'
+                if len(mobile_clean) < 6 or len(mobile_clean) > 15:
+                    errors['mobile'] = 'Mobile number must be between 6 and 15 digits'
                 elif not mobile_clean.isdigit():
                     errors['mobile'] = 'Mobile number must contain only digits'
                 else:
@@ -774,18 +780,15 @@ class RegisterView(View):
                     'errors': errors
                 }, status=400)
             
-            # Check if user already exists with email or mobile
-            existing_user = None
+            # Check if user already exists with email or full mobile (country_code + mobile)
             if User.objects.filter(email=email).exists():
-                existing_user = User.objects.get(email=email)
                 return JsonResponse({
                     'status': 'error',
                     'message': 'User with this email already exists. Please login instead.',
                     'error_type': 'user_exists'
                 }, status=400)
             
-            if User.objects.filter(mobile=mobile).exists():
-                existing_user = User.objects.get(mobile=mobile)
+            if User.objects.filter(mobile=mobile, country_code=country_code).exists():
                 return JsonResponse({
                     'status': 'error',
                     'message': 'User with this mobile number already exists. Please login instead.',
@@ -808,6 +811,7 @@ class RegisterView(View):
                     username=username,
                     email=email,
                     mobile=mobile,
+                    country_code=country_code,
                     first_name=first_name,
                     last_name=last_name,
                     name=f"{first_name} {last_name}",
