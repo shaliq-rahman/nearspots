@@ -776,3 +776,96 @@ $(document).on('keydown', function(e) {
     closeProfileSuccessPopup();
   }
 });
+
+// Category cards scrolling and center alignment functionality
+$(document).ready(function() {
+  function handleCategoryCardsAlignment() {
+    $('.categories-list').each(function() {
+      const container = $(this);
+      const containerWidth = container.width();
+      const scrollWidth = container[0].scrollWidth;
+
+      // If content overflows, align to start for scrolling, otherwise center
+      if (scrollWidth > containerWidth) {
+        container.addClass('has-overflow');
+        container.css('justify-content', 'flex-start');
+      } else {
+        container.removeClass('has-overflow');
+        container.css('justify-content', 'center');
+      }
+    });
+  }
+
+  // Handle category cards alignment on load and resize
+  handleCategoryCardsAlignment();
+
+  // Debounced resize handler for better performance
+  let resizeTimeout;
+  $(window).on('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(handleCategoryCardsAlignment, 150);
+  });
+
+  // Re-check alignment when images load
+  $('.category-card img').on('load', function() {
+    setTimeout(handleCategoryCardsAlignment, 100);
+  });
+
+  // Smooth scrolling for category cards on mobile
+  $('.categories-list').on('touchstart', function(e) {
+    this.startX = e.originalEvent.touches[0].pageX;
+    this.scrollLeft = this.scrollLeft;
+  });
+
+  $('.categories-list').on('touchmove', function(e) {
+    if (!this.startX) return;
+
+    const x = e.originalEvent.touches[0].pageX;
+    const walk = (x - this.startX) * 2; // Scroll speed multiplier
+    this.scrollLeft = this.scrollLeft - walk;
+  });
+
+  $('.categories-list').on('touchend', function() {
+    this.startX = null;
+  });
+
+  // Handle category toggle and re-align cards
+  $('.toggle-btn').on('click', function() {
+    // Wait for the category switch animation to complete
+    setTimeout(handleCategoryCardsAlignment, 100);
+  });
+
+  // Add keyboard navigation for category cards
+  $('.category-card').on('keydown', function(e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      const cards = $('.categories-list:visible .category-card');
+      const currentIndex = cards.index(this);
+      let nextIndex;
+
+      if (e.key === 'ArrowLeft') {
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : cards.length - 1;
+      } else {
+        nextIndex = currentIndex < cards.length - 1 ? currentIndex + 1 : 0;
+      }
+
+      cards.eq(nextIndex).focus();
+
+      // Scroll the focused card into view
+      const container = $('.categories-list:visible');
+      const card = cards.eq(nextIndex);
+      const cardOffset = card.position().left;
+      const cardWidth = card.outerWidth();
+      const containerWidth = container.width();
+
+      if (cardOffset < 0) {
+        container.scrollLeft(container.scrollLeft() + cardOffset - 20);
+      } else if (cardOffset + cardWidth > containerWidth) {
+        container.scrollLeft(container.scrollLeft() + cardOffset + cardWidth - containerWidth + 20);
+      }
+    }
+  });
+
+  // Make category cards focusable for accessibility
+  $('.category-card').attr('tabindex', '0');
+});
