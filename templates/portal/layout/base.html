@@ -134,23 +134,54 @@
   <!-- International Telephone Input JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="{% static 'portal/js/location.js' %}?v=1"></script>
+  <script src="{% static 'portal/js/location.js' %}?v=2"></script>
   <script src="{% static 'portal/js/script.js' %}?v=1"></script> 
   <script src="{% static 'portal/js/home.js' %}?v=1"></script> 
   <script src="{% static 'portal/js/common.js' %}?v=1"></script>
   <script src="{% static 'portal/js/header.js' %}?v=1"></script> 
   <script>
+    // Coordinate validation function (same as in location.js)
+    function isValidCoordinates(lat, lon) {
+      if (!lat || !lon) {
+        return false;
+      }
+      
+      // Convert to numbers and check if they are valid
+      const latNum = parseFloat(lat);
+      const lonNum = parseFloat(lon);
+      
+      // Check if they are valid numbers and within valid ranges
+      if (isNaN(latNum) || isNaN(lonNum)) {
+        return false;
+      }
+      
+      // Latitude must be between -90 and 90
+      if (latNum < -90 || latNum > 90) {
+        return false;
+      }
+      
+      // Longitude must be between -180 and 180
+      if (lonNum < -180 || lonNum > 180) {
+        return false;
+      }
+      
+      return true;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       var logo = document.getElementById('portal-logo');
       if (logo) {
         logo.onclick = function() {
           var lat = '{{ lat|default:"" }}';
           var lon = '{{ lon|default:"" }}';
-          var url = '/?';
-          if (lat && lon) {
-            url += 'lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
+          
+          // Validate coordinates before building URL
+          if (isValidCoordinates(lat, lon)) {
+            var url = '/?lat=' + encodeURIComponent(lat) + '&lon=' + encodeURIComponent(lon);
+            window.location.href = url;
+          } else {
+            window.location.href = '/';
           }
-          window.location.href = lat && lon ? url : '/';
         };
       }
 

@@ -25,13 +25,46 @@ from django.contrib.auth.hashers import check_password, make_password
 from adminpanel.models import User, Categories, Spots, SpotImages, Reviews
 from ..utils import add_distance_to_spots_from_request, retry_database_operation
 
+def validate_coordinates(lat, lon):
+    """
+    Validate if the provided latitude and longitude are valid coordinates.
+    
+    Args:
+        lat: Latitude value (string or float)
+        lon: Longitude value (string or float)
+    
+    Returns:
+        tuple: (is_valid, lat_float, lon_float) where is_valid is boolean
+    """
+    if not lat or not lon:
+        return False, None, None
+    
+    try:
+        lat_float = float(lat)
+        lon_float = float(lon)
+    except (ValueError, TypeError):
+        return False, None, None
+    
+    # Check if coordinates are within valid ranges
+    if lat_float < -90 or lat_float > 90:
+        return False, None, None
+    
+    if lon_float < -180 or lon_float > 180:
+        return False, None, None
+    
+    return True, lat_float, lon_float
+
 class HomeView(View):
     def get(self, request, *args, **kwargs):
         lat = request.GET.get('lat')
         lon = request.GET.get('lon')
+        
+        # Validate coordinates
+        is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+        
         data = {}
-        data['lat'] = lat
-        data['lon'] = lon
+        data['lat'] = lat if is_valid else None
+        data['lon'] = lon if is_valid else None
         data['categories'] = Categories.objects.filter(is_active=True)
         
         # Initialize empty querysets
@@ -40,33 +73,56 @@ class HomeView(View):
         data['latest_attractions'] = []
         data['top_rated_spots'] = []
         
-        # Get food spots and add distance (first category)
-        if data['categories'].count() > 0:
-            first_category = data['categories'][0]
-            food_spots_queryset = Spots.objects.prefetch_related(
-                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-            ).filter(is_active=True, category_id=first_category.id, is_approved=True)
-            data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
-        
-        # Get attraction spots and add distance (second category)
-        if data['categories'].count() > 1:
-            second_category = data['categories'][1]
-            attraction_spots_queryset = Spots.objects.prefetch_related(
-                Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-            ).filter(is_active=True, category_id=second_category.id, is_approved=True)
-            data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+        # Only add distance calculations if coordinates are valid
+        if is_valid:
+            # Get food spots and add distance (first category)
+            if data['categories'].count() > 0:
+                first_category = data['categories'][0]
+                food_spots_queryset = Spots.objects.prefetch_related(
+                    Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+                ).filter(is_active=True, category_id=first_category.id, is_approved=True)
+                data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
             
-            # Latest attraction sites (limited to 4) with distance
-            latest_attractions_queryset = Spots.objects.prefetch_related(
+            # Get attraction spots and add distance (second category)
+            if data['categories'].count() > 1:
+                second_category = data['categories'][1]
+                attraction_spots_queryset = Spots.objects.prefetch_related(
+                    Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+                ).filter(is_active=True, category_id=second_category.id, is_approved=True)
+                data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+                
+                # Latest attraction sites (limited to 4) with distance
+                latest_attractions_queryset = Spots.objects.prefetch_related(
+                    'spot_images'
+                ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
+                data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
+            
+            # Top rated spots (limited to 4) with distance
+            top_rated_spots_queryset = Spots.objects.prefetch_related(
                 'spot_images'
-            ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
-            data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
-        
-        # Top rated spots (limited to 4) with distance
-        top_rated_spots_queryset = Spots.objects.prefetch_related(
-            'spot_images'
-        ).filter(is_active=True, top_rated=True, is_approved=True).order_by('-created_at')[:4]
-        data['top_rated_spots'] = add_distance_to_spots_from_request(top_rated_spots_queryset, request)
+            ).filter(is_active=True, top_rated=True, is_approved=True).order_by('-created_at')[:4]
+            data['top_rated_spots'] = add_distance_to_spots_from_request(top_rated_spots_queryset, request)
+        else:
+            # If coordinates are invalid, get spots without distance calculations
+            if data['categories'].count() > 0:
+                first_category = data['categories'][0]
+                data['food_spots'] = Spots.objects.prefetch_related(
+                    Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+                ).filter(is_active=True, category_id=first_category.id, is_approved=True).order_by('-created_at')
+            
+            if data['categories'].count() > 1:
+                second_category = data['categories'][1]
+                data['attraction_spots'] = Spots.objects.prefetch_related(
+                    Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
+                ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')
+                
+                data['latest_attractions'] = Spots.objects.prefetch_related(
+                    'spot_images'
+                ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
+            
+            data['top_rated_spots'] = Spots.objects.prefetch_related(
+                'spot_images'
+            ).filter(is_active=True, top_rated=True, is_approved=True).order_by('-created_at')[:4]
         
         return renderfile(request,'home','index',data)
     
@@ -80,6 +136,9 @@ class SearchView(View):
         category_slug = request.GET.get('category', '').strip()
         lat = request.GET.get('lat')
         lon = request.GET.get('lon')
+        
+        # Validate coordinates
+        is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
         
         # Get all active and approved spots
         spots_queryset = Spots.objects.prefetch_related(
@@ -105,8 +164,8 @@ class SearchView(View):
                 Q(landmark__icontains=search_text)
             )
         
-        # Add distance calculation if coordinates are provided
-        if lat and lon:
+        # Add distance calculation if coordinates are valid
+        if is_valid:
             spots_queryset = add_distance_to_spots_from_request(spots_queryset, request)
             
             # Filter by distance if specified and not "Anywhere"
@@ -121,15 +180,15 @@ class SearchView(View):
             # Order by distance
             spots_queryset = sorted(spots_queryset, key=lambda x: x.distance if x.distance else float('inf'))
         else:
-            # Order by creation date if no coordinates
+            # Order by creation date if coordinates are invalid
             spots_queryset = spots_queryset.order_by('-created_at')
         
         data['spots'] = spots_queryset
         data['search_text'] = search_text
         data['distance'] = distance
         data['category_slug'] = category_slug
-        data['lat'] = lat
-        data['lon'] = lon
+        data['lat'] = lat if is_valid else None
+        data['lon'] = lon if is_valid else None
         data['categories'] = Categories.objects.filter(is_active=True)
         
         return renderfile(request,'search','index',data)
@@ -170,7 +229,11 @@ class SpotDetailView(View):
             # Add distance calculation if coordinates are provided
             lat = request.GET.get('lat')
             lon = request.GET.get('lon')
-            if lat and lon:
+            
+            # Validate coordinates
+            is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+            
+            if is_valid:
                 related_spots = add_distance_to_spots_from_request(related_spots, request)
             
             # Calculate ratings for related spots
@@ -219,8 +282,8 @@ class SpotDetailView(View):
                 'spot_images': spot_images,
                 'cover_image': cover_image,
                 'related_spots': related_spots,
-                'lat': lat,
-                'lon': lon,
+                'lat': lat if is_valid else None,
+                'lon': lon if is_valid else None,
                 'reviews': initial_reviews,
                 'all_reviews': approved_reviews,
                 'average_rating': average_rating,
@@ -234,10 +297,22 @@ class SpotDetailView(View):
             
         except Spots.DoesNotExist:
             # Spot not found - render 404 page
-            return render(request, 'portal/404.html', {'lat': request.GET.get('lat'), 'lon': request.GET.get('lon')})
+            lat = request.GET.get('lat')
+            lon = request.GET.get('lon')
+            is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+            return render(request, 'portal/404.html', {
+                'lat': lat if is_valid else None, 
+                'lon': lon if is_valid else None
+            })
         except Exception as e:
             # Any other error - render 404 page
-            return render(request, 'portal/404.html', {'lat': request.GET.get('lat'), 'lon': request.GET.get('lon')})
+            lat = request.GET.get('lat')
+            lon = request.GET.get('lon')
+            is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+            return render(request, 'portal/404.html', {
+                'lat': lat if is_valid else None, 
+                'lon': lon if is_valid else None
+            })
     
 class AddSpotView(LoginRequiredMixin, View):
     login_url = '/'
@@ -245,8 +320,14 @@ class AddSpotView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         data = {}
         data['categories'] = Categories.objects.filter(is_active=True)
-        data['lat'] = request.GET.get('lat')
-        data['lon'] = request.GET.get('lon')
+        
+        # Validate coordinates
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
+        is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+        data['lat'] = lat if is_valid else None
+        data['lon'] = lon if is_valid else None
+        
         return renderfile(request,'spots','add-spot',data)
     
     def post(self, request, *args, **kwargs):
@@ -456,8 +537,13 @@ class ProfileView(LoginRequiredMixin, View):
     
     def get(self, request, *args, **kwargs):
         data = {}
-        data['lat'] = request.GET.get('lat')
-        data['lon'] = request.GET.get('lon')
+        
+        # Validate coordinates
+        lat = request.GET.get('lat')
+        lon = request.GET.get('lon')
+        is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+        data['lat'] = lat if is_valid else None
+        data['lon'] = lon if is_valid else None
         
         # Get user's spots with related data
         my_spots_queryset = Spots.objects.prefetch_related(
@@ -474,8 +560,8 @@ class ProfileView(LoginRequiredMixin, View):
         # Get the count before converting to list
         spots_count = my_spots_queryset.count()
         
-        # Add distance calculation if coordinates are provided
-        if data['lat'] and data['lon']:
+        # Add distance calculation if coordinates are valid
+        if is_valid:
             my_spots_queryset = add_distance_to_spots_from_request(my_spots_queryset, request)
         
         # Calculate ratings for each spot
@@ -562,6 +648,10 @@ class ChangePasswordView(LoginRequiredMixin, View):
         try:
             lat = request.POST.get('lat', '').strip()
             lon = request.POST.get('lon', '').strip()
+            
+            # Validate coordinates
+            is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+            
             # Get form data
             current_password = request.POST.get('currentPassword', '').strip()
             new_password = request.POST.get('newPassword', '').strip()
@@ -618,12 +708,18 @@ class ChangePasswordView(LoginRequiredMixin, View):
             user.save()
             
             # Logout user after password change
+            
+            # Build redirect URL with valid coordinates
+            redirect_url = reverse("portal:home")
+            if is_valid:
+                redirect_url += f'?lat={lat}&lon={lon}'
+            
             logout(request)
             
             return JsonResponse({
                 'status': 'success',
                 'message': 'Password changed successfully! Please login with your new password.',
-                'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
+                'redirect_url': redirect_url
             })
                 
         except Exception as e:
@@ -681,10 +777,21 @@ class LoginView(View):
             
             if user is not None and user.is_active:
                 login(request, user)
+                
+                # Validate coordinates for redirect
+                lat = request.POST.get('lat', '').strip()
+                lon = request.POST.get('lon', '').strip()
+                is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+                
+                # Build redirect URL with valid coordinates
+                redirect_url = reverse("portal:home")
+                if is_valid:
+                    redirect_url += f'?lat={lat}&lon={lon}'
+                
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Login successful! Welcome back.',
-                    'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
+                    'redirect_url': redirect_url
                 })
             else:
                 return JsonResponse({
@@ -702,10 +809,19 @@ class LoginView(View):
 
 class LogoutView(View):
     def get(self, request, *args, **kwargs):
+        # Validate coordinates for redirect
         lat = request.GET.get('lat')
         lon = request.GET.get('lon')
+        is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+        
         logout(request)
-        return redirect(f'{reverse("portal:home")}?lat={lat}&lon={lon}')
+        
+        # Build redirect URL with valid coordinates
+        redirect_url = reverse("portal:home")
+        if is_valid:
+            redirect_url += f'?lat={lat}&lon={lon}'
+        
+        return redirect(redirect_url)
     
 class RegisterView(View):
     def post(self, request, *args, **kwargs):
@@ -827,10 +943,20 @@ class RegisterView(View):
                 # Log the user in
                 login(request, user)
                 
+                # Validate coordinates for redirect
+                lat = request.POST.get('lat', '').strip()
+                lon = request.POST.get('lon', '').strip()
+                is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+                
+                # Build redirect URL with valid coordinates
+                redirect_url = reverse("portal:home")
+                if is_valid:
+                    redirect_url += f'?lat={lat}&lon={lon}'
+                
                 return JsonResponse({
                     'status': 'success',
                     'message': 'Registration successful! Welcome to LocalWonders.',
-                    'redirect_url': f'{reverse("portal:home")}?lat={lat}&lon={lon}'
+                    'redirect_url': redirect_url
                 })
                 
         except IntegrityError as e:
@@ -905,10 +1031,21 @@ class WriteReviewView(View):
                 spot.rating = average_rating
                 spot.save()
 
+            # Review submitted successfully
+            # Validate coordinates for redirect
+            lat = request.POST.get('lat', '').strip()
+            lon = request.POST.get('lon', '').strip()
+            is_valid, lat_float, lon_float = validate_coordinates(lat, lon)
+            
+            # Build redirect URL with valid coordinates
+            redirect_url = reverse('portal:spot_detail', kwargs={'slug': slug})
+            if is_valid:
+                redirect_url += f'?lat={lat}&lon={lon}'
+            
             return JsonResponse({
                 'status': 'success',
-                'message': 'Review submitted successfully.',
-                'redirect_url': reverse('portal:spot_detail', kwargs={'slug': slug}) + f'?lat={lat}&lon={lon}'
+                'message': 'Review submitted successfully! It will be reviewed by admin.',
+                'redirect_url': redirect_url
             })
 
         except Exception as e:
