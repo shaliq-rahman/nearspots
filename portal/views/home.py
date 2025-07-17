@@ -71,7 +71,7 @@ class HomeView(View):
         data['food_spots'] = []
         data['attraction_spots'] = []
         data['latest_attractions'] = []
-        data['top_rated_spots'] = []
+        data['latest_food_spots'] = []
         
         # Only add distance calculations if coordinates are valid
         if is_valid:
@@ -82,6 +82,12 @@ class HomeView(View):
                     Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
                 ).filter(is_active=True, category_id=first_category.id, is_approved=True)
                 data['food_spots'] = add_distance_to_spots_from_request(food_spots_queryset, request)
+                
+                # Latest food spots (limited to 4) with distance
+                latest_food_spots_queryset = Spots.objects.prefetch_related(
+                    'spot_images'
+                ).filter(is_active=True, category_id=first_category.id, is_approved=True).order_by('-created_at')[:4]
+                data['latest_food_spots'] = add_distance_to_spots_from_request(latest_food_spots_queryset, request)
             
             # Get attraction spots and add distance (second category)
             if data['categories'].count() > 1:
@@ -89,40 +95,38 @@ class HomeView(View):
                 attraction_spots_queryset = Spots.objects.prefetch_related(
                     Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
                 ).filter(is_active=True, category_id=second_category.id, is_approved=True)
-                data['attraction_spots'] = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+                attraction_spots_with_distance = add_distance_to_spots_from_request(attraction_spots_queryset, request)
+                # Sort by distance (closest first)
+                data['attraction_spots'] = sorted(attraction_spots_with_distance, key=lambda x: x.distance if x.distance else float('inf'))
                 
                 # Latest attraction sites (limited to 4) with distance
                 latest_attractions_queryset = Spots.objects.prefetch_related(
                     'spot_images'
                 ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
                 data['latest_attractions'] = add_distance_to_spots_from_request(latest_attractions_queryset, request)
-            
-            # Top rated spots (limited to 4) with distance
-            top_rated_spots_queryset = Spots.objects.prefetch_related(
-                'spot_images'
-            ).filter(is_active=True, top_rated=True, is_approved=True).order_by('-created_at')[:4]
-            data['top_rated_spots'] = add_distance_to_spots_from_request(top_rated_spots_queryset, request)
         else:
             # If coordinates are invalid, get spots without distance calculations
             if data['categories'].count() > 0:
                 first_category = data['categories'][0]
                 data['food_spots'] = Spots.objects.prefetch_related(
                     Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-                ).filter(is_active=True, category_id=first_category.id, is_approved=True).order_by('-created_at')
+                ).filter(is_active=True, category_id=first_category.id, is_approved=True)
+                
+                data['latest_food_spots'] = Spots.objects.prefetch_related(
+                    'spot_images'
+                ).filter(is_active=True, category_id=first_category.id, is_approved=True).order_by('-created_at')[:4]
             
             if data['categories'].count() > 1:
                 second_category = data['categories'][1]
-                data['attraction_spots'] = Spots.objects.prefetch_related(
+                attraction_spots_queryset = Spots.objects.prefetch_related(
                     Prefetch('spot_images', queryset=SpotImages.objects.filter(is_cover=True))
-                ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')
+                ).filter(is_active=True, category_id=second_category.id, is_approved=True)
+                # For invalid coordinates, order by creation date
+                data['attraction_spots'] = attraction_spots_queryset.order_by('-created_at')
                 
                 data['latest_attractions'] = Spots.objects.prefetch_related(
                     'spot_images'
                 ).filter(is_active=True, category_id=second_category.id, is_approved=True).order_by('-created_at')[:4]
-            
-            data['top_rated_spots'] = Spots.objects.prefetch_related(
-                'spot_images'
-            ).filter(is_active=True, top_rated=True, is_approved=True).order_by('-created_at')[:4]
         
         return renderfile(request,'home','index',data)
     
